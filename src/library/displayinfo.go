@@ -10,21 +10,21 @@ func (c Character) DisplayInfo() {
 	fmt.Printf("CurrentHP: %d\n", c.CurrentHP)
 }
 
-func DisplayInfo(player *Character) {
+func DisplayInfo(c *Character) {
 	fmt.Println()
 	fmt.Println("===== INFORMATIONS DU PERSONNAGE =====")
 
-	fmt.Printf("Nom : %s\n", player.Name)
-	fmt.Printf("Classe : %s\n", player.Class)
-	fmt.Printf("Niveau : %d\n", player.Level)
+	fmt.Printf("Nom : %s\n", c.Name)
+	fmt.Printf("Classe : %s\n", c.Class)
+	fmt.Printf("Niveau : %d\n", c.Level)
 	fmt.Printf("PV : %d / %d\n",
-		player.CurrentHP,
-		player.MaxHP,
+		c.CurrentHP,
+		c.MaxHP,
 	)
 
-	if player.PoisonTurns > 0 {
+	if c.PoisonTurns > 0 {
 		fmt.Printf("Poison : %d tours restants\n",
-			player.PoisonTurns,
+			c.PoisonTurns,
 		)
 	}
 }

@@ -2,11 +2,11 @@ package library
 
 import "fmt"
 
-func merchantMenu(player *Character) {
+func merchantMenu(c *Character) {
 	for {
 		fmt.Println()
 		fmt.Println("===== MARCHAND =====")
-		fmt.Printf("Pièces d'or : %d\n", player.Gold)
+		fmt.Printf("Pièces d'or : %d\n", c.Gold)
 		fmt.Println()
 		fmt.Println("1. Potion de vie - 3 pièces d'or")
 		fmt.Println("2. Potion de poison - 6 pièces d'or")
@@ -24,25 +24,25 @@ func merchantMenu(player *Character) {
 
 		switch choice {
 		case 1:
-			buyItem(player, "Potion de vie", 3)
+			buyItem(c, "Potion de vie", 3)
 
 		case 2:
-			buyItem(player, "Potion de poison", 6)
+			buyItem(c, "Potion de poison", 6)
 
 		case 3:
-			buyItem(player, "Livre de Sort : Boule de Feu", 25)
+			buyItem(c, "Livre de Sort : Boule de Feu", 25)
 
 		case 4:
-			buyItem(player, "Fourrure de Loup", 4)
+			buyItem(c, "Fourrure de Loup", 4)
 
 		case 5:
-			buyItem(player, "Peau de Troll", 7)
+			buyItem(c, "Peau de Troll", 7)
 
 		case 6:
-			buyItem(player, "Cuir de Sanglier", 3)
+			buyItem(c, "Cuir de Sanglier", 3)
 
 		case 7:
-			buyItem(player, "Plume de Corbeau", 1)
+			buyItem(c, "Plume de Corbeau", 1)
 
 		case 0:
 			fmt.Println("Retour au menu.")
@@ -54,22 +54,22 @@ func merchantMenu(player *Character) {
 	}
 }
 
-func buyItem(player *Character, itemName string, price int) {
-	if player.Gold < price {
+func buyItem(c *Character, itemName string, price int) {
+	if c.Gold < price {
 		fmt.Println()
 		fmt.Println("Vous n'avez pas assez de pièces d'or.")
 		return
 	}
 
-	player.Gold -= price
+	c.Gold -= price
 
-	player.Inventory = append(
-		player.Inventory,
+	c.Inventory = append(
+		c.Inventory,
 		Item{Name: itemName},
 	)
 
 	fmt.Println()
 	fmt.Printf("Vous avez acheté : %s\n", itemName)
 	fmt.Printf("Prix : %d pièces d'or\n", price)
-	fmt.Printf("Pièces d'or restantes : %d\n", player.Gold)
+	fmt.Printf("Pièces d'or restantes : %d\n", c.Gold)
 }

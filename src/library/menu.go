@@ -2,7 +2,7 @@ package library
 
 import "fmt"
 
-func MainMenu(player *Character, enemy *Character) {
+func MainMenu(c *Character, enemy *Character) {
 	for {
 		fmt.Println()
 		fmt.Println("===== MENU PRINCIPAL =====")
@@ -17,10 +17,10 @@ func MainMenu(player *Character, enemy *Character) {
 
 		switch choice {
 		case 1:
-			DisplayInfo(player)
+			DisplayInfo(c)
 
 		case 2:
-			accessInventory(player, enemy)
+			accessInventory(c, enemy)
 
 		case 3:
 			fmt.Println("Au revoir !")
@@ -29,5 +29,30 @@ func MainMenu(player *Character, enemy *Character) {
 		default:
 			fmt.Println("Choix invalide.")
 		}
+	}
+}
+
+func menu(c *Character) {
+	fmt.Println("===== MENU =====")
+	fmt.Println("1. Inventaire")
+	fmt.Println("2. Marchand")
+	fmt.Println("3. Forgeron")
+	fmt.Println("4. Quitter")
+
+	var choix int
+	fmt.Scanln(&choix)
+
+	switch choix {
+	case 1:
+		accessInventory(c)
+
+	case 2:
+		merchantMenu(c)
+
+	case 3:
+		ForgeronMenu(c)
+
+	case 4:
+		fmt.Println("Au revoir")
 	}
 }

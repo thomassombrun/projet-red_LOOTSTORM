@@ -2,26 +2,26 @@ package library
 
 import "fmt"
 
-func takePot(player *Character, index int) {
-	item := player.Inventory[index]
+func takePot(c *Character, index int) {
+	item := c.Inventory[index]
 
 	if item.Name != "Potion de vie" {
 		fmt.Println("Cet objet n'est pas une Potion de vie.")
 		return
 	}
 
-	player.Inventory = append(
-		player.Inventory[:index],
-		player.Inventory[index+1:]...,
+	c.Inventory = append(
+		c.Inventory[:index],
+		c.Inventory[index+1:]...,
 	)
 
-	player.CurrentHP += 50
+	c.CurrentHP += 50
 
-	if player.CurrentHP > player.MaxHP {
-		player.CurrentHP = player.MaxHP
+	if c.CurrentHP > c.MaxHP {
+		c.CurrentHP = c.MaxHP
 	}
 
 	fmt.Println()
 	fmt.Println("Vous utilisez une Potion de vie.")
-	fmt.Printf("PV : %d / %d\n", player.CurrentHP, player.MaxHP)
+	fmt.Printf("PV : %d / %d\n", c.CurrentHP, c.MaxHP)
 }

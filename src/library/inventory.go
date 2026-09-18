@@ -2,15 +2,15 @@ package library
 
 import "fmt"
 
-func accessInventory(player *Character, enemy *Character) {
+func accessInventory(c *Character, enemy *Character) {
 	for {
 		fmt.Println()
 		fmt.Println("===== INVENTAIRE =====")
 
-		if len(player.Inventory) == 0 {
+		if len(c.Inventory) == 0 {
 			fmt.Println("L'inventaire est vide.")
 		} else {
-			for i, item := range player.Inventory {
+			for i, item := range c.Inventory {
 				fmt.Printf("%d. %s\n", i+1, item.Name)
 			}
 		}
@@ -25,19 +25,19 @@ func accessInventory(player *Character, enemy *Character) {
 			return
 		}
 
-		if choice < 1 || choice > len(player.Inventory) {
+		if choice < 1 || choice > len(c.Inventory) {
 			fmt.Println("Choix invalide.")
 			continue
 		}
 
-		item := player.Inventory[choice-1]
+		item := c.Inventory[choice-1]
 
 		switch item.Name {
 		case "Potion de vie":
-			takePot(player, choice-1)
+			takePot(c, choice-1)
 
 		case "Potion de poison":
-			poisonPot(player, enemy, choice-1)
+			poisonPot(c, enemy, choice-1)
 
 		default:
 			fmt.Println("Cet objet ne peut pas encore être utilisé.")
