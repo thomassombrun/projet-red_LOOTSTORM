@@ -29,7 +29,7 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		Level:       1,
 		MaxHP:       maxHP,
 		CurrentHP:   maxHP / 2,
-		Inventory:   []Item{{Name: "Potion", Quantity: 3}},
+		Inventory:   []Item{{Name: "Potion de vie", Quantity: 3}},
 		Skill:       []Skill{{Name: "Coup de poing", Damage: 5}},
 		PoisonTurns: 0,
 		Gold:        100,
