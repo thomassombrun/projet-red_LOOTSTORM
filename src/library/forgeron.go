@@ -31,6 +31,9 @@ func ForgeronMenu(c *Character) {
 }
 
 func FabriquerObjet(c *Character, name string) {
+	if isInventoryFull(c) {
+		return
+	}
 	const cout = 5
 	if c.Gold < cout {
 		fmt.Println("Pas assez d'or pour fabriquer cet objet.")
