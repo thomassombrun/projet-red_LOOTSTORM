@@ -2,7 +2,7 @@ package library
 
 import "fmt"
 
-func forgeronMenu(c *Character) {
+func ForgeronMenu(c *Character) {
 	for {
 		fmt.Println("\n=== Forgeron ===")
 		fmt.Println("1. Chapeau de l'aventurier (5 or)")

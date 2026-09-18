@@ -2,7 +2,7 @@ package library
 
 import "fmt"
 
-func MainMenu(c *Character, enemy *Character) {
+func MainMenu(c *Character, enemy *Monster) {
 	for {
 		fmt.Println()
 		fmt.Println("===== MENU PRINCIPAL =====")
@@ -20,7 +20,7 @@ func MainMenu(c *Character, enemy *Character) {
 			DisplayInfo(c)
 
 		case 2:
-			accessInventory(c, enemy)
+			AccessInventory(c, enemy)
 
 		case 3:
 			fmt.Println("Au revoir !")
@@ -32,7 +32,7 @@ func MainMenu(c *Character, enemy *Character) {
 	}
 }
 
-func menu(c *Character) {
+func Menu(c *Character, enemy *Monster) {
 	fmt.Println("===== MENU =====")
 	fmt.Println("1. Inventaire")
 	fmt.Println("2. Marchand")
@@ -44,10 +44,10 @@ func menu(c *Character) {
 
 	switch choix {
 	case 1:
-		accessInventory(c)
+		AccessInventory(c, enemy)
 
 	case 2:
-		merchantMenu(c)
+		MerchantMenu(c)
 
 	case 3:
 		ForgeronMenu(c)

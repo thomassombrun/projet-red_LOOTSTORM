@@ -2,7 +2,7 @@ package library
 
 import "fmt"
 
-func merchantMenu(c *Character) {
+func MerchantMenu(c *Character) {
 	for {
 		fmt.Println()
 		fmt.Println("===== MARCHAND =====")
@@ -24,25 +24,25 @@ func merchantMenu(c *Character) {
 
 		switch choice {
 		case 1:
-			buyItem(c, "Potion de vie", 3)
+			BuyItem(c, "Potion de vie", 3)
 
 		case 2:
-			buyItem(c, "Potion de poison", 6)
+			BuyItem(c, "Potion de poison", 6)
 
 		case 3:
-			buyItem(c, "Livre de Sort : Boule de Feu", 25)
+			BuyItem(c, "Livre de Sort : Boule de Feu", 25)
 
 		case 4:
-			buyItem(c, "Fourrure de Loup", 4)
+			BuyItem(c, "Fourrure de Loup", 4)
 
 		case 5:
-			buyItem(c, "Peau de Troll", 7)
+			BuyItem(c, "Peau de Troll", 7)
 
 		case 6:
-			buyItem(c, "Cuir de Sanglier", 3)
+			BuyItem(c, "Cuir de Sanglier", 3)
 
 		case 7:
-			buyItem(c, "Plume de Corbeau", 1)
+			BuyItem(c, "Plume de Corbeau", 1)
 
 		case 0:
 			fmt.Println("Retour au menu.")
@@ -54,7 +54,7 @@ func merchantMenu(c *Character) {
 	}
 }
 
-func buyItem(c *Character, itemName string, price int) {
+func BuyItem(c *Character, itemName string, price int) {
 	if c.Gold < price {
 		fmt.Println()
 		fmt.Println("Vous n'avez pas assez de pièces d'or.")

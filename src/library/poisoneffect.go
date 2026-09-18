@@ -2,37 +2,25 @@ package library
 
 import "fmt"
 
-func poisonEffect(enemy *Character) {
+func PoisonEffect(enemy *Monster) {
+	enemy.PoisonTurns = 3
+
 	if enemy.PoisonTurns <= 0 {
 		return
 	}
 
 	enemy.CurrentHP -= 10
-
-	if enemy.CurrentHP < 0 {
+	if enemy.CurrentHP <= 0 {
 		enemy.CurrentHP = 0
 	}
-
 	enemy.PoisonTurns--
 
 	fmt.Println()
-	fmt.Printf("Le poison inflige 10 dégâts à %s.\n",
-		enemy.Name,
-	)
-
-	fmt.Printf("PV de %s : %d / %d\n",
-		enemy.Name,
-		enemy.CurrentHP,
-		enemy.MaxHP,
-	)
+	fmt.Printf("%s subit 10 dégâts de poison (%d PV restants).\n", enemy.Name, enemy.CurrentHP)
 
 	if enemy.PoisonTurns > 0 {
-		fmt.Printf("Il reste %d tours de poison.\n",
-			enemy.PoisonTurns,
-		)
+		fmt.Printf("Il reste %d tours de poison.\n", enemy.PoisonTurns)
 	} else {
-		fmt.Printf("L'effet du poison sur %s est terminé.\n",
-			enemy.Name,
-		)
+		fmt.Printf("L'effet du poison sur %s est terminé.\n", enemy.Name)
 	}
 }

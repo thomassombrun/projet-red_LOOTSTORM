@@ -2,7 +2,7 @@ package library
 
 import "fmt"
 
-func takePot(c *Character, index int) {
+func TakePot(c *Character, index int) {
 	item := c.Inventory[index]
 
 	if item.Name != "Potion de vie" {

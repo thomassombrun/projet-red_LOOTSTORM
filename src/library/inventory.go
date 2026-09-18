@@ -2,7 +2,7 @@ package library
 
 import "fmt"
 
-func accessInventory(c *Character, enemy *Character) {
+func AccessInventory(c *Character) {
 	for {
 		fmt.Println()
 		fmt.Println("===== INVENTAIRE =====")
@@ -34,10 +34,10 @@ func accessInventory(c *Character, enemy *Character) {
 
 		switch item.Name {
 		case "Potion de vie":
-			takePot(c, choice-1)
+			TakePot(c, choice-1)
 
 		case "Potion de poison":
-			poisonPot(c, enemy, choice-1)
+			PoisonPot(c, enemy, choice-1)
 
 		default:
 			fmt.Println("Cet objet ne peut pas encore être utilisé.")
