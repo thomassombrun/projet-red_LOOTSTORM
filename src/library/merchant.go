@@ -15,6 +15,8 @@ func MerchantMenu(c *Character) {
 		fmt.Println("5. Peau de Troll - 7 pièces d'or")
 		fmt.Println("6. Cuir de Sanglier - 3 pièces d'or")
 		fmt.Println("7. Plume de Corbeau - 1 pièce d'or")
+		fmt.Println("8. Amelioration d'inventaire - 30 pièces d'or")
+		fmt.Println("9. Livre de Sort : Boule de Feu - 25 pièces d'or")
 		fmt.Println("0. Retour")
 
 		fmt.Print("Votre choix : ")
@@ -44,6 +46,14 @@ func MerchantMenu(c *Character) {
 		case 7:
 			BuyItem(c, "Plume de Corbeau", 1)
 
+		case 8:
+			BuyItem(c, "Amelioration d'inventaire", 30)
+
+		case 9:
+			BuyItem(c, "Livre de Sort : Boule de Feu", 25)
+			c.Inventory = append(c.Inventory, Item{Name: "Livre de Sort : Boule de Feu", Quantity: 1})
+			fmt.Println("Vous avez acheté : Livre de Sort : Boule de Feu")
+
 		case 0:
 			fmt.Println("Retour au menu.")
 			return
@@ -55,6 +65,9 @@ func MerchantMenu(c *Character) {
 }
 
 func BuyItem(c *Character, itemName string, price int) {
+	if isInventoryFull(c) {
+		return
+	}
 	if c.Gold < price {
 		fmt.Println()
 		fmt.Println("Vous n'avez pas assez de pièces d'or.")
@@ -65,7 +78,7 @@ func BuyItem(c *Character, itemName string, price int) {
 
 	c.Inventory = append(
 		c.Inventory,
-		Item{Name: itemName},
+		Item{Name: itemName, Quantity: 1},
 	)
 
 	fmt.Println()
