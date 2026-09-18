@@ -1,8 +1,13 @@
-package main
+package library
 
 type Item struct {
 	Name     string
 	Quantity int
+}
+
+type Skill struct {
+	Name   string
+	Damage int
 }
 
 type Character struct {
@@ -12,9 +17,10 @@ type Character struct {
 	MaxHP     int
 	CurrentHP int
 	Inventory []Item
+	Skill     []Skill
 }
 
-func initCharacter(name string, class string, maxHP int) Character {
+func InitCharacter(name string, class string, maxHP int) Character {
 	return Character{
 		Name:      name,
 		Class:     class,
@@ -22,5 +28,6 @@ func initCharacter(name string, class string, maxHP int) Character {
 		MaxHP:     maxHP,
 		CurrentHP: maxHP / 2,
 		Inventory: []Item{{Name: "Potion", Quantity: 3}},
+		Skill:     []Skill{{Name: "Coup de poing", Damage: 5}},
 	}
 }
