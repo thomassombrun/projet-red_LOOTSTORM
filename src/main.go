@@ -61,35 +61,56 @@ func main() {
 
 		switch choice {
 		case 1:
-			c1 := library.InitCharacter("Himiko Toga", "Assassin", 100)
-			c2 := library.InitCharacter("Link", "Chevalier", 120)
-			c3 := library.InitCharacter("Patrick Bouldefeu", "Mage", 80)
+			for {
+				c1 := library.InitCharacter("Himiko Toga", "Assassin", 100)
+				c2 := library.InitCharacter("Link", "Chevalier", 120)
+				c3 := library.InitCharacter("Patrick Bouldefeu", "Mage", 80)
 
-			fmt.Println("\nChoisissez votre héros :")
-			fmt.Println("1. Himiko Toga (Assassin)")
-			fmt.Println("2. Link (Chevalier)")
-			fmt.Println("3. Patrick Bouldefeu (Mage)")
-			fmt.Print("Votre choix : ")
+				fmt.Println("\nChoisissez votre héros :")
+				fmt.Println("1. Himiko Toga (Assassin)")
+				fmt.Println("2. Link (Chevalier)")
+				fmt.Println("3. Patrick Bouldefeu (Mage)")
+				fmt.Println("0. Retour")
+				fmt.Print("Votre choix : ")
 
-			var heroChoice int
-			if _, err := fmt.Scanln(&heroChoice); err != nil {
-				fmt.Println("Choix invalide.")
-				continue
+				var heroChoice int
+				if _, err := fmt.Scanln(&heroChoice); err != nil {
+					fmt.Println("Choix invalide.")
+					continue
+				}
+
+				switch heroChoice {
+				case 1:
+					player = c1
+					selected = true
+					break
+				case 2:
+					player = c2
+					selected = true
+					break
+				case 3:
+					player = c3
+					selected = true
+					break
+				case 0:
+					fmt.Println("Retour au menu principal.")
+					selected = false
+					break
+				default:
+					fmt.Println("Choix invalide.")
+					continue
+				}
+
+				if selected {
+					break
+				}
+				if heroChoice == 0 {
+					break
+				}
 			}
-
-			switch heroChoice {
-			case 1:
-				player = c1
-			case 2:
-				player = c2
-			case 3:
-				player = c3
-			default:
-				fmt.Println("Choix invalide.")
-				continue
+			if selected {
+				break
 			}
-
-			selected = true
 
 		case 2:
 			player = library.CharacterCreation()
