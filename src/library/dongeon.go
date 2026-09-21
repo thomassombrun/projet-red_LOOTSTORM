@@ -33,6 +33,18 @@ func StartAdventure(c *Character) {
 
 func playRandomRoom(c *Character, roomNumber int, random *rand.Rand) bool {
 	roll := random.Intn(100)
+	bossChance := roomNumber * 2
+	if bossChance < 5 {
+		bossChance = 5
+	}
+	if bossChance > 40 {
+		bossChance = 40
+	}
+	if roll < bossChance {
+		return playBossRoom(c, roomNumber)
+	}
+
+	roll -= bossChance
 	switch {
 	case roll < 45:
 		return playGoblinRoom(c, roomNumber)
@@ -41,7 +53,7 @@ func playRandomRoom(c *Character, roomNumber int, random *rand.Rand) bool {
 	case roll < 90:
 		return playChestRoom(c, random)
 	default:
-		return playBossRoom(c, roomNumber)
+		return playGoblinRoom(c, roomNumber)
 	}
 }
 
@@ -88,6 +100,22 @@ func playChestRoom(c *Character, random *rand.Rand) bool {
 	if random.Intn(2) == 0 {
 		fmt.Println("Le coffre contient également une Potion de vie.")
 		c.AddOrMergeItem("Potion de vie", 1)
+	}
+
+	if random.Intn(2) == 0 {
+		fmt.Println("Le coffre contient également une Potion de poison.")
+		c.AddOrMergeItem("Potion de poison", 1)
+	}
+
+	if random.Intn(2) == 0 {
+		equipment := []string{
+			"Chapeau de l'aventurier",
+			"Tunique de l'aventurier",
+			"Bottes de l'aventurier",
+		}
+		foundEquipment := equipment[random.Intn(len(equipment))]
+		fmt.Printf("Le coffre contient également : %s.\n", foundEquipment)
+		c.AddOrMergeItem(foundEquipment, 1)
 	}
 	WaitForEnter()
 	return true

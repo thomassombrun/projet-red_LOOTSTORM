@@ -18,6 +18,7 @@ func MerchantMenu(c *Character) {
 		fmt.Println("6. Cuir de Sanglier - 3 pièces d'or")
 		fmt.Println("7. Plume de Corbeau - 1 pièce d'or")
 		fmt.Println("8. Amelioration d'inventaire - 30 pièces d'or")
+		fmt.Println("9. Vendre un objet")
 		fmt.Println("0. Retour")
 
 		fmt.Print("Votre choix : ")
@@ -60,6 +61,9 @@ func MerchantMenu(c *Character) {
 		case 8:
 			BuyItem(c, "Amelioration d'inventaire", 30)
 
+		case 9:
+			SellItem(c)
+
 		case 0:
 			fmt.Println("Retour au menu.")
 			return
@@ -100,4 +104,55 @@ func BuyItem(c *Character, itemName string, price int) bool {
 	fmt.Printf("Prix : %d pièces d'or\n", price)
 	fmt.Printf("Pièces d'or restantes : %d\n", c.Gold)
 	return true
+}
+
+func SellItem(c *Character) {
+	if len(c.Inventory) == 0 {
+		fmt.Println("Votre inventaire est vide.")
+		return
+	}
+
+	ClearTerminal()
+	fmt.Println("===== VENTE =====")
+	for i, item := range c.Inventory {
+		fmt.Printf("%d. %s x%d\n", i+1, item.Name, item.Quantity)
+	}
+	fmt.Println("0. Annuler")
+	fmt.Print("Choisissez l'objet à vendre : ")
+
+	var choice int
+	fmt.Scanln(&choice)
+	if choice == 0 {
+		return
+	}
+	if choice < 1 || choice > len(c.Inventory) {
+		fmt.Println("Choix invalide.")
+		return
+	}
+
+	item := c.Inventory[choice-1]
+	price := sellPrice(item.Name)
+	c.Gold += price
+	removeInventoryQuantity(c, choice-1, 1)
+	fmt.Printf("Vous avez vendu 1 %s pour %d pièces d'or.\n", item.Name, price)
+}
+
+func sellPrice(itemName string) int {
+	prices := map[string]int{
+		"Potion de vie":                1,
+		"Potion de poison":             3,
+		"Livre de Sort : Boule de Feu": 12,
+		"Fourrure de Loup":             2,
+		"Peau de Troll":                3,
+		"Cuir de Sanglier":             1,
+		"Plume de Corbeau":             1,
+		"Amelioration d'inventaire":    15,
+		"Chapeau de l'aventurier":      8,
+		"Tunique de l'aventurier":      12,
+		"Bottes de l'aventurier":       10,
+	}
+	if price, found := prices[itemName]; found {
+		return price
+	}
+	return 1
 }

@@ -336,4 +336,25 @@ func GiveCombatReward(c *Character, m *Monster) {
 
 func GainExperience(c *Character, amount int) {
 	fmt.Printf("%s gagne %d points d'expérience !\n", c.Name, amount)
+	c.CurrentXP += amount
+
+	for c.CurrentXP >= c.MaxXP {
+		c.CurrentXP -= c.MaxXP
+		c.Level++
+		c.MaxXP += 10
+		c.MaxHP += 10
+		c.CurrentHP += 10
+		c.Initiative += 5
+
+		for i := range c.Skill {
+			c.Skill[i].Damage += 2
+		}
+
+		fmt.Printf("Niveau %d atteint ! PV max +10, initiative +5, dégâts des sorts +2.\n", c.Level)
+	}
+
+	if c.CurrentHP > c.MaxHP {
+		c.CurrentHP = c.MaxHP
+	}
+	fmt.Printf("XP : %d / %d\n", c.CurrentXP, c.MaxXP)
 }

@@ -38,6 +38,9 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 		}
 
 		fmt.Println("0. Retour")
+		if !combatOnly {
+			fmt.Printf("%d. Jeter un objet\n", len(availableItems)+1)
+		}
 		fmt.Print("Votre choix : ")
 
 		var choice int
@@ -45,6 +48,10 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 
 		if choice == 0 {
 			return false
+		}
+		if !combatOnly && choice == len(availableItems)+1 {
+			discardItem(c)
+			return true
 		}
 
 		if choice < 1 || choice > len(availableItems) {
@@ -131,4 +138,43 @@ func (c *Character) AddOrMergeItem(itemName string, quantity int) {
 		return
 	}
 	c.Inventory = append(c.Inventory, Item{Name: itemName, Quantity: quantity})
+}
+
+func discardItem(c *Character) {
+	if len(c.Inventory) == 0 {
+		fmt.Println("Votre inventaire est vide.")
+		WaitForEnter()
+		return
+	}
+
+	ClearTerminal()
+	fmt.Println("===== OBJETS À JETER =====")
+	for i, item := range c.Inventory {
+		fmt.Printf("%d. %s x%d\n", i+1, item.Name, item.Quantity)
+	}
+	fmt.Println("0. Annuler")
+	fmt.Print("Choisissez l'objet à jeter : ")
+
+	var choice int
+	fmt.Scanln(&choice)
+	if choice == 0 {
+		return
+	}
+	if choice < 1 || choice > len(c.Inventory) {
+		fmt.Println("Choix invalide.")
+		WaitForEnter()
+		return
+	}
+
+	item := c.Inventory[choice-1]
+	removeInventoryQuantity(c, choice-1, 1)
+	fmt.Printf("Vous avez jeté 1 %s.\n", item.Name)
+	WaitForEnter()
+}
+
+func removeInventoryQuantity(c *Character, index int, quantity int) {
+	c.Inventory[index].Quantity -= quantity
+	if c.Inventory[index].Quantity <= 0 {
+		c.Inventory = append(c.Inventory[:index], c.Inventory[index+1:]...)
+	}
 }
