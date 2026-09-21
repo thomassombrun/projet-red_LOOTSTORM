@@ -18,8 +18,18 @@ func TrainingFight(c *Character) {
 		fmt.Println()
 		fmt.Printf("===== TOUR %d =====\n", turn)
 
+		ApplyCharacterEffects(c)
+		if c.CurrentHP <= 0 {
+			break
+		}
 		CharacterTurn(c, &monster)
 
+		if monster.CurrentHP <= 0 {
+			fmt.Printf("%s est vaincu !\n", monster.Name)
+			break
+		}
+
+		ApplyMonsterEffects(&monster)
 		if monster.CurrentHP <= 0 {
 			fmt.Printf("%s est vaincu !\n", monster.Name)
 			break
@@ -90,7 +100,7 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 	fmt.Println("          COMBAT")
 	fmt.Println("================================")
 
-	fmt.Printf("%s rencontre %s !\n", c.Name, m.Name)
+	fmt.Printf("%s rencontre %s (niveau %d) !\n", c.Name, m.Name, m.Level)
 
 	fmt.Printf("%s : %d / %d PV\n",
 		c.Name,
@@ -121,12 +131,21 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 
 		if playerTurn {
 
+			ApplyCharacterEffects(c)
+			if c.CurrentHP <= 0 {
+				break
+			}
 			CharacterTurn(c, m)
 
 			if c.CurrentHP <= 0 {
 				break
 			}
 
+			if m.CurrentHP <= 0 {
+				break
+			}
+
+			ApplyMonsterEffects(m)
 			if m.CurrentHP <= 0 {
 				break
 			}
@@ -145,8 +164,18 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 
 		} else {
 
+			ApplyMonsterEffects(m)
+			if m.CurrentHP <= 0 {
+				break
+			}
+
 			MonsterAttack(m, c, turn)
 
+			if c.CurrentHP <= 0 {
+				break
+			}
+
+			ApplyCharacterEffects(c)
 			if c.CurrentHP <= 0 {
 				break
 			}
@@ -282,6 +311,9 @@ func CharacterTurn(c *Character, m *Monster) {
 }
 
 func MonsterAttack(m *Monster, c *Character, turn int) {
+	if CheckHolyBarrier(c) {
+		return
+	}
 
 	damage := m.Attack
 

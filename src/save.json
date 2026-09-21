@@ -1,31 +1,35 @@
 {
   "Name": "Himiko Toga",
   "Class": "Assassin",
-  "Level": 1,
-  "MaxHP": 100,
-  "CurrentHP": 75,
+  "Level": 2,
+  "MaxHP": 110,
+  "CurrentHP": 34,
   "Inventory": [
     {
       "Name": "Potion de vie",
-      "Quantity": 4
+      "Quantity": 2
+    },
+    {
+      "Name": "Potion de poison",
+      "Quantity": 1
     }
   ],
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 5,
+      "Damage": 7,
       "ManaCost": 0
     },
     {
       "Name": "Boule de Feu",
-      "Damage": 15,
+      "Damage": 17,
       "ManaCost": 10
     }
   ],
   "PoisonTurns": 0,
-  "Gold": 83,
-  "LimitInventory": 20,
-  "LimitInventoryUpgrade": 1,
+  "Gold": 167,
+  "LimitInventory": 10,
+  "LimitInventoryUpgrade": 0,
   "Equip": {
     "Helmet": "Aucun",
     "Chestplate": "Aucun",
@@ -34,10 +38,10 @@
     "ChestplateHP": 0,
     "BootsHP": 0
   },
-  "Initiative": 130,
-  "CurrentXP": 0,
-  "MaxXP": 100,
+  "Initiative": 135,
+  "CurrentXP": 100,
+  "MaxXP": 110,
   "Mana": 50,
   "MaxMana": 50,
-  "LastClearedRoom": 3
+  "LastClearedRoom": 2
 }

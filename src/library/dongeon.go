@@ -46,27 +46,38 @@ func playRandomRoom(c *Character, roomNumber int, random *rand.Rand) bool {
 
 	roll -= bossChance
 	switch {
-	case roll < 45:
+	case roll < 35:
 		return playGoblinRoom(c, roomNumber)
-	case roll < 65:
+	case roll < 55:
+		return playSlimeRoom(c, roomNumber)
+	case roll < 75:
 		return playNpcRoom(c)
-	case roll < 90:
-		return playChestRoom(c, random)
 	default:
-		return playGoblinRoom(c, roomNumber)
+		return playChestRoom(c, random)
 	}
 }
 
 func playGoblinRoom(c *Character, roomNumber int) bool {
-	monster := InitGoblin("Gobelin", 40+roomNumber*5, 5+roomNumber)
-	fmt.Printf("Un %s vous attaque !\n", monster.Name)
+	monster := InitGoblinLevel("Gobelin", roomNumber)
+	fmt.Printf("Un %s de niveau %d vous attaque !\n", monster.Name, monster.Level)
+	return normalFight(c, &monster, roomNumber-1)
+}
+
+func playSlimeRoom(c *Character, roomNumber int) bool {
+	monster := InitSlimeLevel("Slime", roomNumber)
+	fmt.Printf("Un %s de niveau %d vous attaque !\n", monster.Name, monster.Level)
 	return normalFight(c, &monster, roomNumber-1)
 }
 
 func playBossRoom(c *Character, roomNumber int) bool {
-	monster := InitGoblin("Boss gobelin", 100+roomNumber*10, 12+roomNumber*2)
-	monster.Initiative = 115
-	fmt.Println("Un boss apparaît dans la salle !")
+	monster := InitGoblinLevel("Boss gobelin", roomNumber+2)
+	monster.MaxHP += 40
+	monster.CurrentHP = monster.MaxHP
+	monster.Attack += 5
+	monster.Initiative += 10
+	monster.XPReward += 100
+	monster.GoldReward += 50
+	fmt.Printf("Un boss de niveau %d apparaît dans la salle !\n", monster.Level)
 	return normalFight(c, &monster, roomNumber-1)
 }
 
