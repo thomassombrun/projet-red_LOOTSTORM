@@ -22,6 +22,23 @@ func normalizeClass(class string) string {
 	}
 }
 
+func getHPForClass(class string) int {
+	switch class {
+	case "Guerrier":
+		return 150
+	case "Mage":
+		return 80
+	case "Archer":
+		return 110
+	case "Assassin":
+		return 100
+	case "Chevalier":
+		return 120
+	default:
+		return 100
+	}
+}
+
 func main() {
 	fmt.Println("========================================")
 	fmt.Println("       BIENVENUE DANS LOOTSTORM         ")
@@ -90,7 +107,7 @@ func main() {
 			}
 
 			class = normalizeClass(class)
-			player = library.InitCharacter(name, class, 100)
+			player = library.InitCharacter(name, class, getHPForClass(class))
 			selected = true
 
 		default:
