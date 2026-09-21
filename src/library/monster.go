@@ -10,7 +10,7 @@ type Monster struct {
 	PoisonTurns int
 }
 
-func InitGobelin(name string, maxHP int, attack int) Monster {
+func InitGoblin(name string, maxHP int, attack int) Monster {
 	return Monster{
 		Name:        "Gobelin d'entrainement",
 		MaxHP:       40,
@@ -21,7 +21,7 @@ func InitGobelin(name string, maxHP int, attack int) Monster {
 
 }
 
-func goblinPattern(m *Monster, c *Character, turn int) {
+func GoblinPattern(m *Monster, c *Character, turn int) {
 	damage := m.Attack
 
 	if turn%3 == 0 {

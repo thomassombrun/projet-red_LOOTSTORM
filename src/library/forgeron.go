@@ -31,7 +31,7 @@ func ForgeronMenu(c *Character) {
 }
 
 func FabriquerObjet(c *Character, name string) {
-	if isInventoryFull(c) {
+	if IsInventoryFull(c) {
 		return
 	}
 	const cout = 5

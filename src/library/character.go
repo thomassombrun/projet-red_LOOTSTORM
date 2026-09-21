@@ -22,6 +22,7 @@ type Character struct {
 	Gold                  int
 	LimitInventory        int
 	LimitInventoryUpgrade int
+	Equip                 Equipment
 }
 
 func InitCharacter(name string, class string, maxHP int) Character {
@@ -37,5 +38,10 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		Gold:                  100,
 		LimitInventory:        10,
 		LimitInventoryUpgrade: 0,
+		Equip: Equipment{
+			Helmet:     "Aucun",
+			Chestplate: "Aucun",
+			Boots:      "Aucun",
+		},
 	}
 }

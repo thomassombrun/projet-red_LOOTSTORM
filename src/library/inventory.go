@@ -40,7 +40,7 @@ func AccessInventory(c *Character, enemy *Monster) {
 			PoisonPot(c, enemy, choice-1)
 
 		case "Amelioration d'inventaire":
-			upgradeInventorySlot(c)
+			UpgradeInventorySlot(c)
 			c.Inventory = append(c.Inventory[:choice-1], c.Inventory[choice:]...)
 
 		case "Livre de Sort : Boule de Feu":
@@ -53,12 +53,11 @@ func AccessInventory(c *Character, enemy *Monster) {
 	}
 }
 
-func upgradeInventorySlot(c *Character) {
+func UpgradeInventorySlot(c *Character) {
 	if c.LimitInventoryUpgrade >= 3 {
 		fmt.Println("Vous avez déjà utilisé les 3 améliorations d'inventaire disponibles.")
 		return
 	}
-
 	c.LimitInventory += 10
 	c.LimitInventoryUpgrade++
 
@@ -67,11 +66,25 @@ func upgradeInventorySlot(c *Character) {
 	fmt.Printf("Améliorations utilisées : %d / 3\n", c.LimitInventoryUpgrade)
 }
 
-func isInventoryFull(c *Character) bool {
+func IsInventoryFull(c *Character) bool {
 	if len(c.Inventory) >= c.LimitInventory {
 		fmt.Println("Votre inventaire est plein !")
 		fmt.Printf("Capacité : %d / %d\n", len(c.Inventory), c.LimitInventory)
 		return true
 	}
 	return false
+}
+
+func (c *Character) AddOrMergeItem(itemName string, quantity int) {
+	if len(c.Inventory) >= c.LimitInventory {
+		fmt.Println("Votre inventaire est plein ! L'ancien équipement n'a pas pu y être replacé.")
+		return
+	}
+	for i := range c.Inventory {
+		if c.Inventory[i].Name == itemName {
+			c.Inventory[i].Quantity += quantity
+			return
+		}
+	}
+	c.Inventory = append(c.Inventory, Item{Name: itemName, Quantity: quantity})
 }

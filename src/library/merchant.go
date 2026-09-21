@@ -61,7 +61,7 @@ func MerchantMenu(c *Character) {
 }
 
 func BuyItem(c *Character, itemName string, price int) {
-	if isInventoryFull(c) {
+	if IsInventoryFull(c) {
 		return
 	}
 	if c.Gold < price {
