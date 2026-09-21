@@ -97,6 +97,8 @@ func main() {
 					selected = false
 					break
 				default:
+					library.ClearTerminal()
+
 					fmt.Println("Choix invalide.")
 					continue
 				}
@@ -124,6 +126,8 @@ func main() {
 	fmt.Printf("\nC'est parti, %s (%s) entre dans la légende !\n", player.Name, player.Class)
 
 	for {
+		library.ClearTerminal()
+
 		fmt.Println()
 		fmt.Println("===== MENU PRINCIPAL =====")
 		fmt.Println("1. Afficher mes statistiques")

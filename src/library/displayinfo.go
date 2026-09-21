@@ -11,6 +11,8 @@ func (c Character) DisplayInfo() {
 }
 
 func DisplayInfo(c *Character) {
+	ClearTerminal()
+
 	fmt.Println()
 	fmt.Println("===== INFORMATIONS DU PERSONNAGE =====")
 
@@ -35,7 +37,14 @@ func DisplayInfo(c *Character) {
 }
 
 func DisplayEquipmentAndSkills(c *Character) {
+	firstDisplay := true
+
 	for {
+		if !firstDisplay {
+			ClearTerminal()
+		}
+		firstDisplay = false
+
 		fmt.Println()
 		fmt.Println("===== FICHE PERSONNAGE =====")
 		fmt.Println("1. Voir mes sorts")

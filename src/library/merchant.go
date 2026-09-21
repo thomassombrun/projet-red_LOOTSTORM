@@ -4,6 +4,8 @@ import "fmt"
 
 func MerchantMenu(c *Character) {
 	for {
+		ClearTerminal()
+
 		fmt.Println()
 		fmt.Println("===== MARCHAND =====")
 		fmt.Printf("Pièces d'or : %d\n", c.Gold)

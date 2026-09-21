@@ -20,6 +20,8 @@ func SkillMenu(c *Character, m *Monster) bool {
 		return false
 	}
 
+	ClearTerminal()
+
 	fmt.Println("\n--- Vos Sorts ---")
 	for i, s := range c.Skill {
 		fmt.Printf("%d. %s (Dégâts : %d)\n", i+1, s.Name, s.Damage)

@@ -12,6 +12,8 @@ func AccessCombatInventory(c *Character, enemy *Monster) bool {
 
 func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 	for {
+		ClearTerminal()
+
 		fmt.Println()
 		fmt.Println("===== INVENTAIRE =====")
 
