@@ -1,4 +1,8 @@
-func characterTurn(c *Character, monster *Character) {
+package library
+
+import "fmt"
+
+func CharacterTurn(c *Character, m *Monster) {
 	for {
 		fmt.Println()
 		fmt.Println("===== TOUR DU JOUEUR =====")
@@ -12,31 +16,31 @@ func characterTurn(c *Character, monster *Character) {
 		switch choice {
 		case 1:
 			damage := 5
-			monster.CurrentHP -= damage
-			if monster.CurrentHP < 0 {
-				monster.CurrentHP = 0
+			m.CurrentHP -= damage
+			if m.CurrentHP < 0 {
+				m.CurrentHP = 0
 			}
 			fmt.Printf(
 				"%s inflige %d dégâts à %s\n",
 				c.Name,
 				damage,
-				monster.Name,
+				m.Name,
 			)
 			fmt.Printf(
 				"%s : PV %d / %d\n",
-				monster.Name,
-				monster.CurrentHP,
-				monster.MaxHP,
+				m.Name,
+				m.CurrentHP,
+				m.MaxHP,
 			)
 			return
 		case 2:
-			accessInventory(c, monster)
+			AccessInventory(c, m)
 		}
 	}
 }
 
 func TrainingFight(c *Character) {
-	monster := InitGoblin()
+	monster := InitGoblin("Gobelin d'entrainement", 40, 5)
 
 	turn := 1
 
@@ -49,14 +53,14 @@ func TrainingFight(c *Character) {
 		fmt.Println()
 		fmt.Printf("===== TOUR %d =====\n", turn)
 
-		characterTurn(c, &monster)
+		CharacterTurn(c, &monster)
 
 		if monster.CurrentHP <= 0 {
-			fmt.Printf("%s est vaincu !\n", goblin.Name)
+			fmt.Printf("%s est vaincu !\n", monster.Name)
 			break
 		}
 
-		goblinPattern(&monster, c, turn)
+		GoblinPattern(&monster, c, turn)
 
 		if c.CurrentHP <= 0 {
 			fmt.Printf("%s est vaincu !\n", c.Name)
