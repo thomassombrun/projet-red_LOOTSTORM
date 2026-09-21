@@ -8,6 +8,9 @@ type Monster struct {
 	CurrentHP   int
 	Attack      int
 	PoisonTurns int
+	Initiative  int
+	XPReward    int
+	GoldReward  int
 }
 
 func InitGoblin(name string, maxHP int, attack int) Monster {
@@ -17,6 +20,9 @@ func InitGoblin(name string, maxHP int, attack int) Monster {
 		CurrentHP:   40,
 		Attack:      5,
 		PoisonTurns: 0,
+		Initiative:  10,
+		XPReward:    100,
+		GoldReward:  50,
 	}
 
 }

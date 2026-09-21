@@ -2,46 +2,6 @@ package library
 
 import "fmt"
 
-func CharacterTurn(c *Character, m *Monster) {
-	for {
-		fmt.Println()
-		fmt.Println("===== TOUR DU JOUEUR =====")
-		fmt.Println("1. Attaquer")
-		fmt.Println("2. Utiliser un sort")
-		fmt.Println("3. Inventaire")
-		fmt.Print("Votre choix : ")
-
-		var choice int
-		fmt.Scanln(&choice)
-
-		switch choice {
-		case 1:
-			damage := 5
-			m.CurrentHP -= damage
-			if m.CurrentHP < 0 {
-				m.CurrentHP = 0
-			}
-			fmt.Printf(
-				"%s inflige %d dégâts à %s\n",
-				c.Name,
-				damage,
-				m.Name,
-			)
-			fmt.Printf(
-				"%s : PV %d / %d\n",
-				m.Name,
-				m.CurrentHP,
-				m.MaxHP,
-			)
-			return
-		case 2:
-			UseSkill(c, m)
-		case 3:
-			AccessInventory(c, m)
-		}
-	}
-}
-
 func TrainingFight(c *Character) {
 	monster := InitGoblin("Gobelin d'entrainement", 40, 5)
 
@@ -110,4 +70,229 @@ func UseSkill(c *Character, m *Monster) {
 	fmt.Printf("%s lance %s et inflige %d dégâts à %s !\n",
 		c.Name, chosenSkill.Name, chosenSkill.Damage, m.Name)
 	fmt.Printf("%s : PV %d / %d\n", m.Name, m.CurrentHP, m.MaxHP)
+}
+
+func normalFight(c *Character, m *Monster, previousRoom int) {
+	turn := 1
+
+	fmt.Println()
+	fmt.Println("================================")
+	fmt.Println("          COMBAT")
+	fmt.Println("================================")
+
+	fmt.Printf("%s rencontre %s !\n", c.Name, m.Name)
+
+	fmt.Printf("%s : %d / %d PV\n",
+		c.Name,
+		c.CurrentHP,
+		c.MaxHP,
+	)
+
+	fmt.Printf("%s : %d / %d PV\n",
+		m.Name,
+		m.CurrentHP,
+		m.MaxHP,
+	)
+
+	playerTurn := c.Initiative >= m.Initiative
+
+	if playerTurn {
+		fmt.Printf("%s commence le combat !\n", c.Name)
+	} else {
+		fmt.Printf("%s commence le combat !\n", m.Name)
+	}
+
+	for c.CurrentHP > 0 && m.CurrentHP > 0 {
+
+		fmt.Println()
+		fmt.Printf("========== TOUR %d ==========\n", turn)
+
+		if playerTurn {
+
+			CharacterTurn(c, m)
+
+			if m.CurrentHP <= 0 {
+				break
+			}
+
+			MonsterAttack(m, c, turn)
+
+			if c.CurrentHP <= 0 {
+				break
+			}
+
+		} else {
+
+			MonsterAttack(m, c, turn)
+
+			if c.CurrentHP <= 0 {
+				break
+			}
+
+			CharacterTurn(c, m)
+
+			if m.CurrentHP <= 0 {
+				break
+			}
+		}
+
+		playerTurn = !playerTurn
+
+		turn++
+	}
+
+	if m.CurrentHP <= 0 {
+		fmt.Println()
+		fmt.Println("================================")
+		fmt.Println("           VICTOIRE")
+		fmt.Println("================================")
+
+		fmt.Printf("%s est vaincu !\n", m.Name)
+
+		GiveCombatReward(c, m)
+
+		return
+	}
+
+	if c.CurrentHP <= 0 {
+		fmt.Println()
+		fmt.Println("================================")
+		fmt.Println("           DÉFAITE")
+		fmt.Println("================================")
+
+		fmt.Printf("%s a été vaincu.\n", c.Name)
+
+		c.CurrentHP = c.MaxHP / 2
+
+		c.LastClearedRoom = previousRoom
+
+		fmt.Printf("Vous réapparaissez dans la salle %d.\n",
+			c.LastClearedRoom,
+		)
+
+		fmt.Printf("PV : %d / %d\n",
+			c.CurrentHP,
+			c.MaxHP,
+		)
+	}
+}
+
+func CharacterTurn(c *Character, m *Monster) {
+	for {
+		fmt.Println()
+		fmt.Println("===== TOUR DU JOUEUR =====")
+		fmt.Println("1. Attaquer")
+		fmt.Println("2. Sorts")
+		fmt.Println("3. Inventaire")
+		fmt.Println("0. Retour")
+
+		var choice int
+		fmt.Scan(&choice)
+
+		switch choice {
+
+		case 1:
+			damage := 5
+			skillName := "Coup de poing"
+
+			if len(c.Skill) > 0 {
+				damage = c.Skill[0].Damage
+				skillName = c.Skill[0].Name
+			}
+
+			m.CurrentHP -= damage
+
+			if m.CurrentHP < 0 {
+				m.CurrentHP = 0
+			}
+
+			fmt.Printf(
+				"%s utilise %s et inflige %d dégâts à %s\n",
+				c.Name,
+				skillName,
+				damage,
+				m.Name,
+			)
+
+			fmt.Printf(
+				"PV de %s : %d / %d\n",
+				m.Name,
+				m.CurrentHP,
+				m.MaxHP,
+			)
+			return
+
+		case 2:
+			if SkillMenu(c, m) {
+				return
+			}
+
+		case 3:
+			AccessInventory(c, nil)
+			return
+
+		case 0:
+			return
+
+		default:
+			fmt.Println("Choix invalide.")
+		}
+	}
+}
+
+func MonsterAttack(m *Monster, c *Character, turn int) {
+
+	damage := m.Attack
+
+	if turn%3 == 0 {
+		damage = m.Attack * 2
+		fmt.Printf("%s utilise son attaque renforcée !\n",
+			m.Name,
+		)
+	}
+	c.CurrentHP -= damage
+	if c.CurrentHP < 0 {
+		c.CurrentHP = 0
+	}
+	fmt.Printf(
+		"%s inflige à %s %d de dégâts\n",
+		m.Name,
+		c.Name,
+		damage,
+	)
+	fmt.Printf(
+		"PV de %s : %d / %d\n",
+		c.Name,
+		c.CurrentHP,
+		c.MaxHP,
+	)
+}
+func GiveCombatReward(c *Character, m *Monster) {
+
+	fmt.Println()
+	fmt.Println("===== RÉCOMPENSE =====")
+	if m.XPReward > 0 {
+		fmt.Printf(
+			"Vous gagnez %d XP !\n",
+			m.XPReward,
+		)
+		GainExperience(c, m.XPReward)
+	}
+	if m.GoldReward > 0 {
+		c.Gold += m.GoldReward
+
+		fmt.Printf(
+			"Vous gagnez %d pièces d'or !\n",
+			m.GoldReward,
+		)
+	}
+	fmt.Printf(
+		"Or actuel : %d\n",
+		c.Gold,
+	)
+	fmt.Println("=======================")
+}
+
+func GainExperience(c *Character, amount int) {
+	fmt.Printf("%s gagne %d points d'expérience !\n", c.Name, amount)
 }
