@@ -53,7 +53,7 @@ func main() {
 			var name, class string
 			fmt.Print("Entrez le nom de votre héros : ")
 			fmt.Scanln(&name)
-			fmt.Print("Entrez sa classe (Guerrier, Mage, etc.) : ")
+			fmt.Print("Entrez sa classe (Guerrier, Mage, Archer) : ")
 			fmt.Scanln(&class)
 
 			player = library.InitCharacter(name, class, 100)
