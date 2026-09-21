@@ -1,26 +1,31 @@
 {
   "Name": "Himiko Toga",
   "Class": "Assassin",
-  "Level": 14,
-  "Attack": 31,
-  "MaxHP": 260,
-  "CurrentHP": 174,
+  "Level": 9,
+  "Attack": 21,
+  "MaxHP": 215,
+  "CurrentHP": 122,
   "Inventory": [
     {
       "Name": "Potion de vie",
-      "Quantity": 2,
+      "Quantity": 3,
       "Rarity": ""
     },
     {
-      "Name": "Bottes de gobelin",
+      "Name": "Carapace de slime",
       "Quantity": 1,
-      "Rarity": "Peu commun"
+      "Rarity": "Commun"
+    },
+    {
+      "Name": "Bottes spectrales",
+      "Quantity": 1,
+      "Rarity": "Commun"
     }
   ],
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 31,
+      "Damage": 21,
       "HealAmount": 0,
       "EffectTurns": 0,
       "Initiative": 0,
@@ -30,25 +35,25 @@
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 1075,
+  "Gold": 580,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
-    "Helmet": "Casque de golem [Commun]",
-    "Chestplate": "Aucun",
-    "Boots": "Aucun",
-    "Weapon": "Marteau de golem [Commun]",
+    "Helmet": "Aucun",
+    "Chestplate": "Tunique du loup [Peu commun]",
+    "Boots": "Bottes de slime [Commun]",
+    "Weapon": "Bave de slime [Rare]",
     "HelmetHP": 0,
     "ChestplateHP": 0,
     "BootsHP": 0,
-    "WeaponDamage": 18
+    "WeaponDamage": 10
   },
-  "Initiative": 195,
-  "CurrentXP": 160,
-  "MaxXP": 230,
-  "Mana": 180,
-  "MaxMana": 180,
-  "LastClearedRoom": 9,
+  "Initiative": 170,
+  "CurrentXP": 120,
+  "MaxXP": 180,
+  "Mana": 130,
+  "MaxMana": 130,
+  "LastClearedRoom": 8,
   "Summon": null,
   "CombatWeaponBonus": 0,
   "CombatSpellBonus": 0,

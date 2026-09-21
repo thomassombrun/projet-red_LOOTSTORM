@@ -1,6 +1,7 @@
 package library
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
@@ -61,5 +62,29 @@ func TestMarteauDeGolemIsWeapon(t *testing.T) {
 	}
 	if equipmentHPBonus("Marteau de golem") != 0 {
 		t.Fatal("le marteau de golem ne doit pas donner de PV")
+	}
+}
+
+func TestReplaceEquipmentSameCategory(t *testing.T) {
+	c := InitCharacter("Test", "Guerrier", 100)
+	c.Equip.Boots = "Bottes de slime [Commun]"
+	c.Inventory = []Item{{Name: "Bottes spectrales", Quantity: 1, Rarity: RarityRare}}
+	oldLen := len(c.Inventory)
+	oldEquipped := c.Equip.Boots
+	oldStdin := os.Stdin
+	r, w, _ := os.Pipe()
+	w.WriteString("1\n")
+	w.Close()
+	os.Stdin = r
+	defer func() { os.Stdin = oldStdin }()
+	EquipItem(&c, itemDisplayName(c.Inventory[0]), 0)
+	if c.Equip.Boots == oldEquipped {
+		t.Fatal("l'ancien équipement devait être remplacé par le nouveau")
+	}
+	if len(c.Inventory) != oldLen {
+		t.Fatal("l'ancien équipement n'a pas bien été remis dans l'inventaire")
+	}
+	if !strings.Contains(c.Equip.Boots, "Bottes spectrales") {
+		t.Fatalf("la nouvelle botte n'est pas équipée : %q", c.Equip.Boots)
 	}
 }

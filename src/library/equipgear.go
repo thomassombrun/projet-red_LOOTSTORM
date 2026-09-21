@@ -21,6 +21,7 @@ func EquipItem(c *Character, itemName string, index int) {
 	var slotType string
 	var hpBonus int
 	var weaponDamage int
+	var replaceExisting bool
 
 	normalizedName := normalizeItemName(itemName)
 	itemRarity := parseItemRarity(itemName)
@@ -75,6 +76,7 @@ func EquipItem(c *Character, itemName string, index int) {
 			}
 			return
 		}
+		replaceExisting = true
 	}
 
 	item := &c.Inventory[index]
@@ -93,25 +95,25 @@ func EquipItem(c *Character, itemName string, index int) {
 
 	switch slotType {
 	case "Helmet":
-		if c.Equip.Helmet != "" && c.Equip.Helmet != "Aucun" {
+		if replaceExisting && c.Equip.Helmet != "" && c.Equip.Helmet != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Helmet, 1)
 			c.MaxHP -= equipmentHPBonus(normalizeItemName(c.Equip.Helmet))
 		}
 		c.Equip.Helmet = equipmentDisplayName(baseName, itemRarity)
 	case "Chestplate":
-		if c.Equip.Chestplate != "" && c.Equip.Chestplate != "Aucun" {
+		if replaceExisting && c.Equip.Chestplate != "" && c.Equip.Chestplate != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Chestplate, 1)
 			c.MaxHP -= equipmentHPBonus(normalizeItemName(c.Equip.Chestplate))
 		}
 		c.Equip.Chestplate = equipmentDisplayName(baseName, itemRarity)
 	case "Boots":
-		if c.Equip.Boots != "" && c.Equip.Boots != "Aucun" {
+		if replaceExisting && c.Equip.Boots != "" && c.Equip.Boots != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Boots, 1)
 			c.MaxHP -= equipmentHPBonus(normalizeItemName(c.Equip.Boots))
 		}
 		c.Equip.Boots = equipmentDisplayName(baseName, itemRarity)
 	case "Weapon":
-		if c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun" {
+		if replaceExisting && c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Weapon, 1)
 			c.Equip.Weapon = "Aucun"
 			c.Equip.WeaponDamage = 0
