@@ -12,18 +12,19 @@ func MerchantMenu(c *Character) {
 		fmt.Println()
 		fmt.Println("1. Potion de vie - 3 pièces d'or")
 		fmt.Println("2. Potion de poison - 6 pièces d'or")
-		fmt.Println("3. Livre de Sort : Boule de Feu - 25 pièces d'or")
-		fmt.Println("4. Livre de Sort : Soin - 25 pièces d'or")
-		fmt.Println("5. Livre de Sort : Régénération - 25 pièces d'or")
-		fmt.Println("6. Livre de Sort : Poison - 25 pièces d'or")
-		fmt.Println("7. Livre de Sort : Brûlure - 25 pièces d'or")
-		fmt.Println("8. Livre de Sort : Barrière Sacrée - 25 pièces d'or")
-		fmt.Println("9. Fourrure de Loup - 4 pièces d'or")
-		fmt.Println("10. Peau de Troll - 7 pièces d'or")
-		fmt.Println("11. Cuir de Sanglier - 3 pièces d'or")
-		fmt.Println("12. Plume de Corbeau - 1 pièce d'or")
-		fmt.Println("13. Amelioration d'inventaire - 30 pièces d'or")
-		fmt.Println("14. Vendre un objet")
+		fmt.Println("3. Potion de mana - 6 pièces d'or")
+		fmt.Println("4. Livre de Sort : Boule de Feu - 25 pièces d'or")
+		fmt.Println("5. Livre de Sort : Soin - 25 pièces d'or")
+		fmt.Println("6. Livre de Sort : Régénération - 25 pièces d'or")
+		fmt.Println("7. Livre de Sort : Poison - 25 pièces d'or")
+		fmt.Println("8. Livre de Sort : Brûlure - 25 pièces d'or")
+		fmt.Println("9. Livre de Sort : Barrière Sacrée - 25 pièces d'or")
+		fmt.Println("10. Fourrure de Loup - 4 pièces d'or")
+		fmt.Println("11. Peau de Troll - 7 pièces d'or")
+		fmt.Println("12. Cuir de Sanglier - 3 pièces d'or")
+		fmt.Println("13. Plume de Corbeau - 1 pièce d'or")
+		fmt.Println("14. Amelioration d'inventaire - 30 pièces d'or")
+		fmt.Println("15. Vendre un objet")
 		fmt.Println("0. Retour")
 
 		fmt.Print("Votre choix : ")
@@ -39,28 +40,30 @@ func MerchantMenu(c *Character) {
 			BuyItem(c, "Potion de poison", 6)
 
 		case 3:
-			BuyItem(c, "Livre de Sort : Boule de Feu", 25)
+			BuyItem(c, "Potion de mana", 6)
 		case 4:
-			BuyItem(c, "Livre de Sort : Soin", 25)
+			BuyItem(c, "Livre de Sort : Boule de Feu", 25)
 		case 5:
-			BuyItem(c, "Livre de Sort : Régénération", 25)
+			BuyItem(c, "Livre de Sort : Soin", 25)
 		case 6:
-			BuyItem(c, "Livre de Sort : Poison", 25)
+			BuyItem(c, "Livre de Sort : Régénération", 25)
 		case 7:
-			BuyItem(c, "Livre de Sort : Brûlure", 25)
+			BuyItem(c, "Livre de Sort : Poison", 25)
 		case 8:
-			BuyItem(c, "Livre de Sort : Barrière Sacrée", 25)
+			BuyItem(c, "Livre de Sort : Brûlure", 25)
 		case 9:
-			BuyItem(c, "Fourrure de Loup", 4)
+			BuyItem(c, "Livre de Sort : Barrière Sacrée", 25)
 		case 10:
-			BuyItem(c, "Peau de Troll", 7)
+			BuyItem(c, "Fourrure de Loup", 4)
 		case 11:
-			BuyItem(c, "Cuir de Sanglier", 3)
+			BuyItem(c, "Peau de Troll", 7)
 		case 12:
-			BuyItem(c, "Plume de Corbeau", 1)
+			BuyItem(c, "Cuir de Sanglier", 3)
 		case 13:
-			BuyItem(c, "Amelioration d'inventaire", 30)
+			BuyItem(c, "Plume de Corbeau", 1)
 		case 14:
+			BuyItem(c, "Amelioration d'inventaire", 30)
+		case 15:
 			SellItem(c)
 
 		case 0:
@@ -140,6 +143,7 @@ func sellPrice(itemName string) int {
 	prices := map[string]int{
 		"Potion de vie":                   1,
 		"Potion de poison":                3,
+		"Potion de mana":                  3,
 		"Livre de Sort : Boule de Feu":    12,
 		"Livre de Sort : Soin":            12,
 		"Livre de Sort : Régénération":    12,

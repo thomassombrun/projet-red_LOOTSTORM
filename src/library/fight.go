@@ -22,6 +22,7 @@ func TrainingFight(c *Character) {
 		if c.CurrentHP <= 0 {
 			break
 		}
+		RegenerateMana(c)
 		CharacterTurn(c, &monster)
 
 		if monster.CurrentHP <= 0 {
@@ -135,6 +136,7 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 			if c.CurrentHP <= 0 {
 				break
 			}
+			RegenerateMana(c)
 			CharacterTurn(c, m)
 
 			if c.CurrentHP <= 0 {
@@ -179,6 +181,7 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 			if c.CurrentHP <= 0 {
 				break
 			}
+			RegenerateMana(c)
 
 			CharacterTurn(c, m)
 
@@ -314,6 +317,10 @@ func MonsterAttack(m *Monster, c *Character, turn int) {
 	if CheckHolyBarrier(c) {
 		return
 	}
+	if TryDodge(c) {
+		fmt.Printf("%s esquive l'attaque de %s !\n", c.Name, m.Name)
+		return
+	}
 
 	damage := m.Attack
 
@@ -323,6 +330,7 @@ func MonsterAttack(m *Monster, c *Character, turn int) {
 			m.Name,
 		)
 	}
+	damage = BlockDamage(c, damage)
 	c.CurrentHP -= damage
 	if c.CurrentHP < 0 {
 		c.CurrentHP = 0
@@ -377,16 +385,30 @@ func GainExperience(c *Character, amount int) {
 		c.MaxHP += 10
 		c.CurrentHP += 10
 		c.Initiative += 5
+		c.MaxMana += 10
+		c.Mana += 10
 
 		for i := range c.Skill {
 			c.Skill[i].Damage += 2
 		}
 
-		fmt.Printf("Niveau %d atteint ! PV max +10, initiative +5, dégâts des sorts +2.\n", c.Level)
+		fmt.Printf("Niveau %d atteint ! PV max +10, mana max +10, initiative +5, dégâts des sorts +2.\n", c.Level)
 	}
 
 	if c.CurrentHP > c.MaxHP {
 		c.CurrentHP = c.MaxHP
 	}
 	fmt.Printf("XP : %d / %d\n", c.CurrentXP, c.MaxXP)
+}
+
+func RegenerateMana(c *Character) {
+	const regeneration = 5
+	if c.Mana >= c.MaxMana {
+		return
+	}
+	c.Mana += regeneration
+	if c.Mana > c.MaxMana {
+		c.Mana = c.MaxMana
+	}
+	fmt.Printf("%s récupère de la mana : %d / %d.\n", c.Name, c.Mana, c.MaxMana)
 }

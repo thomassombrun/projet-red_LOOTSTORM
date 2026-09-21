@@ -119,6 +119,11 @@ func playChestRoom(c *Character, random *rand.Rand) bool {
 	}
 
 	if random.Intn(2) == 0 {
+		fmt.Println("Le coffre contient également une Potion de mana.")
+		c.AddOrMergeItem("Potion de mana", 1)
+	}
+
+	if random.Intn(2) == 0 {
 		equipment := []string{
 			"Chapeau de l'aventurier",
 			"Tunique de l'aventurier",

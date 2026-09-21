@@ -19,7 +19,7 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 
 		availableItems := make([]int, 0, len(c.Inventory))
 		for i, item := range c.Inventory {
-			if !combatOnly || item.Name == "Potion de vie" || item.Name == "Potion de poison" {
+			if !combatOnly || item.Name == "Potion de vie" || item.Name == "Potion de poison" || item.Name == "Potion de mana" {
 				availableItems = append(availableItems, i)
 			}
 		}
@@ -65,6 +65,13 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 		switch item.Name {
 		case "Potion de vie":
 			TakePot(c, inventoryIndex)
+			if !combatOnly {
+				WaitForEnter()
+			}
+			return true
+
+		case "Potion de mana":
+			TakeManaPot(c, inventoryIndex)
 			if !combatOnly {
 				WaitForEnter()
 			}

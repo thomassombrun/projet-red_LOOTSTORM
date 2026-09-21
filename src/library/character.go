@@ -1,5 +1,10 @@
 package library
 
+import (
+	"fmt"
+	"math/rand"
+)
+
 type Item struct {
 	Name     string
 	Quantity int
@@ -83,4 +88,37 @@ func InitCharacter(name string, class string, maxHP int) Character {
 			Boots:      "Aucun",
 		},
 	}
+}
+
+func TryDodge(c *Character) bool {
+	chance := 0
+	switch c.Class {
+	case "Archer":
+		chance = 20
+	case "Assassin":
+		chance = 30
+	}
+	if chance == 0 || rand.Intn(100) >= chance {
+		return false
+	}
+	fmt.Printf("%s profite de son agilité (%d%% d'esquive).\n", c.Name, chance)
+	return true
+}
+
+func BlockDamage(c *Character, damage int) int {
+	chance := 0
+	switch c.Class {
+	case "Guerrier":
+		chance = 25
+	case "Chevalier":
+		chance = 35
+	}
+	if chance == 0 || rand.Intn(100) >= chance {
+		return damage
+	}
+
+	blockedDamage := damage / 2
+	fmt.Printf("%s bloque une partie de l'attaque (%d%% de chance) !\n", c.Name, chance)
+	fmt.Printf("Dégâts réduits : %d -> %d.\n", damage, blockedDamage)
+	return blockedDamage
 }
