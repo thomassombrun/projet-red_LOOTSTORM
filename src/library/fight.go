@@ -65,8 +65,8 @@ func TrainingFight(c *Character) {
 
 		GoblinPattern(&monster, c, turn)
 
-		if c.CurrentHP <= 0 {
-			fmt.Printf("%s est vaincu !\n", c.Name)
+		if c.IsDead() {
+			c.Respawn()
 			break
 		}
 		turn++
