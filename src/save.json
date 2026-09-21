@@ -1,10 +1,10 @@
 {
   "Name": "Himiko Toga",
   "Class": "Assassin",
-  "Level": 9,
-  "Attack": 21,
-  "MaxHP": 215,
-  "CurrentHP": 122,
+  "Level": 77,
+  "Attack": 157,
+  "MaxHP": 961,
+  "CurrentHP": 628,
   "Inventory": [
     {
       "Name": "Potion de vie",
@@ -12,20 +12,20 @@
       "Rarity": ""
     },
     {
-      "Name": "Carapace de slime",
+      "Name": "Tunique de gobelin",
       "Quantity": 1,
-      "Rarity": "Commun"
+      "Rarity": "Peu commun"
     },
     {
-      "Name": "Bottes spectrales",
+      "Name": "Casque de gobelin",
       "Quantity": 1,
-      "Rarity": "Commun"
+      "Rarity": "Peu commun"
     }
   ],
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 21,
+      "Damage": 157,
       "HealAmount": 0,
       "EffectTurns": 0,
       "Initiative": 0,
@@ -35,25 +35,25 @@
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 580,
+  "Gold": 18072,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
-    "Helmet": "Aucun",
-    "Chestplate": "Tunique du loup [Peu commun]",
-    "Boots": "Bottes de slime [Commun]",
-    "Weapon": "Bave de slime [Rare]",
+    "Helmet": "Capuche spectrale [Rare]",
+    "Chestplate": "Tunique de troll [Peu commun]",
+    "Boots": "Bottes de gobelin [Rare]",
+    "Weapon": "Lame de gobelin [Peu commun]",
     "HelmetHP": 0,
     "ChestplateHP": 0,
     "BootsHP": 0,
-    "WeaponDamage": 10
+    "WeaponDamage": 11
   },
-  "Initiative": 170,
-  "CurrentXP": 120,
-  "MaxXP": 180,
-  "Mana": 130,
-  "MaxMana": 130,
-  "LastClearedRoom": 8,
+  "Initiative": 510,
+  "CurrentXP": 440,
+  "MaxXP": 860,
+  "Mana": 810,
+  "MaxMana": 810,
+  "LastClearedRoom": 55,
   "Summon": null,
   "CombatWeaponBonus": 0,
   "CombatSpellBonus": 0,

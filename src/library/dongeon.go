@@ -33,46 +33,64 @@ func StartAdventure(c *Character) {
 
 func playRandomRoom(c *Character, roomNumber int, random *rand.Rand) bool {
 	roll := random.Intn(100)
-	bossChance := roomNumber * 2
-	if bossChance < 5 {
-		bossChance = 5
+	bossChance := 10 + roomNumber/2
+	if bossChance < 8 {
+		bossChance = 8
 	}
-	if bossChance > 40 {
-		bossChance = 40
+	if bossChance > 35 {
+		bossChance = 35
 	}
 	if roll < bossChance {
 		return playBossRoom(c, roomNumber)
 	}
 
-	roll -= bossChance
+	roll = random.Intn(100 - bossChance)
 	switch {
-	case roll < 15:
+	case roll < 14:
 		return playGoblinRoom(c, roomNumber)
-	case roll < 30:
+	case roll < 26:
 		return playSlimeRoom(c, roomNumber)
-	case roll < 40:
+	case roll < 36:
 		return playGhostRoom(c, roomNumber)
-	case roll < 48:
+	case roll < 45:
 		return playMonsterRoom(c, InitGolem(), roomNumber)
-	case roll < 56:
+	case roll < 54:
 		return playMonsterRoom(c, InitTroll(), roomNumber)
-	case roll < 66:
+	case roll < 61:
 		return playMonsterRoom(c, InitSkeleton(), roomNumber)
-	case roll < 76:
+	case roll < 66:
 		return playMonsterRoom(c, InitWolf(), roomNumber)
-	case roll < 84:
+	case roll < 70:
 		return playMonsterRoom(c, InitWizard(), roomNumber)
-	case roll < 89:
-		return playMonsterRoom(c, InitDuck(), roomNumber)
-	case roll < 91:
-		return playMonsterRoom(c, InitDragon(), roomNumber)
-	case roll < 94:
+	case roll < 78:
+		if roomNumber >= 5 && roll < 75 {
+			monster := scaleSpecialMonster(InitDragon(), roomNumber)
+			return playMonsterRoom(c, monster, roomNumber)
+		}
+		if roomNumber >= 3 {
+			monster := scaleSpecialMonster(InitDuck(), roomNumber)
+			return playMonsterRoom(c, monster, roomNumber)
+		}
 		return playNpcRoom(c)
-	case roll < 95:
+	case roll < 86:
+		return playNpcRoom(c)
+	case roll < 93:
 		return playStatueRoom(c)
 	default:
 		return playChestRoom(c, random)
 	}
+}
+
+func scaleSpecialMonster(monster Monster, roomNumber int) Monster {
+	level := roomNumber/2 + 1
+	monster.Level = level
+	monster.MaxHP += (level - 1) * 25
+	monster.CurrentHP = monster.MaxHP
+	monster.Attack += (level - 1) * 3
+	monster.Initiative += (level - 1) * 2
+	monster.XPReward += (level - 1) * 40
+	monster.GoldReward += (level - 1) * 20
+	return monster
 }
 
 func playStatueRoom(c *Character) bool {
@@ -110,12 +128,14 @@ func playMonsterRoom(c *Character, monster Monster, roomNumber int) bool {
 
 func playBossRoom(c *Character, roomNumber int) bool {
 	monster := InitGoblinLevel("Boss gobelin", roomNumber+2)
-	monster.MaxHP += 40
+	monster.Name = "Boss gobelin"
+	monster.Pattern = "goblin"
+	monster.MaxHP += 60 + roomNumber*5
 	monster.CurrentHP = monster.MaxHP
-	monster.Attack += 5
-	monster.Initiative += 10
-	monster.XPReward += 100
-	monster.GoldReward += 50
+	monster.Attack += 8 + roomNumber
+	monster.Initiative += 15 + roomNumber
+	monster.XPReward = c.MaxXP - c.CurrentXP + 50
+	monster.GoldReward = 120 + roomNumber*25
 	fmt.Printf("Un boss de niveau %d apparaît dans la salle !\n", monster.Level)
 	c.LastClearedRoom = roomNumber
 	return normalFight(c, &monster, roomNumber-1)

@@ -442,8 +442,8 @@ func GainExperience(c *Character, amount int) {
 	for c.CurrentXP >= c.MaxXP {
 		c.CurrentXP -= c.MaxXP
 		c.Level++
+		c.MaxXP += 20 + c.Level*5
 		c.Attack += 2
-		c.MaxXP += 10
 		c.MaxHP += 10
 		c.CurrentHP += 10
 		c.Initiative += 5
