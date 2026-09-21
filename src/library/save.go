@@ -14,13 +14,11 @@ func (c *Character) SaveGame(roomNumber int) {
 		fmt.Println("Erreur lors de la préparation de la sauvegarde :", err)
 		return
 	}
-
 	err = os.WriteFile("save.json", data, 0644)
 	if err != nil {
 		fmt.Println("Erreur lors de l'écriture du fichier de sauvegarde :", err)
 		return
 	}
-
 	fmt.Println()
 	fmt.Printf("💾 Partie sauvegardée avec succès ! (Checkpoint : Salle %d validée)\n", roomNumber)
 }
