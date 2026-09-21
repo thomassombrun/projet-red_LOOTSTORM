@@ -10,13 +10,16 @@ func TakePot(c *Character, index int) {
 		return
 	}
 
-	c.Inventory = append(
-		c.Inventory[:index],
-		c.Inventory[index+1:]...,
-	)
+	if item.Quantity > 1 {
+		c.Inventory[index].Quantity--
+	} else {
+		c.Inventory = append(
+			c.Inventory[:index],
+			c.Inventory[index+1:]...,
+		)
+	}
 
 	c.CurrentHP += 50
-
 	if c.CurrentHP > c.MaxHP {
 		c.CurrentHP = c.MaxHP
 	}

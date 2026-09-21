@@ -92,22 +92,7 @@ func main() {
 			selected = true
 
 		case 2:
-			var name, class string
-
-			fmt.Print("Entrez le nom de votre héros : ")
-			if _, err := fmt.Scanln(&name); err != nil {
-				fmt.Println("Nom invalide.")
-				continue
-			}
-
-			fmt.Print("Entrez sa classe (Guerrier, Mage, Archer, Assassin, Chevalier) : ")
-			if _, err := fmt.Scanln(&class); err != nil {
-				fmt.Println("Classe invalide.")
-				continue
-			}
-
-			class = normalizeClass(class)
-			player = library.InitCharacter(name, class, getHPForClass(class))
+			player = library.CharacterCreation()
 			selected = true
 
 		default:

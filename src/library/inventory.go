@@ -11,7 +11,11 @@ func AccessInventory(c *Character, enemy *Monster) {
 			fmt.Println("L'inventaire est vide.")
 		} else {
 			for i, item := range c.Inventory {
-				fmt.Printf("%d. %s\n", i+1, item.Name)
+				if item.Quantity > 1 {
+					fmt.Printf("%d. %s x%d\n", i+1, item.Name, item.Quantity)
+				} else {
+					fmt.Printf("%d. %s\n", i+1, item.Name)
+				}
 			}
 		}
 
