@@ -29,6 +29,7 @@ type Character struct {
 	MaxXP                 int
 	Mana                  int
 	MaxMana               int
+	LastClearedRoom       int
 }
 
 func InitCharacter(name string, class string, maxHP int) Character {
@@ -49,6 +50,7 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		MaxXP:                 100,
 		Mana:                  50,
 		MaxMana:               50,
+		LastClearedRoom:       0,
 		Equip: Equipment{
 			Helmet:     "Aucun",
 			Chestplate: "Aucun",
