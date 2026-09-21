@@ -58,6 +58,9 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 		switch item.Name {
 		case "Potion de vie":
 			TakePot(c, inventoryIndex)
+			if !combatOnly {
+				WaitForEnter()
+			}
 			return true
 
 		case "Potion de poison":
@@ -66,20 +69,26 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 				continue
 			}
 			PoisonPot(c, enemy, inventoryIndex)
+			if !combatOnly {
+				WaitForEnter()
+			}
 			return true
 
 		case "Amelioration d'inventaire":
 			UpgradeInventorySlot(c)
 			c.Inventory = append(c.Inventory[:inventoryIndex], c.Inventory[inventoryIndex+1:]...)
+			WaitForEnter()
 			return true
 
 		case "Livre de Sort : Boule de Feu":
 			SpellBook(c)
 			c.Inventory = append(c.Inventory[:inventoryIndex], c.Inventory[inventoryIndex+1:]...)
+			WaitForEnter()
 			return true
 
 		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier":
 			EquipItem(c, item.Name, inventoryIndex)
+			WaitForEnter()
 			return true
 
 		default:
@@ -111,15 +120,15 @@ func IsInventoryFull(c *Character) bool {
 }
 
 func (c *Character) AddOrMergeItem(itemName string, quantity int) {
-	if len(c.Inventory) >= c.LimitInventory {
-		fmt.Println("Votre inventaire est plein ! L'ancien équipement n'a pas pu y être replacé.")
-		return
-	}
 	for i := range c.Inventory {
 		if c.Inventory[i].Name == itemName {
 			c.Inventory[i].Quantity += quantity
 			return
 		}
+	}
+	if len(c.Inventory) >= c.LimitInventory {
+		fmt.Println("Votre inventaire est plein ! L'ancien équipement n'a pas pu y être replacé.")
+		return
 	}
 	c.Inventory = append(c.Inventory, Item{Name: itemName, Quantity: quantity})
 }

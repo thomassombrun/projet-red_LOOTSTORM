@@ -29,6 +29,10 @@ func ForgeronMenu(c *Character) {
 		default:
 			fmt.Println("Choix invalide.")
 		}
+
+		if choix != 4 {
+			WaitForEnter()
+		}
 	}
 }
 

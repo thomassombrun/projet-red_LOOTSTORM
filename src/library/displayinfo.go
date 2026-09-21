@@ -69,12 +69,14 @@ func DisplayEquipmentAndSkills(c *Character) {
 					fmt.Printf("%d. %s (Dégâts : %d, Coût : %d mana)\n", i+1, s.Name, s.Damage, s.ManaCost)
 				}
 			}
+			WaitForEnter()
 		case 2:
 			fmt.Println()
 			fmt.Println("===== ÉQUIPEMENT =====")
 			fmt.Printf("Casque : %s\n", c.Equip.Helmet)
 			fmt.Printf("Plastron : %s\n", c.Equip.Chestplate)
 			fmt.Printf("Bottes : %s\n", c.Equip.Boots)
+			WaitForEnter()
 		case 0:
 			return
 		default:

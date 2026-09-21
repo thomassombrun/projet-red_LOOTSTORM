@@ -36,10 +36,12 @@ func MerchantMenu(c *Character) {
 			for _, skill := range c.Skill {
 				if skill.Name == "Boule de Feu" {
 					fmt.Println("Vous connaissez déjà le sort Boule de Feu.")
+					WaitForEnter()
 					return
 				}
 			}
 			if !BuyItem(c, "Livre de Sort : Boule de Feu", 25) {
+				WaitForEnter()
 				return
 			}
 
@@ -65,25 +67,33 @@ func MerchantMenu(c *Character) {
 		default:
 			fmt.Println("Choix invalide.")
 		}
+
+		if choice != 0 {
+			WaitForEnter()
+		}
 	}
 }
 
 func BuyItem(c *Character, itemName string, price int) bool {
-	if IsInventoryFull(c) {
-		return false
-	}
 	if c.Gold < price {
 		fmt.Println()
 		fmt.Println("Vous n'avez pas assez de pièces d'or.")
 		return false
 	}
 
-	c.Gold -= price
+	itemExists := false
+	for _, item := range c.Inventory {
+		if item.Name == itemName {
+			itemExists = true
+			break
+		}
+	}
+	if !itemExists && IsInventoryFull(c) {
+		return false
+	}
 
-	c.Inventory = append(
-		c.Inventory,
-		Item{Name: itemName, Quantity: 1},
-	)
+	c.Gold -= price
+	c.AddOrMergeItem(itemName, 1)
 
 	fmt.Println()
 	fmt.Printf("Vous avez acheté : %s\n", itemName)
