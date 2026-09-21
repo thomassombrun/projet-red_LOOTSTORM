@@ -225,13 +225,15 @@ func CharacterTurn(c *Character, m *Monster) {
 			return
 
 		case 2:
-			SkillMenu(c, m)
-			fmt.Println("Action effectuée. Vous pouvez continuer votre tour ou le terminer.")
+			if SkillMenu(c, m) {
+				return
+			}
 			continue
 
 		case 3:
-			AccessInventory(c, nil)
-			fmt.Println("Retour au tour du joueur.")
+			if AccessInventory(c, nil) {
+				return
+			}
 			continue
 
 		case 4:

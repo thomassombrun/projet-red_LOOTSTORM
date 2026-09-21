@@ -2,7 +2,7 @@ package library
 
 import "fmt"
 
-func AccessInventory(c *Character, enemy *Monster) {
+func AccessInventory(c *Character, enemy *Monster) bool {
 	for {
 		fmt.Println()
 		fmt.Println("===== INVENTAIRE =====")
@@ -26,7 +26,7 @@ func AccessInventory(c *Character, enemy *Monster) {
 		fmt.Scanln(&choice)
 
 		if choice == 0 {
-			return
+			return false
 		}
 
 		if choice < 1 || choice > len(c.Inventory) {
@@ -39,17 +39,21 @@ func AccessInventory(c *Character, enemy *Monster) {
 		switch item.Name {
 		case "Potion de vie":
 			TakePot(c, choice-1)
+			return true
 
 		case "Potion de poison":
 			PoisonPot(c, enemy, choice-1)
+			return true
 
 		case "Amelioration d'inventaire":
 			UpgradeInventorySlot(c)
 			c.Inventory = append(c.Inventory[:choice-1], c.Inventory[choice:]...)
+			return true
 
 		case "Livre de Sort : Boule de Feu":
 			SpellBook(c)
 			c.Inventory = append(c.Inventory[:choice-1], c.Inventory[choice:]...)
+			return true
 
 		default:
 			fmt.Println("Cet objet ne peut pas encore être utilisé.")
