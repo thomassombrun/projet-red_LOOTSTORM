@@ -1,41 +1,35 @@
 {
-  "Name": "Hikari",
-  "Class": "Invocateur",
-  "Level": 1,
-  "MaxHP": 90,
-  "CurrentHP": 37,
+  "Name": "Himiko Toga",
+  "Class": "Assassin",
+  "Level": 2,
+  "MaxHP": 110,
+  "CurrentHP": 55,
   "Inventory": [
     {
       "Name": "Potion de vie",
-      "Quantity": 3
+      "Quantity": 3,
+      "Rarity": ""
     },
     {
-      "Name": "Bave de slime",
-      "Quantity": 1
+      "Name": "Lame de gobelin",
+      "Quantity": 1,
+      "Rarity": "Peu commun"
     }
   ],
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 5,
+      "Damage": 7,
       "HealAmount": 0,
       "EffectTurns": 0,
       "Initiative": 0,
       "ManaCost": 0
-    },
-    {
-      "Name": "Invocation de soldat",
-      "Damage": 0,
-      "HealAmount": 0,
-      "EffectTurns": 0,
-      "Initiative": 0,
-      "ManaCost": 35
     }
   ],
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 135,
+  "Gold": 150,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
@@ -48,23 +42,14 @@
     "BootsHP": 0,
     "WeaponDamage": 0
   },
-  "Initiative": 90,
-  "CurrentXP": 80,
-  "MaxXP": 100,
-  "Mana": 55,
-  "MaxMana": 80,
+  "Initiative": 135,
+  "CurrentXP": 0,
+  "MaxXP": 110,
+  "Mana": 60,
+  "MaxMana": 60,
   "LastClearedRoom": 1,
-  "Summon": {
-    "Name": "Soldat invoqué",
-    "Pattern": "",
-    "Level": 1,
-    "MaxHP": 30,
-    "CurrentHP": 30,
-    "Attack": 7,
-    "PoisonTurns": 0,
-    "Effects": null,
-    "Initiative": 90,
-    "XPReward": 0,
-    "GoldReward": 0
-  }
+  "Summon": null,
+  "CombatWeaponBonus": 0,
+  "CombatSpellBonus": 0,
+  "CombatInitiativeBonus": 0
 }

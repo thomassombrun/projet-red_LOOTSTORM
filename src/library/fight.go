@@ -442,6 +442,7 @@ func GainExperience(c *Character, amount int) {
 	for c.CurrentXP >= c.MaxXP {
 		c.CurrentXP -= c.MaxXP
 		c.Level++
+		c.Attack += 2
 		c.MaxXP += 10
 		c.MaxHP += 10
 		c.CurrentHP += 10
@@ -457,7 +458,7 @@ func GainExperience(c *Character, amount int) {
 			c.Skill[i].Damage += 2
 		}
 
-		fmt.Printf("Niveau %d atteint ! PV max +10, mana max +%d, initiative +5, dégâts des sorts +2.\n", c.Level, manaGain)
+		fmt.Printf("Niveau %d atteint ! Attaque +2, PV max +10, mana max +%d, initiative +5, dégâts des sorts +2.\n", c.Level, manaGain)
 	}
 
 	if c.CurrentHP > c.MaxHP {

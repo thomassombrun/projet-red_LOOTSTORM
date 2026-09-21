@@ -30,6 +30,7 @@ type Character struct {
 	Name                  string
 	Class                 string
 	Level                 int
+	Attack                int
 	MaxHP                 int
 	CurrentHP             int
 	Inventory             []Item
@@ -84,6 +85,7 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		Name:                  name,
 		Class:                 class,
 		Level:                 1,
+		Attack:                5,
 		MaxHP:                 maxHP,
 		CurrentHP:             maxHP / 2,
 		Inventory:             []Item{{Name: "Potion de vie", Quantity: 3}},
@@ -162,7 +164,7 @@ func BlockDamage(c *Character, damage int) int {
 }
 
 func BasicAttackDamage(c *Character) int {
-	damage := 5 + c.CombatWeaponBonus
+	damage := 5 + c.Attack + c.CombatWeaponBonus
 	if c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun" {
 		damage += c.Equip.WeaponDamage
 	}
