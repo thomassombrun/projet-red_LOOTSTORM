@@ -45,10 +45,15 @@ type Character struct {
 	Mana                  int
 	MaxMana               int
 	LastClearedRoom       int
+	Summon                *Monster
 }
 
 func InitCharacter(name string, class string, maxHP int) Character {
 	initiative := 100
+	skills := []Skill{{Name: "Coup de poing", Damage: 5, ManaCost: 0}}
+	if class == "Invocateur" {
+		skills = append(skills, Skill{Name: "Invocation de soldat", ManaCost: 35})
+	}
 	switch class {
 	case "Assassin":
 		initiative = 130
@@ -60,6 +65,14 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		initiative = 120
 	case "Chevalier":
 		initiative = 80
+	case "Samourai":
+		initiative = 115
+	case "Clerc":
+		initiative = 95
+	case "Barbare":
+		initiative = 85
+	case "Invocateur":
+		initiative = 90
 	}
 
 	return Character{
@@ -69,7 +82,7 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		MaxHP:                 maxHP,
 		CurrentHP:             maxHP / 2,
 		Inventory:             []Item{{Name: "Potion de vie", Quantity: 3}},
-		Skill:                 []Skill{{Name: "Coup de poing", Damage: 5, ManaCost: 0}},
+		Skill:                 skills,
 		Effects:               []Effect{},
 		HolyBarrier:           false,
 		PoisonTurns:           0,
@@ -79,15 +92,29 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		Initiative:            initiative,
 		CurrentXP:             0,
 		MaxXP:                 100,
-		Mana:                  50,
-		MaxMana:               50,
+		Mana:                  baseMana(class),
+		MaxMana:               baseMana(class),
 		LastClearedRoom:       0,
+		Summon:                nil,
 		Equip: Equipment{
 			Helmet:     "Aucun",
 			Chestplate: "Aucun",
 			Boots:      "Aucun",
 			Weapon:     "Aucun",
 		},
+	}
+}
+
+func baseMana(class string) int {
+	switch class {
+	case "Mage":
+		return 70
+	case "Clerc":
+		return 60
+	case "Invocateur":
+		return 80
+	default:
+		return 50
 	}
 }
 
@@ -98,6 +125,8 @@ func TryDodge(c *Character) bool {
 		chance = 20
 	case "Assassin":
 		chance = 30
+	case "Samourai":
+		chance = 15
 	}
 	if chance == 0 || rand.Intn(100) >= chance {
 		return false
@@ -122,4 +151,23 @@ func BlockDamage(c *Character, damage int) int {
 	fmt.Printf("%s bloque une partie de l'attaque (%d%% de chance) !\n", c.Name, chance)
 	fmt.Printf("Dégâts réduits : %d -> %d.\n", damage, blockedDamage)
 	return blockedDamage
+}
+
+func BasicAttackDamage(c *Character) int {
+	damage := 5
+	if c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun" {
+		damage += c.Equip.WeaponDamage
+	}
+	if c.Class == "Barbare" && c.MaxHP > 0 {
+		missingRatio := float64(c.MaxHP-c.CurrentHP) / float64(c.MaxHP)
+		damage += int(float64(damage) * missingRatio)
+	}
+	if c.Class == "Archer" && c.Equip.Weapon == "Arc du chasseur" {
+		damage *= 2
+	}
+	return damage
+}
+
+func IsWeaponEquipped(c *Character) bool {
+	return c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun"
 }

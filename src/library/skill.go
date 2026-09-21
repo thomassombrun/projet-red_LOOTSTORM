@@ -26,6 +26,10 @@ func LearnHolyBarrier(c *Character) {
 	learnSkill(c, Skill{Name: "Barrière Sacrée", EffectTurns: 1, ManaCost: 35})
 }
 
+func LearnSummonSoldier(c *Character) {
+	learnSkill(c, Skill{Name: "Invocation de soldat", ManaCost: 35})
+}
+
 func LearnSpellBook(c *Character, itemName string) {
 	switch itemName {
 	case "Livre de Sort : Boule de Feu":
@@ -108,26 +112,44 @@ func SkillMenu(c *Character, m *Monster) bool {
 
 	switch chosenSkill.Name {
 	case "Soin":
-		c.CurrentHP += chosenSkill.HealAmount
+		healAmount := chosenSkill.HealAmount
+		if c.Class == "Clerc" {
+			healAmount = healAmount * 3 / 2
+		}
+		c.CurrentHP += healAmount
 		if c.CurrentHP > c.MaxHP {
 			c.CurrentHP = c.MaxHP
 		}
-		fmt.Printf("%s récupère %d PV.\n", c.Name, chosenSkill.HealAmount)
+		fmt.Printf("%s récupère %d PV.\n", c.Name, healAmount)
 	case "Régénération":
 		c.Effects = append(c.Effects, Effect{Name: "Régénération", Value: chosenSkill.HealAmount, TurnsLeft: chosenSkill.EffectTurns})
 		fmt.Printf("%s récupérera %d PV pendant %d tours.\n", c.Name, chosenSkill.HealAmount, chosenSkill.EffectTurns)
 	case "Poison", "Brûlure":
-		m.Effects = append(m.Effects, Effect{Name: chosenSkill.Name, Value: chosenSkill.Damage, TurnsLeft: chosenSkill.EffectTurns})
+		damage := SpellDamage(c, chosenSkill.Damage)
+		m.Effects = append(m.Effects, Effect{Name: chosenSkill.Name, Value: damage, TurnsLeft: chosenSkill.EffectTurns})
 		fmt.Printf("%s applique %s à %s pendant %d tours.\n", c.Name, chosenSkill.Name, m.Name, chosenSkill.EffectTurns)
 	case "Barrière Sacrée":
 		c.HolyBarrier = true
 		fmt.Println("La prochaine attaque ennemie sera complètement bloquée.")
+	case "Invocation de soldat":
+		if c.Summon != nil && c.Summon.CurrentHP > 0 {
+			fmt.Println("Vous avez déjà un soldat invoqué.")
+			c.Mana += chosenSkill.ManaCost
+			return false
+		}
+		c.Summon = &Monster{
+			Name: "Soldat invoqué", Level: c.Level, MaxHP: 25 + c.Level*5,
+			CurrentHP: 25 + c.Level*5, Attack: 5 + c.Level*2,
+			Initiative: c.Initiative, XPReward: 0, GoldReward: 0,
+		}
+		fmt.Printf("%s invoque un soldat qui combattra à ses côtés.\n", c.Name)
 	default:
-		m.CurrentHP -= chosenSkill.Damage
+		damage := SpellDamage(c, chosenSkill.Damage)
+		m.CurrentHP -= damage
 		if m.CurrentHP < 0 {
 			m.CurrentHP = 0
 		}
-		fmt.Printf("%s lance %s et inflige %d dégâts à %s !\n", c.Name, chosenSkill.Name, chosenSkill.Damage, m.Name)
+		fmt.Printf("%s lance %s et inflige %d dégâts à %s !\n", c.Name, chosenSkill.Name, damage, m.Name)
 	}
 
 	if chosenSkill.Damage > 0 {
@@ -135,6 +157,13 @@ func SkillMenu(c *Character, m *Monster) bool {
 	}
 
 	return true
+}
+
+func SpellDamage(c *Character, damage int) int {
+	if c.Class == "Mage" {
+		return damage * 3 / 2
+	}
+	return damage
 }
 
 func ApplyCharacterEffects(c *Character) {

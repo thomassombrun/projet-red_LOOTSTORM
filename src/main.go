@@ -65,11 +65,19 @@ func main() {
 				c1 := library.InitCharacter("Himiko Toga", "Assassin", 100)
 				c2 := library.InitCharacter("Link", "Chevalier", 120)
 				c3 := library.InitCharacter("Patrick Bouldefeu", "Mage", 80)
+				c4 := library.InitCharacter("Musashi", "Samourai", 115)
+				c5 := library.InitCharacter("Clara", "Clerc", 105)
+				c6 := library.InitCharacter("Ragnar", "Barbare", 180)
+				c7 := library.InitCharacter("Orion", "Invocateur", 90)
 
 				fmt.Println("\nChoisissez votre héros :")
 				fmt.Println("1. Himiko Toga (Assassin)")
 				fmt.Println("2. Link (Chevalier)")
 				fmt.Println("3. Patrick Bouldefeu (Mage)")
+				fmt.Println("4. Musashi (Samourai)")
+				fmt.Println("5. Clara (Clerc)")
+				fmt.Println("6. Ragnar (Barbare)")
+				fmt.Println("7. Orion (Invocateur)")
 				fmt.Println("0. Retour")
 				fmt.Print("Votre choix : ")
 
@@ -90,6 +98,22 @@ func main() {
 					break
 				case 3:
 					player = c3
+					selected = true
+					break
+				case 4:
+					player = c4
+					selected = true
+					break
+				case 5:
+					player = c5
+					selected = true
+					break
+				case 6:
+					player = c6
+					selected = true
+					break
+				case 7:
+					player = c7
 					selected = true
 					break
 				case 0:

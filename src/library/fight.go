@@ -26,8 +26,13 @@ func TrainingFight(c *Character) {
 			break
 		}
 		RegenerateMana(c)
-		CharacterTurn(c, &monster)
+		CharacterActions(c, &monster)
 
+		if monster.CurrentHP <= 0 {
+			fmt.Printf("%s est vaincu !\n", monster.Name)
+			break
+		}
+		SummonAttack(c, &monster)
 		if monster.CurrentHP <= 0 {
 			fmt.Printf("%s est vaincu !\n", monster.Name)
 			break
@@ -140,12 +145,16 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 				break
 			}
 			RegenerateMana(c)
-			CharacterTurn(c, m)
+			CharacterActions(c, m)
 
 			if c.CurrentHP <= 0 {
 				break
 			}
 
+			if m.CurrentHP <= 0 {
+				break
+			}
+			SummonAttack(c, m)
 			if m.CurrentHP <= 0 {
 				break
 			}
@@ -186,12 +195,16 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 			}
 			RegenerateMana(c)
 
-			CharacterTurn(c, m)
+			CharacterActions(c, m)
 
 			if c.CurrentHP <= 0 {
 				break
 			}
 
+			if m.CurrentHP <= 0 {
+				break
+			}
+			SummonAttack(c, m)
 			if m.CurrentHP <= 0 {
 				break
 			}
@@ -268,15 +281,10 @@ func CharacterTurn(c *Character, m *Monster) {
 
 		switch choice {
 		case 1:
-			damage := 5 + c.Equip.WeaponDamage
+			damage := BasicAttackDamage(c)
 			skillName := "Coup de poing"
-			if c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun" {
+			if IsWeaponEquipped(c) {
 				skillName = "Coup d'arme"
-			}
-
-			if len(c.Skill) > 0 {
-				damage = c.Skill[0].Damage
-				skillName = c.Skill[0].Name
 			}
 
 			m.CurrentHP -= damage
@@ -316,6 +324,30 @@ func CharacterTurn(c *Character, m *Monster) {
 		default:
 			fmt.Println("Choix invalide.")
 		}
+	}
+}
+
+func CharacterActions(c *Character, m *Monster) {
+	CharacterTurn(c, m)
+	if c.Class == "Assassin" && c.CurrentHP > 0 && m.CurrentHP > 0 {
+		fmt.Println("L'assassin profite de son double tour !")
+		WaitForEnter()
+		CharacterTurn(c, m)
+	}
+}
+
+func SummonAttack(c *Character, m *Monster) {
+	if c.Summon == nil || c.Summon.CurrentHP <= 0 || m.CurrentHP <= 0 {
+		return
+	}
+	damage := c.Summon.Attack
+	m.CurrentHP -= damage
+	if m.CurrentHP < 0 {
+		m.CurrentHP = 0
+	}
+	fmt.Printf("%s attaque et inflige %d dégâts à %s.\n", c.Summon.Name, damage, m.Name)
+	if c.Summon.CurrentHP <= 0 {
+		c.Summon = nil
 	}
 }
 

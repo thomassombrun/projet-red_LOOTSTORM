@@ -39,6 +39,10 @@ func InitSlimeLevel(name string, level int) Monster {
 	return initMonster(name, level, 30, 4, 80, 80, 35)
 }
 
+func InitGhostLevel(name string, level int) Monster {
+	return initMonster(name, level, 35, 7, 125, 120, 60)
+}
+
 func initMonster(name string, level int, baseHP int, baseAttack int, initiative int, baseXP int, baseGold int) Monster {
 	if level < 1 {
 		level = 1
