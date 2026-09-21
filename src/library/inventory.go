@@ -29,10 +29,11 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 		} else {
 			for displayIndex, inventoryIndex := range availableItems {
 				item := c.Inventory[inventoryIndex]
+				label := itemDisplayName(item)
 				if item.Quantity > 1 {
-					fmt.Printf("%d. %s x%d\n", displayIndex+1, item.Name, item.Quantity)
+					fmt.Printf("%d. %s x%d\n", displayIndex+1, label, item.Quantity)
 				} else {
-					fmt.Printf("%d. %s\n", displayIndex+1, item.Name)
+					fmt.Printf("%d. %s\n", displayIndex+1, label)
 				}
 			}
 		}

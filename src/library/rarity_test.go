@@ -1,6 +1,9 @@
 package library
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestEquipmentRarityParsing(t *testing.T) {
 	item := "Lame de gobelin [Épique]"
@@ -34,5 +37,17 @@ func TestGenerateMonsterEquipment(t *testing.T) {
 func TestRarityRollIsNotEmpty(t *testing.T) {
 	if rarity := rollEquipmentRarity(8); rarity == "" {
 		t.Fatal("une rareté doit être retournée")
+	}
+}
+
+func TestEquipmentKeepsRarityOnEquip(t *testing.T) {
+	c := InitCharacter("Test", "Guerrier", 100)
+	c.Inventory = []Item{{Name: "Heaume squelette", Quantity: 1, Rarity: RarityEpic}}
+	EquipItem(&c, "Heaume squelette [Épique]", 0)
+	if !strings.Contains(c.Equip.Helmet, "[Épique]") {
+		t.Fatalf("la rareté doit être conservée après l'équipement, obtenu %q", c.Equip.Helmet)
+	}
+	if equipmentHPBonus("Heaume squelette") == 0 {
+		t.Fatal("un heaume squelette doit donner des PV")
 	}
 }

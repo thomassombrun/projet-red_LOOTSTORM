@@ -128,24 +128,64 @@ func equipmentHPBonus(itemName string) int {
 		return 15
 	case "Casque de gobelin":
 		return 15
+	case "Tunique de gobelin":
+		return 22
+	case "Bottes de gobelin":
+		return 12
 	case "Carapace de slime":
 		return 20
+	case "Tunique de slime":
+		return 25
+	case "Bottes de slime":
+		return 15
 	case "Capuche spectrale":
 		return 25
+	case "Tunique spectrale":
+		return 30
+	case "Bottes spectrales":
+		return 18
 	case "Casque de golem":
 		return 30
+	case "Tunique de golem":
+		return 35
+	case "Bottes de golem":
+		return 20
 	case "Peau de troll renforcée":
 		return 35
+	case "Tunique de troll":
+		return 40
+	case "Bottes de troll":
+		return 22
 	case "Plumes du canard":
 		return 20
+	case "Tunique du canard":
+		return 25
+	case "Bottes du canard":
+		return 15
 	case "Heaume squelette":
 		return 18
+	case "Tunique du squelette":
+		return 22
+	case "Bottes du squelette":
+		return 14
 	case "Fourrure du loup":
 		return 12
+	case "Tunique du loup":
+		return 18
+	case "Bottes du loup":
+		return 10
 	case "Chapeau du sorcier":
 		return 15
+	case "Tunique du sorcier":
+		return 20
+	case "Bottes du sorcier":
+		return 12
 	case "Écailles de dragon":
 		return 50
+	case "Tunique du dragon":
+		return 60
+	case "Bottes du dragon":
+		return 30
 	default:
 		return 0
 	}
