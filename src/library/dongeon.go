@@ -16,8 +16,9 @@ func StartAdventure(c *Character) {
 
 	for {
 		roomNumber := c.LastClearedRoom + 1
+		floor := dungeonFloor(roomNumber)
 		ClearTerminal()
-		fmt.Printf("===== SALLE %d =====\n", roomNumber)
+		fmt.Printf("===== ÉTAGE %d - SALLE %d =====\n", floor, roomNumber)
 
 		roomCleared := playRandomRoom(c, roomNumber, random)
 		if !roomCleared {
@@ -31,7 +32,18 @@ func StartAdventure(c *Character) {
 	}
 }
 
+func dungeonFloor(roomNumber int) int {
+	if roomNumber < 1 {
+		return 1
+	}
+	return (roomNumber-1)/10 + 1
+}
+
 func playRandomRoom(c *Character, roomNumber int, random *rand.Rand) bool {
+	if roomNumber%10 == 0 {
+		return playBossRoom(c, roomNumber)
+	}
+
 	roll := random.Intn(100)
 	bossChance := 10 + roomNumber/2
 	if bossChance < 8 {
@@ -127,16 +139,17 @@ func playMonsterRoom(c *Character, monster Monster, roomNumber int) bool {
 }
 
 func playBossRoom(c *Character, roomNumber int) bool {
-	monster := InitGoblinLevel("Boss gobelin", roomNumber+2)
+	floor := dungeonFloor(roomNumber)
+	monster := InitGoblinLevel("Boss gobelin", roomNumber+floor+1)
 	monster.Name = "Boss gobelin"
 	monster.Pattern = "goblin"
-	monster.MaxHP += 60 + roomNumber*5
+	monster.MaxHP += 60 + floor*25
 	monster.CurrentHP = monster.MaxHP
-	monster.Attack += 8 + roomNumber
-	monster.Initiative += 15 + roomNumber
+	monster.Attack += 8 + floor*3
+	monster.Initiative += 15 + floor*2
 	monster.XPReward = c.MaxXP - c.CurrentXP + 50
-	monster.GoldReward = 120 + roomNumber*25
-	fmt.Printf("Un boss de niveau %d apparaît dans la salle !\n", monster.Level)
+	monster.GoldReward = 120 + floor*50
+	fmt.Printf("BOSS DE L'ÉTAGE %d : un boss de niveau %d apparaît dans la salle !\n", floor, monster.Level)
 	c.LastClearedRoom = roomNumber
 	return normalFight(c, &monster, roomNumber-1)
 }

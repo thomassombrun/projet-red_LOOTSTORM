@@ -1,10 +1,10 @@
 {
   "Name": "Himiko Toga",
   "Class": "Assassin",
-  "Level": 77,
-  "Attack": 157,
-  "MaxHP": 961,
-  "CurrentHP": 628,
+  "Level": 7,
+  "Attack": 17,
+  "MaxHP": 212,
+  "CurrentHP": 21,
   "Inventory": [
     {
       "Name": "Potion de vie",
@@ -12,20 +12,15 @@
       "Rarity": ""
     },
     {
-      "Name": "Tunique de gobelin",
+      "Name": "Massue de troll",
       "Quantity": 1,
-      "Rarity": "Peu commun"
-    },
-    {
-      "Name": "Casque de gobelin",
-      "Quantity": 1,
-      "Rarity": "Peu commun"
+      "Rarity": "Commun"
     }
   ],
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 157,
+      "Damage": 17,
       "HealAmount": 0,
       "EffectTurns": 0,
       "Initiative": 0,
@@ -35,25 +30,25 @@
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 18072,
+  "Gold": 630,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
-    "Helmet": "Capuche spectrale [Rare]",
-    "Chestplate": "Tunique de troll [Peu commun]",
-    "Boots": "Bottes de gobelin [Rare]",
-    "Weapon": "Lame de gobelin [Peu commun]",
+    "Helmet": "Capuche spectrale [Commun]",
+    "Chestplate": "Aucun",
+    "Boots": "Bottes de golem [Rare]",
+    "Weapon": "Marteau de golem [Commun]",
     "HelmetHP": 0,
     "ChestplateHP": 0,
     "BootsHP": 0,
-    "WeaponDamage": 11
+    "WeaponDamage": 18
   },
-  "Initiative": 510,
-  "CurrentXP": 440,
-  "MaxXP": 860,
-  "Mana": 810,
-  "MaxMana": 810,
-  "LastClearedRoom": 55,
+  "Initiative": 160,
+  "CurrentXP": 170,
+  "MaxXP": 355,
+  "Mana": 110,
+  "MaxMana": 110,
+  "LastClearedRoom": 7,
   "Summon": null,
   "CombatWeaponBonus": 0,
   "CombatSpellBonus": 0,

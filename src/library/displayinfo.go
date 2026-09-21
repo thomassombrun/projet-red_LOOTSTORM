@@ -20,6 +20,9 @@ func DisplayInfo(c *Character) {
 	fmt.Printf("Classe : %s\n", c.Class)
 	fmt.Printf("Niveau : %d\n", c.Level)
 	fmt.Printf("Attaque : %d\n", c.Attack)
+	weaponBonus := c.Equip.WeaponDamage
+	fmt.Printf("Bonus d'arme : +%d\n", weaponBonus)
+	fmt.Printf("Attaque totale : %d\n", c.Attack+weaponBonus)
 	fmt.Printf("PV : %d / %d\n", c.CurrentHP, c.MaxHP)
 	fmt.Printf("XP : %d / %d\n", c.CurrentXP, c.MaxXP)
 	fmt.Printf("Or : %d\n", c.Gold)

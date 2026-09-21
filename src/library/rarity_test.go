@@ -65,6 +65,17 @@ func TestMarteauDeGolemIsWeapon(t *testing.T) {
 	}
 }
 
+func TestWeaponBonusCountsInAttackDamage(t *testing.T) {
+	c := InitCharacter("Test", "Guerrier", 100)
+	withoutWeapon := BasicAttackDamage(&c)
+	c.Equip.Weapon = "Marteau de golem [Rare]"
+	c.Equip.WeaponDamage = 18
+	withWeapon := BasicAttackDamage(&c)
+	if withWeapon-withoutWeapon != 18 {
+		t.Fatalf("le bonus d'arme devrait ajouter 18 dégâts, différence obtenue : %d", withWeapon-withoutWeapon)
+	}
+}
+
 func TestReplaceEquipmentSameCategory(t *testing.T) {
 	c := InitCharacter("Test", "Guerrier", 100)
 	c.Equip.Boots = "Bottes de slime [Commun]"
