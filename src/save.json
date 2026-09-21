@@ -1,10 +1,10 @@
 {
   "Name": "Himiko Toga",
   "Class": "Assassin",
-  "Level": 2,
-  "Attack": 7,
-  "MaxHP": 110,
-  "CurrentHP": 50,
+  "Level": 3,
+  "Attack": 9,
+  "MaxHP": 120,
+  "CurrentHP": 46,
   "Inventory": [
     {
       "Name": "Potion de vie",
@@ -12,15 +12,15 @@
       "Rarity": ""
     },
     {
-      "Name": "Massue de troll",
+      "Name": "Bottes de golem",
       "Quantity": 1,
-      "Rarity": "Commun"
+      "Rarity": "Peu commun"
     }
   ],
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 7,
+      "Damage": 9,
       "HealAmount": 0,
       "EffectTurns": 0,
       "Initiative": 0,
@@ -30,7 +30,7 @@
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 170,
+  "Gold": 180,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
@@ -43,11 +43,11 @@
     "BootsHP": 0,
     "WeaponDamage": 0
   },
-  "Initiative": 135,
-  "CurrentXP": 100,
-  "MaxXP": 110,
-  "Mana": 60,
-  "MaxMana": 60,
+  "Initiative": 140,
+  "CurrentXP": 40,
+  "MaxXP": 120,
+  "Mana": 70,
+  "MaxMana": 70,
   "LastClearedRoom": 1,
   "Summon": null,
   "CombatWeaponBonus": 0,

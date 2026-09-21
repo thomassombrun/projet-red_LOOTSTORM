@@ -43,7 +43,7 @@ func TestRarityRollIsNotEmpty(t *testing.T) {
 func TestEquipmentKeepsRarityOnEquip(t *testing.T) {
 	c := InitCharacter("Test", "Guerrier", 100)
 	c.Inventory = []Item{{Name: "Heaume squelette", Quantity: 1, Rarity: RarityEpic}}
-	EquipItem(&c, "Heaume squelette [Épique]", 0)
+	EquipItem(&c, itemDisplayName(c.Inventory[0]), 0)
 	if !strings.Contains(c.Equip.Helmet, "[Épique]") {
 		t.Fatalf("la rareté doit être conservée après l'équipement, obtenu %q", c.Equip.Helmet)
 	}
