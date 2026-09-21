@@ -55,6 +55,10 @@ func AccessInventory(c *Character, enemy *Monster) bool {
 			c.Inventory = append(c.Inventory[:choice-1], c.Inventory[choice:]...)
 			return true
 
+		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier":
+			EquipItem(c, item.Name, choice-1)
+			return true
+
 		default:
 			fmt.Println("Cet objet ne peut pas encore être utilisé.")
 		}

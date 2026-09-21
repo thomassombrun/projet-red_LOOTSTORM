@@ -40,8 +40,6 @@ func MerchantMenu(c *Character) {
 			if !BuyItem(c, "Livre de Sort : Boule de Feu", 25) {
 				return
 			}
-			c.Inventory = append(c.Inventory, Item{Name: "Livre de Sort : Boule de Feu", Quantity: 1})
-			fmt.Println("Vous avez acheté : Livre de Sort : Boule de Feu")
 
 		case 4:
 			BuyItem(c, "Fourrure de Loup", 4)
