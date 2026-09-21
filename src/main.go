@@ -131,11 +131,12 @@ func main() {
 		fmt.Println()
 		fmt.Println("===== MENU PRINCIPAL =====")
 		fmt.Println("1. Afficher mes statistiques")
-		fmt.Println("2. Combat d'entraînement")
-		fmt.Println("3. Ouvrir l'inventaire")
-		fmt.Println("4. Marchand")
-		fmt.Println("5. Forgeron")
-		fmt.Println("6. Quitter le jeu")
+		fmt.Println("2. Aventure")
+		fmt.Println("3. Combat d'entraînement")
+		fmt.Println("4. Ouvrir l'inventaire")
+		fmt.Println("5. Marchand")
+		fmt.Println("6. Forgeron")
+		fmt.Println("7. Quitter le jeu")
 		fmt.Print("Votre choix : ")
 
 		var choice int
@@ -150,18 +151,21 @@ func main() {
 			library.DisplayInfo(&player)
 
 		case 2:
-			library.TrainingFight(&player)
+			library.StartAdventure(&player)
 
 		case 3:
-			library.AccessInventory(&player, nil)
+			library.TrainingFight(&player)
 
 		case 4:
-			library.MerchantMenu(&player)
+			library.AccessInventory(&player, nil)
 
 		case 5:
-			library.ForgeronMenu(&player)
+			library.MerchantMenu(&player)
 
 		case 6:
+			library.ForgeronMenu(&player)
+
+		case 7:
 			fmt.Println("Merci d'avoir joué à Lootstorm ! À bientôt.")
 			return
 

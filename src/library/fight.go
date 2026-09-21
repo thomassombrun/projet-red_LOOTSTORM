@@ -82,7 +82,7 @@ func UseSkill(c *Character, m *Monster) {
 	fmt.Printf("%s : PV %d / %d\n", m.Name, m.CurrentHP, m.MaxHP)
 }
 
-func normalFight(c *Character, m *Monster, previousRoom int) {
+func normalFight(c *Character, m *Monster, previousRoom int) bool {
 	turn := 1
 
 	fmt.Println()
@@ -185,7 +185,7 @@ func normalFight(c *Character, m *Monster, previousRoom int) {
 
 		GiveCombatReward(c, m)
 
-		return
+		return true
 	}
 
 	if c.CurrentHP <= 0 {
@@ -209,6 +209,8 @@ func normalFight(c *Character, m *Monster, previousRoom int) {
 			c.MaxHP,
 		)
 	}
+
+	return false
 }
 
 func CharacterTurn(c *Character, m *Monster) {
