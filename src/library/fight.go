@@ -196,10 +196,12 @@ func CharacterTurn(c *Character, m *Monster) {
 		fmt.Println("0. Fin du tour")
 
 		var choice int
-		fmt.Scan(&choice)
+		if _, err := fmt.Scanln(&choice); err != nil {
+			fmt.Println("Saisie invalide.")
+			continue
+		}
 
 		switch choice {
-
 		case 1:
 			damage := 5
 			skillName := "Coup de poing"
@@ -210,35 +212,26 @@ func CharacterTurn(c *Character, m *Monster) {
 			}
 
 			m.CurrentHP -= damage
-
 			if m.CurrentHP < 0 {
 				m.CurrentHP = 0
 			}
 
-			fmt.Printf(
-				"%s utilise %s et inflige %d dégâts à %s\n",
-				c.Name,
-				skillName,
-				damage,
-				m.Name,
+			fmt.Printf("%s utilise %s et inflige %d dégâts à %s\n",
+				c.Name, skillName, damage, m.Name,
 			)
-
-			fmt.Printf(
-				"PV de %s : %d / %d\n",
-				m.Name,
-				m.CurrentHP,
-				m.MaxHP,
+			fmt.Printf("PV de %s : %d / %d\n",
+				m.Name, m.CurrentHP, m.MaxHP,
 			)
 			return
 
 		case 2:
-			if SkillMenu(c, m) {
-				fmt.Println("Votre sort est lancé. Vous pouvez continuer votre tour ou le finir.")
-			}
+			SkillMenu(c, m)
+			fmt.Println("Action effectuée. Vous pouvez continuer votre tour ou le terminer.")
 			continue
 
 		case 3:
 			AccessInventory(c, nil)
+			fmt.Println("Retour au tour du joueur.")
 			continue
 
 		case 4:
