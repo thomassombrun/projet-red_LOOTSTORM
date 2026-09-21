@@ -1,13 +1,17 @@
 {
-  "Name": "Himiko Toga",
-  "Class": "Assassin",
+  "Name": "Jean",
+  "Class": "Samourai",
   "Level": 2,
-  "MaxHP": 120,
-  "CurrentHP": 25,
+  "MaxHP": 125,
+  "CurrentHP": 63,
   "Inventory": [
     {
       "Name": "Potion de vie",
-      "Quantity": 4
+      "Quantity": 2
+    },
+    {
+      "Name": "Potion de mana",
+      "Quantity": 1
     }
   ],
   "Skill": [
@@ -17,33 +21,29 @@
       "HealAmount": 0,
       "EffectTurns": 0,
       "ManaCost": 0
-    },
-    {
-      "Name": "Boule de Feu",
-      "Damage": 37,
-      "HealAmount": 0,
-      "EffectTurns": 0,
-      "ManaCost": 50
     }
   ],
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 184,
+  "Gold": 160,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
-    "Helmet": "Chapeau de l'aventurier",
+    "Helmet": "Aucun",
     "Chestplate": "Aucun",
     "Boots": "Aucun",
+    "Weapon": "Aucun",
     "HelmetHP": 0,
     "ChestplateHP": 0,
-    "BootsHP": 0
+    "BootsHP": 0,
+    "WeaponDamage": 0
   },
-  "Initiative": 135,
-  "CurrentXP": 20,
+  "Initiative": 120,
+  "CurrentXP": 0,
   "MaxXP": 110,
-  "Mana": 0,
-  "MaxMana": 50,
-  "LastClearedRoom": 3
+  "Mana": 60,
+  "MaxMana": 60,
+  "LastClearedRoom": 2,
+  "Summon": null
 }

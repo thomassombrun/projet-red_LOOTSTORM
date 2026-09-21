@@ -13,6 +13,7 @@ func TrainingFight(c *Character) {
 	fmt.Println()
 	fmt.Println("===== COMBAT D'ENTRAÎNEMENT =====")
 	fmt.Printf("%s affronte %s !\n", c.Name, monster.Name)
+	AssassinOpeningAttack(c, &monster)
 	WaitForEnter()
 
 	for c.CurrentHP > 0 && monster.CurrentHP > 0 {
@@ -130,6 +131,7 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 	} else {
 		fmt.Printf("%s commence le combat !\n", m.Name)
 	}
+	AssassinOpeningAttack(c, m)
 	WaitForEnter()
 
 	for c.CurrentHP > 0 && m.CurrentHP > 0 {
@@ -385,6 +387,9 @@ func MonsterAttack(m *Monster, c *Character, turn int) {
 		c.CurrentHP,
 		c.MaxHP,
 	)
+	if TryCounterAttack(c, m) {
+		fmt.Printf("PV de %s : %d / %d\n", m.Name, m.CurrentHP, m.MaxHP)
+	}
 }
 func GiveCombatReward(c *Character, m *Monster) {
 

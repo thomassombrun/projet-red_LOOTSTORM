@@ -171,3 +171,42 @@ func BasicAttackDamage(c *Character) int {
 func IsWeaponEquipped(c *Character) bool {
 	return c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun"
 }
+
+func TryCounterAttack(c *Character, m *Monster) bool {
+	if c.Class != "Samourai" || m.CurrentHP <= 0 || rand.Intn(100) >= 25 {
+		return false
+	}
+
+	damage := BasicAttackDamage(c)
+	m.CurrentHP -= damage
+	if m.CurrentHP < 0 {
+		m.CurrentHP = 0
+	}
+
+	attackName := "Coup de poing"
+	if IsWeaponEquipped(c) {
+		attackName = "Coup d'arme"
+	}
+	fmt.Printf("%s contre-attaque avec %s et inflige %d dégâts à %s !\n", c.Name, attackName, damage, m.Name)
+	return true
+}
+
+func AssassinOpeningAttack(c *Character, m *Monster) bool {
+	if c.Class != "Assassin" || m.CurrentHP <= 0 {
+		return false
+	}
+
+	damage := BasicAttackDamage(c) * 2
+	m.CurrentHP -= damage
+	if m.CurrentHP < 0 {
+		m.CurrentHP = 0
+	}
+
+	attackName := "Coup de poing"
+	if IsWeaponEquipped(c) {
+		attackName = "Coup d'arme"
+	}
+	fmt.Printf("%s frappe par surprise avec %s et inflige %d dégâts à %s !\n", c.Name, attackName, damage, m.Name)
+	fmt.Printf("PV de %s : %d / %d\n", m.Name, m.CurrentHP, m.MaxHP)
+	return true
+}
