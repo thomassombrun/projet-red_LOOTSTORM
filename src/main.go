@@ -129,7 +129,9 @@ func main() {
 		fmt.Println("1. Afficher mes statistiques")
 		fmt.Println("2. Combat d'entraînement")
 		fmt.Println("3. Ouvrir l'inventaire")
-		fmt.Println("4. Quitter le jeu")
+		fmt.Println("4. Marchand")
+		fmt.Println("5. Forgeron")
+		fmt.Println("6. Quitter le jeu")
 		fmt.Print("Votre choix : ")
 
 		var choice int
@@ -150,6 +152,12 @@ func main() {
 			library.AccessInventory(&player, nil)
 
 		case 4:
+			library.MerchantMenu(&player)
+
+		case 5:
+			library.ForgeronMenu(&player)
+
+		case 6:
 			fmt.Println("Merci d'avoir joué à Lootstorm ! À bientôt.")
 			return
 
