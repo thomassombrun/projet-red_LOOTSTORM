@@ -22,6 +22,10 @@ func LearnBurn(c *Character) {
 	learnSkill(c, Skill{Name: "Brûlure", Damage: 15, EffectTurns: 2, ManaCost: 30})
 }
 
+func LearnLightning(c *Character) {
+	learnSkill(c, Skill{Name: "Éclair", Damage: 15, Initiative: -15, ManaCost: 20})
+}
+
 func LearnHolyBarrier(c *Character) {
 	learnSkill(c, Skill{Name: "Barrière Sacrée", EffectTurns: 1, ManaCost: 35})
 }
@@ -42,6 +46,8 @@ func LearnSpellBook(c *Character, itemName string) {
 		LearnPoison(c)
 	case "Livre de Sort : Brûlure":
 		LearnBurn(c)
+	case "Livre de Sort : Éclair":
+		LearnLightning(c)
 	case "Livre de Sort : Barrière Sacrée":
 		LearnHolyBarrier(c)
 	}
@@ -80,6 +86,13 @@ func SkillMenu(c *Character, m *Monster) bool {
 				fmt.Print(", ")
 			}
 			fmt.Printf("Soin : %d", s.HealAmount)
+			statPrinted = true
+		}
+		if s.Initiative != 0 {
+			if statPrinted {
+				fmt.Print(", ")
+			}
+			fmt.Printf("Initiative : %d", s.Initiative)
 			statPrinted = true
 		}
 		if statPrinted {
@@ -128,6 +141,18 @@ func SkillMenu(c *Character, m *Monster) bool {
 		damage := SpellDamage(c, chosenSkill.Damage)
 		m.Effects = append(m.Effects, Effect{Name: chosenSkill.Name, Value: damage, TurnsLeft: chosenSkill.EffectTurns})
 		fmt.Printf("%s applique %s à %s pendant %d tours.\n", c.Name, chosenSkill.Name, m.Name, chosenSkill.EffectTurns)
+	case "Éclair":
+		damage := SpellDamage(c, chosenSkill.Damage)
+		m.CurrentHP -= damage
+		if m.CurrentHP < 0 {
+			m.CurrentHP = 0
+		}
+		m.Initiative += chosenSkill.Initiative
+		if m.Initiative < 0 {
+			m.Initiative = 0
+		}
+		fmt.Printf("%s lance Éclair et inflige %d dégâts à %s !\n", c.Name, damage, m.Name)
+		fmt.Printf("L'initiative de %s baisse de 15.\n", m.Name)
 	case "Barrière Sacrée":
 		c.HolyBarrier = true
 		fmt.Println("La prochaine attaque ennemie sera complètement bloquée.")

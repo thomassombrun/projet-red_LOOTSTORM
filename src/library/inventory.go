@@ -100,7 +100,7 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 			WaitForEnter()
 			return true
 
-		case "Livre de Sort : Boule de Feu", "Livre de Sort : Soin", "Livre de Sort : Régénération", "Livre de Sort : Poison", "Livre de Sort : Brûlure", "Livre de Sort : Barrière Sacrée":
+		case "Livre de Sort : Boule de Feu", "Livre de Sort : Soin", "Livre de Sort : Régénération", "Livre de Sort : Poison", "Livre de Sort : Brûlure", "Livre de Sort : Éclair", "Livre de Sort : Barrière Sacrée":
 			LearnSpellBook(c, item.Name)
 			c.Inventory = append(c.Inventory[:inventoryIndex], c.Inventory[inventoryIndex+1:]...)
 			WaitForEnter()

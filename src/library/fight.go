@@ -362,14 +362,7 @@ func MonsterAttack(m *Monster, c *Character, turn int) {
 		return
 	}
 
-	damage := m.Attack
-
-	if turn%3 == 0 {
-		damage = m.Attack * 2
-		fmt.Printf("%s utilise son attaque renforcée !\n",
-			m.Name,
-		)
-	}
+	damage := MonsterPatternDamage(m, turn)
 	damage = BlockDamage(c, damage)
 	c.CurrentHP -= damage
 	if c.CurrentHP < 0 {

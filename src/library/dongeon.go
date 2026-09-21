@@ -46,13 +46,27 @@ func playRandomRoom(c *Character, roomNumber int, random *rand.Rand) bool {
 
 	roll -= bossChance
 	switch {
-	case roll < 25:
+	case roll < 15:
 		return playGoblinRoom(c, roomNumber)
-	case roll < 45:
+	case roll < 30:
 		return playSlimeRoom(c, roomNumber)
-	case roll < 60:
+	case roll < 40:
 		return playGhostRoom(c, roomNumber)
-	case roll < 75:
+	case roll < 48:
+		return playMonsterRoom(c, InitGolem(), roomNumber)
+	case roll < 56:
+		return playMonsterRoom(c, InitTroll(), roomNumber)
+	case roll < 66:
+		return playMonsterRoom(c, InitSkeleton(), roomNumber)
+	case roll < 76:
+		return playMonsterRoom(c, InitWolf(), roomNumber)
+	case roll < 84:
+		return playMonsterRoom(c, InitWizard(), roomNumber)
+	case roll < 89:
+		return playMonsterRoom(c, InitDuck(), roomNumber)
+	case roll < 91:
+		return playMonsterRoom(c, InitDragon(), roomNumber)
+	case roll < 95:
 		return playNpcRoom(c)
 	default:
 		return playChestRoom(c, random)
@@ -74,6 +88,11 @@ func playSlimeRoom(c *Character, roomNumber int) bool {
 func playGhostRoom(c *Character, roomNumber int) bool {
 	monster := InitGhostLevel("Fantôme", roomNumber)
 	fmt.Printf("Un %s de niveau %d apparaît !\n", monster.Name, monster.Level)
+	return normalFight(c, &monster, roomNumber-1)
+}
+
+func playMonsterRoom(c *Character, monster Monster, roomNumber int) bool {
+	fmt.Printf("Vous rencontrez %s !\n", monster.Name)
 	return normalFight(c, &monster, roomNumber-1)
 }
 

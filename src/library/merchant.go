@@ -18,13 +18,14 @@ func MerchantMenu(c *Character) {
 		fmt.Println("6. Livre de Sort : Régénération - 25 pièces d'or")
 		fmt.Println("7. Livre de Sort : Poison - 25 pièces d'or")
 		fmt.Println("8. Livre de Sort : Brûlure - 25 pièces d'or")
-		fmt.Println("9. Livre de Sort : Barrière Sacrée - 25 pièces d'or")
-		fmt.Println("10. Fourrure de Loup - 4 pièces d'or")
-		fmt.Println("11. Peau de Troll - 7 pièces d'or")
-		fmt.Println("12. Cuir de Sanglier - 3 pièces d'or")
-		fmt.Println("13. Plume de Corbeau - 1 pièce d'or")
-		fmt.Println("14. Amelioration d'inventaire - 30 pièces d'or")
-		fmt.Println("15. Vendre un objet")
+		fmt.Println("9. Livre de Sort : Éclair - 25 pièces d'or")
+		fmt.Println("10. Livre de Sort : Barrière Sacrée - 25 pièces d'or")
+		fmt.Println("11. Fourrure de Loup - 4 pièces d'or")
+		fmt.Println("12. Peau de Troll - 7 pièces d'or")
+		fmt.Println("13. Cuir de Sanglier - 3 pièces d'or")
+		fmt.Println("14. Plume de Corbeau - 1 pièce d'or")
+		fmt.Println("15. Amelioration d'inventaire - 30 pièces d'or")
+		fmt.Println("16. Vendre un objet")
 		fmt.Println("0. Retour")
 
 		fmt.Print("Votre choix : ")
@@ -52,18 +53,20 @@ func MerchantMenu(c *Character) {
 		case 8:
 			BuyItem(c, "Livre de Sort : Brûlure", 25)
 		case 9:
-			BuyItem(c, "Livre de Sort : Barrière Sacrée", 25)
+			BuyItem(c, "Livre de Sort : Éclair", 25)
 		case 10:
-			BuyItem(c, "Fourrure de Loup", 4)
+			BuyItem(c, "Livre de Sort : Barrière Sacrée", 25)
 		case 11:
-			BuyItem(c, "Peau de Troll", 7)
+			BuyItem(c, "Fourrure de Loup", 4)
 		case 12:
-			BuyItem(c, "Cuir de Sanglier", 3)
+			BuyItem(c, "Peau de Troll", 7)
 		case 13:
-			BuyItem(c, "Plume de Corbeau", 1)
+			BuyItem(c, "Cuir de Sanglier", 3)
 		case 14:
-			BuyItem(c, "Amelioration d'inventaire", 30)
+			BuyItem(c, "Plume de Corbeau", 1)
 		case 15:
+			BuyItem(c, "Amelioration d'inventaire", 30)
+		case 16:
 			SellItem(c)
 
 		case 0:
@@ -149,6 +152,7 @@ func sellPrice(itemName string) int {
 		"Livre de Sort : Régénération":    12,
 		"Livre de Sort : Poison":          12,
 		"Livre de Sort : Brûlure":         12,
+		"Livre de Sort : Éclair":          12,
 		"Livre de Sort : Barrière Sacrée": 12,
 		"Fourrure de Loup":                2,
 		"Peau de Troll":                   3,

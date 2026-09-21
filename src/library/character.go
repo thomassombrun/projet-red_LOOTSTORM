@@ -15,6 +15,7 @@ type Skill struct {
 	Damage      int
 	HealAmount  int
 	EffectTurns int
+	Initiative  int
 	ManaCost    int
 }
 
