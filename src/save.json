@@ -1,18 +1,18 @@
 {
   "Name": "Himiko Toga",
   "Class": "Assassin",
-  "Level": 3,
-  "Attack": 9,
-  "MaxHP": 120,
-  "CurrentHP": 46,
+  "Level": 14,
+  "Attack": 31,
+  "MaxHP": 260,
+  "CurrentHP": 174,
   "Inventory": [
     {
       "Name": "Potion de vie",
-      "Quantity": 3,
+      "Quantity": 2,
       "Rarity": ""
     },
     {
-      "Name": "Bottes de golem",
+      "Name": "Bottes de gobelin",
       "Quantity": 1,
       "Rarity": "Peu commun"
     }
@@ -20,7 +20,7 @@
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 9,
+      "Damage": 31,
       "HealAmount": 0,
       "EffectTurns": 0,
       "Initiative": 0,
@@ -30,25 +30,25 @@
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 180,
+  "Gold": 1075,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
-    "Helmet": "Aucun",
+    "Helmet": "Casque de golem [Commun]",
     "Chestplate": "Aucun",
     "Boots": "Aucun",
-    "Weapon": "Aucun",
+    "Weapon": "Marteau de golem [Commun]",
     "HelmetHP": 0,
     "ChestplateHP": 0,
     "BootsHP": 0,
-    "WeaponDamage": 0
+    "WeaponDamage": 18
   },
-  "Initiative": 140,
-  "CurrentXP": 40,
-  "MaxXP": 120,
-  "Mana": 70,
-  "MaxMana": 70,
-  "LastClearedRoom": 1,
+  "Initiative": 195,
+  "CurrentXP": 160,
+  "MaxXP": 230,
+  "Mana": 180,
+  "MaxMana": 180,
+  "LastClearedRoom": 9,
   "Summon": null,
   "CombatWeaponBonus": 0,
   "CombatSpellBonus": 0,

@@ -74,10 +74,10 @@ func DisplayEquipmentAndSkills(c *Character) {
 		case 2:
 			fmt.Println()
 			fmt.Println("===== ÉQUIPEMENT =====")
-			fmt.Printf("Casque : %s\n", c.Equip.Helmet)
-			fmt.Printf("Plastron : %s\n", c.Equip.Chestplate)
-			fmt.Printf("Bottes : %s\n", c.Equip.Boots)
-			fmt.Printf("Arme : %s (+%d dégâts)\n", c.Equip.Weapon, c.Equip.WeaponDamage)
+			fmt.Printf("Casque : %s%s\n", c.Equip.Helmet, itemStatSummary(c.Equip.Helmet))
+			fmt.Printf("Plastron : %s%s\n", c.Equip.Chestplate, itemStatSummary(c.Equip.Chestplate))
+			fmt.Printf("Bottes : %s%s\n", c.Equip.Boots, itemStatSummary(c.Equip.Boots))
+			fmt.Printf("Arme : %s%s\n", c.Equip.Weapon, itemStatSummary(c.Equip.Weapon))
 			WaitForEnter()
 		case 0:
 			return

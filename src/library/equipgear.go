@@ -2,6 +2,21 @@ package library
 
 import "fmt"
 
+func currentEquippedForSlot(c *Character, slotType string) string {
+	switch slotType {
+	case "Helmet":
+		return c.Equip.Helmet
+	case "Chestplate":
+		return c.Equip.Chestplate
+	case "Boots":
+		return c.Equip.Boots
+	case "Weapon":
+		return c.Equip.Weapon
+	default:
+		return "Aucun"
+	}
+}
+
 func EquipItem(c *Character, itemName string, index int) {
 	var slotType string
 	var hpBonus int
@@ -24,7 +39,10 @@ func EquipItem(c *Character, itemName string, index int) {
 	case "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime":
 		slotType = "Weapon"
 		weaponDamage = weaponDamageBonus(baseName)
-	case "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon":
+	case "Lame spectrale", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon":
+		slotType = "Weapon"
+		weaponDamage = weaponDamageBonus(baseName)
+	case "Marteau de golem":
 		slotType = "Weapon"
 		weaponDamage = weaponDamageBonus(baseName)
 	case "Casque de gobelin", "Carapace de slime", "Capuche spectrale", "Casque de golem", "Peau de troll renforcée", "Plumes du canard", "Heaume squelette", "Fourrure du loup", "Chapeau du sorcier", "Écailles de dragon":
@@ -40,6 +58,25 @@ func EquipItem(c *Character, itemName string, index int) {
 		fmt.Println("Cet objet ne peut pas être équipé.")
 		return
 	}
+	currentEquipped := currentEquippedForSlot(c, slotType)
+	if currentEquipped != "" && currentEquipped != "Aucun" && normalizeItemName(currentEquipped) != baseName {
+		fmt.Println("Vous avez déjà un équipement dans cette catégorie :")
+		fmt.Printf("- Actuel : %s%s\n", currentEquipped, itemStatSummary(currentEquipped))
+		fmt.Printf("- Nouveau : %s%s\n", equipmentDisplayName(baseName, itemRarity), itemStatSummary(itemName))
+		fmt.Println("1. Équiper le nouvel objet et remettre l'ancien dans l'inventaire")
+		fmt.Println("2. Garder l'ancien équipement")
+		fmt.Print("Votre choix : ")
+
+		var choice int
+		fmt.Scanln(&choice)
+		if choice == 2 {
+			if c.Inventory[index].Quantity <= 0 {
+				c.Inventory = append(c.Inventory[:index], c.Inventory[index+1:]...)
+			}
+			return
+		}
+	}
+
 	item := &c.Inventory[index]
 	item.Quantity--
 	if item.Quantity <= 0 {

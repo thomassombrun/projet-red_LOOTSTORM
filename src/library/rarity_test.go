@@ -51,3 +51,15 @@ func TestEquipmentKeepsRarityOnEquip(t *testing.T) {
 		t.Fatal("un heaume squelette doit donner des PV")
 	}
 }
+
+func TestMarteauDeGolemIsWeapon(t *testing.T) {
+	if slotForEquipment("Marteau de golem [Épique]") != "Weapon" {
+		t.Fatal("le marteau de golem doit être classé en Weapon")
+	}
+	if weaponDamageBonus("Marteau de golem") <= 0 {
+		t.Fatal("le marteau de golem doit donner de l'attaque")
+	}
+	if equipmentHPBonus("Marteau de golem") != 0 {
+		t.Fatal("le marteau de golem ne doit pas donner de PV")
+	}
+}

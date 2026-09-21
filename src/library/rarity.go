@@ -69,6 +69,21 @@ func equipmentDisplayName(name string, rarity Rarity) string {
 	return fmt.Sprintf("%s [%s]", base, rarity)
 }
 
+func itemStatSummary(itemName string) string {
+	base := normalizeItemName(itemName)
+	var stats []string
+	if hp := equipmentHPBonus(base); hp > 0 {
+		stats = append(stats, fmt.Sprintf("+%d PV", hp))
+	}
+	if dmg := weaponDamageBonus(base); dmg > 0 {
+		stats = append(stats, fmt.Sprintf("+%d ATQ", dmg))
+	}
+	if len(stats) == 0 {
+		return ""
+	}
+	return " (" + strings.Join(stats, " / ") + ")"
+}
+
 func rollEquipmentRarity(dungeonTier int) Rarity {
 	if dungeonTier < 1 {
 		dungeonTier = 1
