@@ -155,6 +155,16 @@ func playChestRoom(c *Character, random *rand.Rand) bool {
 			"Chapeau de l'aventurier",
 			"Tunique de l'aventurier",
 			"Bottes de l'aventurier",
+			"Casque de gobelin", "Lame de gobelin",
+			"Carapace de slime", "Bave de slime",
+			"Capuche spectrale", "Lame spectrale",
+			"Casque de golem", "Marteau de golem",
+			"Peau de troll renforcée", "Massue de troll",
+			"Plumes du canard", "Bec du canard",
+			"Heaume squelette", "Épée squelette",
+			"Fourrure du loup", "Crocs du loup",
+			"Chapeau du sorcier", "Bâton maudit",
+			"Écailles de dragon", "Griffe du dragon",
 		}
 		foundEquipment := equipment[random.Intn(len(equipment))]
 		fmt.Printf("Le coffre contient également : %s.\n", foundEquipment)

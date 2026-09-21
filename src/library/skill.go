@@ -162,9 +162,10 @@ func SkillMenu(c *Character, m *Monster) bool {
 			c.Mana += chosenSkill.ManaCost
 			return false
 		}
+		summonHP, summonAttack := SummonStats(c)
 		c.Summon = &Monster{
-			Name: "Soldat invoqué", Level: c.Level, MaxHP: 25 + c.Level*5,
-			CurrentHP: 25 + c.Level*5, Attack: 5 + c.Level*2,
+			Name: "Soldat invoqué", Pattern: "summon", Level: c.Level, MaxHP: summonHP,
+			CurrentHP: summonHP, Attack: summonAttack,
 			Initiative: c.Initiative, XPReward: 0, GoldReward: 0,
 		}
 		fmt.Printf("%s invoque un soldat qui combattra à ses côtés.\n", c.Name)
@@ -186,9 +187,9 @@ func SkillMenu(c *Character, m *Monster) bool {
 
 func SpellDamage(c *Character, damage int) int {
 	if c.Class == "Mage" {
-		return damage * 3 / 2
+		damage = damage * 3 / 2
 	}
-	return damage
+	return damage + c.CombatSpellBonus
 }
 
 func ApplyCharacterEffects(c *Character) {

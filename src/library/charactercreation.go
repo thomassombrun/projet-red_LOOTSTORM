@@ -3,12 +3,7 @@ package library
 import "fmt"
 
 func ChoisirClass() (string, int) {
-	var choix int
-	valide := false
-	Class := ""
-	maxHP := 0
-
-	for !valide {
+	for {
 		fmt.Println("Choisissez votre classe :")
 		fmt.Println("1. Guerrier (150 PV)")
 		fmt.Println("2. Mage (80 PV)")
@@ -20,51 +15,60 @@ func ChoisirClass() (string, int) {
 		fmt.Println("8. Barbare (180 PV)")
 		fmt.Println("9. Invocateur (90 PV)")
 		fmt.Print("Votre choix : ")
-		fmt.Scanln(&choix)
-
-		switch choix {
-		case 1:
-			Class = "Guerrier"
-			maxHP = 150
-			valide = true
-		case 2:
-			Class = "Mage"
-			maxHP = 80
-			valide = true
-		case 3:
-			Class = "Archer"
-			maxHP = 110
-			valide = true
-		case 4:
-			Class = "Assassin"
-			maxHP = 100
-			valide = true
-		case 5:
-			Class = "Chevalier"
-			maxHP = 120
-			valide = true
-		case 6:
-			Class = "Samourai"
-			maxHP = 115
-			valide = true
-		case 7:
-			Class = "Clerc"
-			maxHP = 105
-			valide = true
-		case 8:
-			Class = "Barbare"
-			maxHP = 180
-			valide = true
-		case 9:
-			Class = "Invocateur"
-			maxHP = 90
-			valide = true
-		default:
+		var choice int
+		fmt.Scanln(&choice)
+		className, maxHP := selectedClass(choice)
+		if className == "" {
 			fmt.Println("Choix invalide.")
+			continue
+		}
+
+		fmt.Printf("\n=== Résumé : %s ===\n", className)
+		fmt.Printf("PV de base : %d\n", maxHP)
+		fmt.Println(classAdvantages(className))
+		fmt.Println("1. Valider cette classe")
+		fmt.Println("2. Choisir une autre classe")
+		fmt.Print("Votre choix : ")
+		var confirmation int
+		fmt.Scanln(&confirmation)
+		if confirmation == 1 {
+			return className, maxHP
+		}
+		if confirmation != 2 {
+			fmt.Println("Choix invalide, la classe n'est pas validée.")
 		}
 	}
+}
 
-	return Class, maxHP
+func selectedClass(choice int) (string, int) {
+	classes := map[int]struct {
+		name string
+		hp   int
+	}{
+		1: {"Guerrier", 150}, 2: {"Mage", 80}, 3: {"Archer", 110},
+		4: {"Assassin", 100}, 5: {"Chevalier", 120}, 6: {"Samourai", 115},
+		7: {"Clerc", 105}, 8: {"Barbare", 180}, 9: {"Invocateur", 90},
+	}
+	classInfo, found := classes[choice]
+	if !found {
+		return "", 0
+	}
+	return classInfo.name, classInfo.hp
+}
+
+func classAdvantages(className string) string {
+	advantages := map[string]string{
+		"Guerrier":   "Atout aléatoire au début du combat : dégâts d'arme, dégâts de sort ou initiative.",
+		"Mage":       "Les sorts infligent 1,5 fois plus de dégâts et la mana progresse davantage.",
+		"Archer":     "Esquive et dégâts doublés avec un arc.",
+		"Assassin":   "Frappe d'ouverture x2, double action, esquive et saignement avec une dague.",
+		"Chevalier":  "Blocage amélioré des dégâts.",
+		"Samourai":   "Esquive et chance de contre-attaque.",
+		"Clerc":      "Soins augmentés.",
+		"Barbare":    "Dégâts de base et d'arme augmentés selon les PV perdus.",
+		"Invocateur": "Invocation d'un soldat qui évolue avec le niveau.",
+	}
+	return advantages[className]
 }
 
 func LireNomAvecEspaces() string {

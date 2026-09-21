@@ -38,11 +38,15 @@ func InitGoblinLevel(name string, level int) Monster {
 }
 
 func InitSlimeLevel(name string, level int) Monster {
-	return initMonster(name, level, 30, 4, 80, 80, 35)
+	monster := initMonster(name, level, 30, 4, 80, 80, 35)
+	monster.Pattern = "slime"
+	return monster
 }
 
 func InitGhostLevel(name string, level int) Monster {
-	return initMonster(name, level, 35, 7, 125, 120, 60)
+	monster := initMonster(name, level, 35, 7, 125, 120, 60)
+	monster.Pattern = "ghost"
+	return monster
 }
 
 func InitGolem() Monster {

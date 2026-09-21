@@ -20,9 +20,12 @@ func EquipItem(c *Character, itemName string, index int) {
 	case "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime":
 		slotType = "Weapon"
 		weaponDamage = weaponDamageBonus(itemName)
-	case "Casque de gobelin", "Carapace de slime":
+	case "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon":
+		slotType = "Weapon"
+		weaponDamage = weaponDamageBonus(itemName)
+	case "Casque de gobelin", "Carapace de slime", "Capuche spectrale", "Casque de golem", "Peau de troll renforcée", "Plumes du canard", "Heaume squelette", "Fourrure du loup", "Chapeau du sorcier", "Écailles de dragon":
 		slotType = "Helmet"
-		hpBonus = 15
+		hpBonus = equipmentHPBonus(itemName)
 	default:
 		fmt.Println("Cet objet ne peut pas être équipé.")
 		return
@@ -74,10 +77,24 @@ func weaponDamageBonus(itemName string) int {
 		return 8
 	case "Arc du chasseur", "Lame de gobelin":
 		return 10
+	case "Lame spectrale", "Bâton maudit":
+		return 14
 	case "Marteau du guerrier":
 		return 12
 	case "Épée du chevalier":
 		return 15
+	case "Marteau de golem":
+		return 18
+	case "Massue de troll":
+		return 16
+	case "Bec du canard":
+		return 14
+	case "Épée squelette":
+		return 12
+	case "Crocs du loup":
+		return 9
+	case "Griffe du dragon":
+		return 25
 	default:
 		return 0
 	}
@@ -95,6 +112,22 @@ func equipmentHPBonus(itemName string) int {
 		return 15
 	case "Carapace de slime":
 		return 20
+	case "Capuche spectrale":
+		return 25
+	case "Casque de golem":
+		return 30
+	case "Peau de troll renforcée":
+		return 35
+	case "Plumes du canard":
+		return 20
+	case "Heaume squelette":
+		return 18
+	case "Fourrure du loup":
+		return 12
+	case "Chapeau du sorcier":
+		return 15
+	case "Écailles de dragon":
+		return 50
 	default:
 		return 0
 	}

@@ -7,6 +7,7 @@ import (
 
 func TrainingFight(c *Character) {
 	monster := InitGoblin("Gobelin d'entrainement", 40, 5)
+	StartCombatBonuses(c)
 
 	turn := 1
 
@@ -104,6 +105,7 @@ func UseSkill(c *Character, m *Monster) {
 
 func normalFight(c *Character, m *Monster, previousRoom int) bool {
 	turn := 1
+	StartCombatBonuses(c)
 
 	fmt.Println()
 	fmt.Println("================================")
@@ -124,7 +126,7 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 		m.MaxHP,
 	)
 
-	playerTurn := c.Initiative >= m.Initiative
+	playerTurn := CombatInitiative(c) >= m.Initiative
 
 	if playerTurn {
 		fmt.Printf("%s commence le combat !\n", c.Name)
@@ -380,6 +382,7 @@ func MonsterAttack(m *Monster, c *Character, turn int) {
 		c.CurrentHP,
 		c.MaxHP,
 	)
+	ApplyAssassinBleed(c, m)
 	if TryCounterAttack(c, m) {
 		fmt.Printf("PV de %s : %d / %d\n", m.Name, m.CurrentHP, m.MaxHP)
 	}
@@ -417,11 +420,27 @@ func dropMonsterEquipment(c *Character, m *Monster) {
 	}
 
 	var drops []string
-	switch m.Name {
-	case "Gobelin", "Boss gobelin":
+	switch m.Pattern {
+	case "goblin":
 		drops = []string{"Casque de gobelin", "Lame de gobelin"}
-	case "Slime":
+	case "slime":
 		drops = []string{"Carapace de slime", "Bave de slime"}
+	case "ghost":
+		drops = []string{"Capuche spectrale", "Lame spectrale"}
+	case "golem":
+		drops = []string{"Casque de golem", "Marteau de golem"}
+	case "troll":
+		drops = []string{"Peau de troll renforcée", "Massue de troll"}
+	case "duck":
+		drops = []string{"Plumes du canard", "Bec du canard"}
+	case "skeleton":
+		drops = []string{"Heaume squelette", "Épée squelette"}
+	case "wolf":
+		drops = []string{"Fourrure du loup", "Crocs du loup"}
+	case "wizard":
+		drops = []string{"Chapeau du sorcier", "Bâton maudit"}
+	case "dragon":
+		drops = []string{"Écailles de dragon", "Griffe du dragon"}
 	default:
 		return
 	}

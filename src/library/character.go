@@ -47,6 +47,9 @@ type Character struct {
 	MaxMana               int
 	LastClearedRoom       int
 	Summon                *Monster
+	CombatWeaponBonus     int
+	CombatSpellBonus      int
+	CombatInitiativeBonus int
 }
 
 func InitCharacter(name string, class string, maxHP int) Character {
@@ -97,6 +100,9 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		MaxMana:               baseMana(class),
 		LastClearedRoom:       0,
 		Summon:                nil,
+		CombatWeaponBonus:     0,
+		CombatSpellBonus:      0,
+		CombatInitiativeBonus: 0,
 		Equip: Equipment{
 			Helmet:     "Aucun",
 			Chestplate: "Aucun",
@@ -155,7 +161,7 @@ func BlockDamage(c *Character, damage int) int {
 }
 
 func BasicAttackDamage(c *Character) int {
-	damage := 5
+	damage := 5 + c.CombatWeaponBonus
 	if c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun" {
 		damage += c.Equip.WeaponDamage
 	}
@@ -171,6 +177,31 @@ func BasicAttackDamage(c *Character) int {
 
 func IsWeaponEquipped(c *Character) bool {
 	return c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun"
+}
+
+func StartCombatBonuses(c *Character) {
+	c.CombatWeaponBonus = 0
+	c.CombatSpellBonus = 0
+	c.CombatInitiativeBonus = 0
+	if c.Class != "Guerrier" {
+		return
+	}
+
+	switch rand.Intn(3) {
+	case 0:
+		c.CombatWeaponBonus = 8
+		fmt.Println("Atout du Guerrier : bonus de dégâts d'arme pour ce combat.")
+	case 1:
+		c.CombatSpellBonus = 8
+		fmt.Println("Atout du Guerrier : bonus de dégâts de sort pour ce combat.")
+	case 2:
+		c.CombatInitiativeBonus = 20
+		fmt.Println("Atout du Guerrier : bonus d'initiative pour ce combat.")
+	}
+}
+
+func CombatInitiative(c *Character) int {
+	return c.Initiative + c.CombatInitiativeBonus
 }
 
 func TryCounterAttack(c *Character, m *Monster) bool {
@@ -209,5 +240,20 @@ func AssassinOpeningAttack(c *Character, m *Monster) bool {
 	}
 	fmt.Printf("%s frappe par surprise avec %s et inflige %d dégâts à %s !\n", c.Name, attackName, damage, m.Name)
 	fmt.Printf("PV de %s : %d / %d\n", m.Name, m.CurrentHP, m.MaxHP)
+	ApplyAssassinBleed(c, m)
 	return true
+}
+
+func ApplyAssassinBleed(c *Character, m *Monster) {
+	if c.Class != "Assassin" || c.Equip.Weapon != "Dague de l'assassin" {
+		return
+	}
+
+	damage := 5 + c.Level*2
+	m.Effects = append(m.Effects, Effect{Name: "Saignement", Value: damage, TurnsLeft: 3})
+	fmt.Printf("La dague inflige Saignement : %d dégâts pendant 3 tours.\n", damage)
+}
+
+func SummonStats(c *Character) (int, int) {
+	return 25 + c.Level*10, 5 + c.Level*3
 }

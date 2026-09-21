@@ -1,32 +1,41 @@
 {
-  "Name": "Jean",
-  "Class": "Samourai",
-  "Level": 2,
-  "MaxHP": 125,
-  "CurrentHP": 63,
+  "Name": "Hikari",
+  "Class": "Invocateur",
+  "Level": 1,
+  "MaxHP": 90,
+  "CurrentHP": 37,
   "Inventory": [
     {
       "Name": "Potion de vie",
-      "Quantity": 2
+      "Quantity": 3
     },
     {
-      "Name": "Potion de mana",
+      "Name": "Bave de slime",
       "Quantity": 1
     }
   ],
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 7,
+      "Damage": 5,
       "HealAmount": 0,
       "EffectTurns": 0,
+      "Initiative": 0,
       "ManaCost": 0
+    },
+    {
+      "Name": "Invocation de soldat",
+      "Damage": 0,
+      "HealAmount": 0,
+      "EffectTurns": 0,
+      "Initiative": 0,
+      "ManaCost": 35
     }
   ],
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 160,
+  "Gold": 135,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
@@ -39,11 +48,23 @@
     "BootsHP": 0,
     "WeaponDamage": 0
   },
-  "Initiative": 120,
-  "CurrentXP": 0,
-  "MaxXP": 110,
-  "Mana": 60,
-  "MaxMana": 60,
-  "LastClearedRoom": 2,
-  "Summon": null
+  "Initiative": 90,
+  "CurrentXP": 80,
+  "MaxXP": 100,
+  "Mana": 55,
+  "MaxMana": 80,
+  "LastClearedRoom": 1,
+  "Summon": {
+    "Name": "Soldat invoqué",
+    "Pattern": "",
+    "Level": 1,
+    "MaxHP": 30,
+    "CurrentHP": 30,
+    "Attack": 7,
+    "PoisonTurns": 0,
+    "Effects": null,
+    "Initiative": 90,
+    "XPReward": 0,
+    "GoldReward": 0
+  }
 }

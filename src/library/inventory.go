@@ -106,7 +106,7 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 			WaitForEnter()
 			return true
 
-		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier", "Casque de gobelin", "Carapace de slime", "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime":
+		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier", "Casque de gobelin", "Carapace de slime", "Capuche spectrale", "Casque de golem", "Peau de troll renforcée", "Plumes du canard", "Heaume squelette", "Fourrure du loup", "Chapeau du sorcier", "Écailles de dragon", "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime", "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon":
 			EquipItem(c, item.Name, inventoryIndex)
 			WaitForEnter()
 			return true

@@ -170,6 +170,22 @@ func sellPrice(itemName string) int {
 		"Épée du chevalier":               12,
 		"Lame de gobelin":                 8,
 		"Bave de slime":                   6,
+		"Capuche spectrale":               12,
+		"Lame spectrale":                  12,
+		"Casque de golem":                 15,
+		"Marteau de golem":                15,
+		"Peau de troll renforcée":         15,
+		"Massue de troll":                 14,
+		"Plumes du canard":                10,
+		"Bec du canard":                   10,
+		"Heaume squelette":                10,
+		"Épée squelette":                  10,
+		"Fourrure du loup":                8,
+		"Crocs du loup":                   8,
+		"Chapeau du sorcier":              10,
+		"Bâton maudit":                    12,
+		"Écailles de dragon":              25,
+		"Griffe du dragon":                25,
 	}
 	if price, found := prices[itemName]; found {
 		return price
