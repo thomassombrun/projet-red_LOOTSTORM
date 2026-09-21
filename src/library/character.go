@@ -6,8 +6,9 @@ type Item struct {
 }
 
 type Skill struct {
-	Name   string
-	Damage int
+	Name     string
+	Damage   int
+	ManaCost int
 }
 
 type Character struct {
@@ -23,6 +24,11 @@ type Character struct {
 	LimitInventory        int
 	LimitInventoryUpgrade int
 	Equip                 Equipment
+	Initiative            int
+	CurrentXP             int
+	MaxXP                 int
+	Mana                  int
+	MaxMana               int
 }
 
 func InitCharacter(name string, class string, maxHP int) Character {
@@ -33,11 +39,16 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		MaxHP:                 maxHP,
 		CurrentHP:             maxHP / 2,
 		Inventory:             []Item{{Name: "Potion de vie", Quantity: 3}},
-		Skill:                 []Skill{{Name: "Coup de poing", Damage: 5}},
+		Skill:                 []Skill{{Name: "Coup de poing", Damage: 5, ManaCost: 0}},
 		PoisonTurns:           0,
 		Gold:                  100,
 		LimitInventory:        10,
 		LimitInventoryUpgrade: 0,
+		Initiative:            0,
+		CurrentXP:             0,
+		MaxXP:                 100,
+		Mana:                  50,
+		MaxMana:               50,
 		Equip: Equipment{
 			Helmet:     "Aucun",
 			Chestplate: "Aucun",

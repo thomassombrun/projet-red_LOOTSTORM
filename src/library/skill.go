@@ -10,6 +10,6 @@ func SpellBook(c *Character) {
 		}
 	}
 
-	c.Skill = append(c.Skill, Skill{Name: "Boule de Feu", Damage: 15})
+	c.Skill = append(c.Skill, Skill{Name: "Boule de Feu", Damage: 15, ManaCost: 10})
 	fmt.Println("Vous avez appris le sort : Boule de Feu !")
 }
