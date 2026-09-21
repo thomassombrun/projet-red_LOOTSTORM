@@ -5,23 +5,45 @@ import (
 	"projet/src/library"
 )
 
+func normalizeClass(class string) string {
+	switch class {
+	case "Guerrier", "guerrier":
+		return "Guerrier"
+	case "Mage", "mage":
+		return "Mage"
+	case "Archer", "archer":
+		return "Archer"
+	case "Assassin", "assassin":
+		return "Assassin"
+	case "Chevalier", "chevalier":
+		return "Chevalier"
+	default:
+		return class
+	}
+}
+
 func main() {
 	fmt.Println("========================================")
 	fmt.Println("       BIENVENUE DANS LOOTSTORM         ")
 	fmt.Println("========================================")
 
 	var player library.Character
+	selected := false
 
-	for {
+	for !selected {
 		fmt.Println("\nChoisissez une option :")
 		fmt.Println("1. Choisir un héros prédéfini (Himiko, Link, Patrick)")
 		fmt.Println("2. Créer votre propre personnage")
 		fmt.Print("Votre choix : ")
 
 		var choice int
-		fmt.Scanln(&choice)
+		if _, err := fmt.Scanln(&choice); err != nil {
+			fmt.Println("Saisie invalide.")
+			continue
+		}
 
-		if choice == 1 {
+		switch choice {
+		case 1:
 			c1 := library.InitCharacter("Himiko Toga", "Assassin", 100)
 			c2 := library.InitCharacter("Link", "Chevalier", 120)
 			c3 := library.InitCharacter("Patrick Bouldefeu", "Mage", 80)
@@ -33,7 +55,10 @@ func main() {
 			fmt.Print("Votre choix : ")
 
 			var heroChoice int
-			fmt.Scanln(&heroChoice)
+			if _, err := fmt.Scanln(&heroChoice); err != nil {
+				fmt.Println("Choix invalide.")
+				continue
+			}
 
 			switch heroChoice {
 			case 1:
@@ -46,19 +71,29 @@ func main() {
 				fmt.Println("Choix invalide.")
 				continue
 			}
-			break
 
-		} else if choice == 2 {
+			selected = true
 
+		case 2:
 			var name, class string
-			fmt.Print("Entrez le nom de votre héros : ")
-			fmt.Scanln(&name)
-			fmt.Print("Entrez sa classe (Guerrier, Mage, Archer) : ")
-			fmt.Scanln(&class)
 
+			fmt.Print("Entrez le nom de votre héros : ")
+			if _, err := fmt.Scanln(&name); err != nil {
+				fmt.Println("Nom invalide.")
+				continue
+			}
+
+			fmt.Print("Entrez sa classe (Guerrier, Mage, Archer, Assassin, Chevalier) : ")
+			if _, err := fmt.Scanln(&class); err != nil {
+				fmt.Println("Classe invalide.")
+				continue
+			}
+
+			class = normalizeClass(class)
 			player = library.InitCharacter(name, class, 100)
-			break
-		} else {
+			selected = true
+
+		default:
 			fmt.Println("Choix invalide, réessayez.")
 		}
 	}
@@ -75,12 +110,15 @@ func main() {
 		fmt.Print("Votre choix : ")
 
 		var choice int
-		fmt.Scanln(&choice)
+		if _, err := fmt.Scanln(&choice); err != nil {
+			fmt.Println("Saisie invalide, veuillez réessayer.")
+			continue
+		}
 
 		switch choice {
 		case 1:
 			fmt.Println()
-			player.DisplayInfo()
+			library.DisplayInfo(&player)
 
 		case 2:
 			library.TrainingFight(&player)
