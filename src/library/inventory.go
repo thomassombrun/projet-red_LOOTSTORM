@@ -42,6 +42,10 @@ func AccessInventory(c *Character, enemy *Monster) bool {
 			return true
 
 		case "Potion de poison":
+			if enemy == nil {
+				fmt.Println("La Potion de poison ne peut être utilisée que pendant un combat.")
+				continue
+			}
 			PoisonPot(c, enemy, choice-1)
 			return true
 

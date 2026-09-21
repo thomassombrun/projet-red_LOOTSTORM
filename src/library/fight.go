@@ -231,7 +231,7 @@ func CharacterTurn(c *Character, m *Monster) {
 			continue
 
 		case 3:
-			if AccessInventory(c, nil) {
+			if AccessInventory(c, m) {
 				return
 			}
 			continue

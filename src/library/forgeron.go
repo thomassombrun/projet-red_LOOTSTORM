@@ -34,11 +34,11 @@ func FabriquerObjet(c *Character, name string) {
 	materials := map[string]int{}
 	switch name {
 	case "Chapeau de l'aventurier":
-		materials = map[string]int{"Fourrure de Loup": 1, "Plume de Corbeau": 1}
+		materials = map[string]int{"Plume de Corbeau": 1, "Cuir de Sanglier": 1}
 	case "Tunique de l'aventurier":
-		materials = map[string]int{"Peau de Troll": 1, "Cuir de Sanglier": 1}
+		materials = map[string]int{"Fourrure de Loup": 2, "Peau de Troll": 1}
 	case "Bottes de l'aventurier":
-		materials = map[string]int{"Cuir de Sanglier": 1, "Plume de Corbeau": 1}
+		materials = map[string]int{"Fourrure de Loup": 1, "Cuir de Sanglier": 1}
 	default:
 		fmt.Println("Objet inconnu.")
 		return
