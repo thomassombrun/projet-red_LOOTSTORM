@@ -49,7 +49,7 @@ func main() {
 
 	for !selected {
 		fmt.Println("\nChoisissez une option :")
-		fmt.Println("1. Choisir un héros prédéfini (Himiko, Link, Patrick)")
+		fmt.Println("1. Choisir un héros prédéfini")
 		fmt.Println("2. Créer votre propre personnage")
 		fmt.Print("Votre choix : ")
 

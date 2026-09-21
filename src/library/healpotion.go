@@ -10,6 +10,17 @@ func TakePot(c *Character, index int) {
 		return
 	}
 
+	if c.CurrentHP >= c.MaxHP {
+		fmt.Println("Vous êtes déjà au maximum de vos PV, vous ne pouvez pas vous soigner.")
+		return
+	}
+
+	healAmount := 50
+	missingHP := c.MaxHP - c.CurrentHP
+	if missingHP < healAmount {
+		healAmount = missingHP
+	}
+
 	if item.Quantity > 1 {
 		c.Inventory[index].Quantity--
 	} else {
@@ -19,12 +30,13 @@ func TakePot(c *Character, index int) {
 		)
 	}
 
-	c.CurrentHP += 50
+	c.CurrentHP += healAmount
 	if c.CurrentHP > c.MaxHP {
 		c.CurrentHP = c.MaxHP
 	}
 
 	fmt.Println()
 	fmt.Println("Vous utilisez une Potion de vie.")
-	fmt.Printf("PV : %d / %d\n", c.CurrentHP, c.MaxHP)
+	fmt.Printf("Vous regagnez %d PV.", healAmount)
+	fmt.Printf(" PV : %d / %d\n", c.CurrentHP, c.MaxHP)
 }

@@ -13,6 +13,8 @@ func ChoisirClass() (string, int) {
 		fmt.Println("1. Guerrier (150 PV)")
 		fmt.Println("2. Mage (80 PV)")
 		fmt.Println("3. Archer (110 PV)")
+		fmt.Println("4. Assassin (100 PV)")
+		fmt.Println("5. Chevalier (120 PV)")
 		fmt.Print("Votre choix : ")
 		fmt.Scanln(&choix)
 
@@ -28,6 +30,14 @@ func ChoisirClass() (string, int) {
 		case 3:
 			Class = "Archer"
 			maxHP = 110
+			valide = true
+		case 4:
+			Class = "Assassin"
+			maxHP = 100
+			valide = true
+		case 5:
+			Class = "Chevalier"
+			maxHP = 120
 			valide = true
 		default:
 			fmt.Println("Choix invalide.")
