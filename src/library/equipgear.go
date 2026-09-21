@@ -90,7 +90,8 @@ func EquipItem(c *Character, itemName string, index int) {
 }
 
 func weaponDamageBonus(itemName string) int {
-	switch itemName {
+	base := normalizeItemName(itemName)
+	switch base {
 	case "Dague de l'assassin", "Bave de slime":
 		return 8
 	case "Arc du chasseur", "Lame de gobelin":
@@ -119,7 +120,8 @@ func weaponDamageBonus(itemName string) int {
 }
 
 func equipmentHPBonus(itemName string) int {
-	switch itemName {
+	base := normalizeItemName(itemName)
+	switch base {
 	case "Chapeau de l'aventurier":
 		return 10
 	case "Tunique de l'aventurier":

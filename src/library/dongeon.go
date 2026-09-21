@@ -66,11 +66,23 @@ func playRandomRoom(c *Character, roomNumber int, random *rand.Rand) bool {
 		return playMonsterRoom(c, InitDuck(), roomNumber)
 	case roll < 91:
 		return playMonsterRoom(c, InitDragon(), roomNumber)
-	case roll < 95:
+	case roll < 94:
 		return playNpcRoom(c)
+	case roll < 95:
+		return playStatueRoom(c)
 	default:
 		return playChestRoom(c, random)
 	}
+}
+
+func playStatueRoom(c *Character) bool {
+	fmt.Println("Vous trouvez une statue antique au centre de la salle.")
+	fmt.Println("La statue émet une lumière sacrée et rétablit votre force.")
+	c.CurrentHP = c.MaxHP
+	c.Mana = c.MaxMana
+	fmt.Printf("Vous récupérez tous vos PV et votre mana ! (%d / %d PV, %d / %d mana)\n", c.CurrentHP, c.MaxHP, c.Mana, c.MaxMana)
+	WaitForEnter()
+	return true
 }
 
 func playGoblinRoom(c *Character, roomNumber int) bool {
