@@ -184,7 +184,8 @@ func CharacterTurn(c *Character, m *Monster) {
 		fmt.Println("1. Attaquer")
 		fmt.Println("2. Sorts")
 		fmt.Println("3. Inventaire")
-		fmt.Println("0. Retour")
+		fmt.Println("4. Abandonner")
+		fmt.Println("0. Fin du tour")
 
 		var choice int
 		fmt.Scan(&choice)
@@ -224,14 +225,22 @@ func CharacterTurn(c *Character, m *Monster) {
 
 		case 2:
 			if SkillMenu(c, m) {
-				return
+				fmt.Println("Votre sort est lancé. Vous pouvez continuer votre tour ou le finir.")
+				continue
 			}
+			continue
 
 		case 3:
 			AccessInventory(c, nil)
+			continue
+
+		case 4:
+			fmt.Println("Vous abandonnez le combat...")
+			c.CurrentHP = 0
 			return
 
 		case 0:
+			fmt.Println("Fin du tour du joueur.")
 			return
 
 		default:
