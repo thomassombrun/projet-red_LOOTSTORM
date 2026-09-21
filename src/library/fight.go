@@ -23,6 +23,12 @@ func TrainingFight(c *Character) {
 			break
 		}
 
+		PoisonEffect(&monster)
+		if monster.CurrentHP <= 0 {
+			fmt.Printf("%s est vaincu !\n", monster.Name)
+			break
+		}
+
 		GoblinPattern(&monster, c, turn)
 
 		if c.IsDead() {
@@ -119,6 +125,12 @@ func normalFight(c *Character, m *Monster, previousRoom int) {
 				break
 			}
 
+			PoisonEffect(m)
+
+			if m.CurrentHP <= 0 {
+				break
+			}
+
 			MonsterAttack(m, c, turn)
 
 			if c.CurrentHP <= 0 {
@@ -126,6 +138,12 @@ func normalFight(c *Character, m *Monster, previousRoom int) {
 			}
 
 		} else {
+
+			PoisonEffect(m)
+
+			if m.CurrentHP <= 0 {
+				break
+			}
 
 			MonsterAttack(m, c, turn)
 
@@ -231,7 +249,7 @@ func CharacterTurn(c *Character, m *Monster) {
 			continue
 
 		case 3:
-			if AccessInventory(c, m) {
+			if AccessCombatInventory(c, m) {
 				return
 			}
 			continue

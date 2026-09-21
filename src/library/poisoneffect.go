@@ -3,9 +3,7 @@ package library
 import "fmt"
 
 func PoisonEffect(enemy *Monster) {
-	enemy.PoisonTurns = 3
-
-	if enemy.PoisonTurns <= 0 {
+	if enemy == nil || enemy.PoisonTurns <= 0 {
 		return
 	}
 

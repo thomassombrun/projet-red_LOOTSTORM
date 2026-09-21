@@ -3,18 +3,34 @@ package library
 import "fmt"
 
 func AccessInventory(c *Character, enemy *Monster) bool {
+	return accessInventory(c, enemy, false)
+}
+
+func AccessCombatInventory(c *Character, enemy *Monster) bool {
+	return accessInventory(c, enemy, true)
+}
+
+func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 	for {
 		fmt.Println()
 		fmt.Println("===== INVENTAIRE =====")
 
-		if len(c.Inventory) == 0 {
+		availableItems := make([]int, 0, len(c.Inventory))
+		for i, item := range c.Inventory {
+			if !combatOnly || item.Name == "Potion de vie" || item.Name == "Potion de poison" {
+				availableItems = append(availableItems, i)
+			}
+		}
+
+		if len(availableItems) == 0 {
 			fmt.Println("L'inventaire est vide.")
 		} else {
-			for i, item := range c.Inventory {
+			for displayIndex, inventoryIndex := range availableItems {
+				item := c.Inventory[inventoryIndex]
 				if item.Quantity > 1 {
-					fmt.Printf("%d. %s x%d\n", i+1, item.Name, item.Quantity)
+					fmt.Printf("%d. %s x%d\n", displayIndex+1, item.Name, item.Quantity)
 				} else {
-					fmt.Printf("%d. %s\n", i+1, item.Name)
+					fmt.Printf("%d. %s\n", displayIndex+1, item.Name)
 				}
 			}
 		}
@@ -29,16 +45,17 @@ func AccessInventory(c *Character, enemy *Monster) bool {
 			return false
 		}
 
-		if choice < 1 || choice > len(c.Inventory) {
+		if choice < 1 || choice > len(availableItems) {
 			fmt.Println("Choix invalide.")
 			continue
 		}
 
-		item := c.Inventory[choice-1]
+		inventoryIndex := availableItems[choice-1]
+		item := c.Inventory[inventoryIndex]
 
 		switch item.Name {
 		case "Potion de vie":
-			TakePot(c, choice-1)
+			TakePot(c, inventoryIndex)
 			return true
 
 		case "Potion de poison":
@@ -46,21 +63,21 @@ func AccessInventory(c *Character, enemy *Monster) bool {
 				fmt.Println("La Potion de poison ne peut être utilisée que pendant un combat.")
 				continue
 			}
-			PoisonPot(c, enemy, choice-1)
+			PoisonPot(c, enemy, inventoryIndex)
 			return true
 
 		case "Amelioration d'inventaire":
 			UpgradeInventorySlot(c)
-			c.Inventory = append(c.Inventory[:choice-1], c.Inventory[choice:]...)
+			c.Inventory = append(c.Inventory[:inventoryIndex], c.Inventory[inventoryIndex+1:]...)
 			return true
 
 		case "Livre de Sort : Boule de Feu":
 			SpellBook(c)
-			c.Inventory = append(c.Inventory[:choice-1], c.Inventory[choice:]...)
+			c.Inventory = append(c.Inventory[:inventoryIndex], c.Inventory[inventoryIndex+1:]...)
 			return true
 
 		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier":
-			EquipItem(c, item.Name, choice-1)
+			EquipItem(c, item.Name, inventoryIndex)
 			return true
 
 		default:
