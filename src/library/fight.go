@@ -419,35 +419,20 @@ func dropMonsterEquipment(c *Character, m *Monster) {
 		return
 	}
 
-	var drops []string
-	switch m.Pattern {
-	case "goblin":
-		drops = []string{"Casque de gobelin", "Lame de gobelin"}
-	case "slime":
-		drops = []string{"Carapace de slime", "Bave de slime"}
-	case "ghost":
-		drops = []string{"Capuche spectrale", "Lame spectrale"}
-	case "golem":
-		drops = []string{"Casque de golem", "Marteau de golem"}
-	case "troll":
-		drops = []string{"Peau de troll renforcée", "Massue de troll"}
-	case "duck":
-		drops = []string{"Plumes du canard", "Bec du canard"}
-	case "skeleton":
-		drops = []string{"Heaume squelette", "Épée squelette"}
-	case "wolf":
-		drops = []string{"Fourrure du loup", "Crocs du loup"}
-	case "wizard":
-		drops = []string{"Chapeau du sorcier", "Bâton maudit"}
-	case "dragon":
-		drops = []string{"Écailles de dragon", "Griffe du dragon"}
-	default:
+	pool := generateMonsterEquipment(m.Pattern, c.LastClearedRoom+1)
+	if len(pool) == 0 {
 		return
 	}
 
-	drop := drops[rand.Intn(len(drops))]
-	fmt.Printf("%s a laissé tomber : %s !\n", m.Name, drop)
-	c.AddOrMergeItem(drop, 1)
+	for _, baseName := range pool {
+		rarity := rollEquipmentRarity(c.LastClearedRoom + 1)
+		drop := equipmentDisplayName(baseName, rarity)
+		fmt.Printf("%s a laissé tomber : %s !\n", m.Name, drop)
+		c.AddOrMergeItem(drop, 1)
+		if rand.Intn(100) < 25 {
+			break
+		}
+	}
 }
 
 func GainExperience(c *Character, amount int) {

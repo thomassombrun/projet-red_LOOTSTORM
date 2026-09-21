@@ -106,7 +106,7 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 			WaitForEnter()
 			return true
 
-		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier", "Casque de gobelin", "Carapace de slime", "Capuche spectrale", "Casque de golem", "Peau de troll renforcée", "Plumes du canard", "Heaume squelette", "Fourrure du loup", "Chapeau du sorcier", "Écailles de dragon", "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime", "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon":
+		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier", "Casque de gobelin", "Carapace de slime", "Capuche spectrale", "Casque de golem", "Peau de troll renforcée", "Plumes du canard", "Heaume squelette", "Fourrure du loup", "Chapeau du sorcier", "Écailles de dragon", "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime", "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon", "Tunique de gobelin", "Bottes de gobelin", "Tunique de slime", "Bottes de slime", "Tunique spectrale", "Bottes spectrales", "Tunique de golem", "Bottes de golem", "Tunique de troll", "Bottes de troll", "Tunique du canard", "Bottes du canard", "Tunique du squelette", "Bottes du squelette", "Tunique du loup", "Bottes du loup", "Tunique du sorcier", "Bottes du sorcier", "Tunique du dragon", "Bottes du dragon":
 			EquipItem(c, item.Name, inventoryIndex)
 			WaitForEnter()
 			return true
@@ -140,8 +140,9 @@ func IsInventoryFull(c *Character) bool {
 }
 
 func (c *Character) AddOrMergeItem(itemName string, quantity int) {
+	baseName := normalizeItemName(itemName)
 	for i := range c.Inventory {
-		if c.Inventory[i].Name == itemName {
+		if normalizeItemName(c.Inventory[i].Name) == baseName && c.Inventory[i].Rarity == parseItemRarity(itemName) {
 			c.Inventory[i].Quantity += quantity
 			return
 		}
@@ -150,7 +151,7 @@ func (c *Character) AddOrMergeItem(itemName string, quantity int) {
 		fmt.Println("Votre inventaire est plein ! L'ancien équipement n'a pas pu y être replacé.")
 		return
 	}
-	c.Inventory = append(c.Inventory, Item{Name: itemName, Quantity: quantity})
+	c.Inventory = append(c.Inventory, Item{Name: baseName, Quantity: quantity, Rarity: parseItemRarity(itemName)})
 }
 
 func discardItem(c *Character) {

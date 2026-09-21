@@ -8,6 +8,7 @@ import (
 type Item struct {
 	Name     string
 	Quantity int
+	Rarity   Rarity
 }
 
 type Skill struct {

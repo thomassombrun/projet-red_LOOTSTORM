@@ -7,7 +7,11 @@ func EquipItem(c *Character, itemName string, index int) {
 	var hpBonus int
 	var weaponDamage int
 
-	switch itemName {
+	normalizedName := normalizeItemName(itemName)
+	itemRarity := parseItemRarity(itemName)
+	baseName := normalizedName
+
+	switch baseName {
 	case "Chapeau de l'aventurier":
 		slotType = "Helmet"
 		hpBonus = 10
@@ -19,13 +23,19 @@ func EquipItem(c *Character, itemName string, index int) {
 		hpBonus = 15
 	case "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime":
 		slotType = "Weapon"
-		weaponDamage = weaponDamageBonus(itemName)
+		weaponDamage = weaponDamageBonus(baseName)
 	case "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon":
 		slotType = "Weapon"
-		weaponDamage = weaponDamageBonus(itemName)
+		weaponDamage = weaponDamageBonus(baseName)
 	case "Casque de gobelin", "Carapace de slime", "Capuche spectrale", "Casque de golem", "Peau de troll renforcée", "Plumes du canard", "Heaume squelette", "Fourrure du loup", "Chapeau du sorcier", "Écailles de dragon":
 		slotType = "Helmet"
-		hpBonus = equipmentHPBonus(itemName)
+		hpBonus = equipmentHPBonus(baseName)
+	case "Tunique de gobelin", "Tunique de slime", "Tunique spectrale", "Tunique de golem", "Tunique de troll", "Tunique du canard", "Tunique du squelette", "Tunique du loup", "Tunique du sorcier", "Tunique du dragon":
+		slotType = "Chestplate"
+		hpBonus = equipmentHPBonus(baseName)
+	case "Bottes de gobelin", "Bottes de slime", "Bottes spectrales", "Bottes de golem", "Bottes de troll", "Bottes du canard", "Bottes du squelette", "Bottes du loup", "Bottes du sorcier", "Bottes du dragon":
+		slotType = "Boots"
+		hpBonus = equipmentHPBonus(baseName)
 	default:
 		fmt.Println("Cet objet ne peut pas être équipé.")
 		return
@@ -35,40 +45,48 @@ func EquipItem(c *Character, itemName string, index int) {
 	if item.Quantity <= 0 {
 		c.Inventory = append(c.Inventory[:index], c.Inventory[index+1:]...)
 	}
+
+	baseStatsMultiplier := rarityMultiplier(itemRarity)
+	if slotType == "Weapon" {
+		weaponDamage = int(float64(weaponDamage) * baseStatsMultiplier)
+	}
+	if slotType != "Weapon" {
+		hpBonus = int(float64(hpBonus) * baseStatsMultiplier)
+	}
+
 	switch slotType {
 	case "Helmet":
-
 		if c.Equip.Helmet != "" && c.Equip.Helmet != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Helmet, 1)
-			c.MaxHP -= equipmentHPBonus(c.Equip.Helmet)
+			c.MaxHP -= equipmentHPBonus(normalizeItemName(c.Equip.Helmet))
 		}
-		c.Equip.Helmet = itemName
+		c.Equip.Helmet = equipmentDisplayName(baseName, itemRarity)
 	case "Chestplate":
 		if c.Equip.Chestplate != "" && c.Equip.Chestplate != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Chestplate, 1)
-			c.MaxHP -= equipmentHPBonus(c.Equip.Chestplate)
+			c.MaxHP -= equipmentHPBonus(normalizeItemName(c.Equip.Chestplate))
 		}
-		c.Equip.Chestplate = itemName
+		c.Equip.Chestplate = equipmentDisplayName(baseName, itemRarity)
 	case "Boots":
 		if c.Equip.Boots != "" && c.Equip.Boots != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Boots, 1)
-			c.MaxHP -= equipmentHPBonus(c.Equip.Boots)
+			c.MaxHP -= equipmentHPBonus(normalizeItemName(c.Equip.Boots))
 		}
-		c.Equip.Boots = itemName
+		c.Equip.Boots = equipmentDisplayName(baseName, itemRarity)
 	case "Weapon":
 		if c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Weapon, 1)
 			c.Equip.Weapon = "Aucun"
 			c.Equip.WeaponDamage = 0
 		}
-		c.Equip.Weapon = itemName
+		c.Equip.Weapon = equipmentDisplayName(baseName, itemRarity)
 		c.Equip.WeaponDamage = weaponDamage
 	}
 	c.MaxHP += hpBonus
 	if c.CurrentHP > c.MaxHP {
 		c.CurrentHP = c.MaxHP
 	}
-	fmt.Printf("Vous avez équipé : %s (+%d PV Max)\n", itemName, hpBonus)
+	fmt.Printf("Vous avez équipé : %s (+%d PV Max)\n", equipmentDisplayName(baseName, itemRarity), hpBonus)
 }
 
 func weaponDamageBonus(itemName string) int {

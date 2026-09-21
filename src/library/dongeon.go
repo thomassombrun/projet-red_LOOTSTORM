@@ -105,6 +105,7 @@ func playBossRoom(c *Character, roomNumber int) bool {
 	monster.XPReward += 100
 	monster.GoldReward += 50
 	fmt.Printf("Un boss de niveau %d apparaît dans la salle !\n", monster.Level)
+	c.LastClearedRoom = roomNumber
 	return normalFight(c, &monster, roomNumber-1)
 }
 
@@ -165,10 +166,29 @@ func playChestRoom(c *Character, random *rand.Rand) bool {
 			"Fourrure du loup", "Crocs du loup",
 			"Chapeau du sorcier", "Bâton maudit",
 			"Écailles de dragon", "Griffe du dragon",
+			"Tunique de gobelin", "Bottes de gobelin",
+			"Tunique de slime", "Bottes de slime",
+			"Tunique spectrale", "Bottes spectrales",
+			"Tunique de golem", "Bottes de golem",
+			"Tunique de troll", "Bottes de troll",
+			"Tunique du canard", "Bottes du canard",
+			"Tunique du squelette", "Bottes du squelette",
+			"Tunique du loup", "Bottes du loup",
+			"Tunique du sorcier", "Bottes du sorcier",
+			"Tunique du dragon", "Bottes du dragon",
 		}
 		foundEquipment := equipment[random.Intn(len(equipment))]
-		fmt.Printf("Le coffre contient également : %s.\n", foundEquipment)
-		c.AddOrMergeItem(foundEquipment, 1)
+		rarity := rollEquipmentRarity(c.LastClearedRoom + 1)
+		foundEquipmentWithRarity := equipmentDisplayName(foundEquipment, rarity)
+		fmt.Printf("Le coffre contient également : %s.\n", foundEquipmentWithRarity)
+		c.AddOrMergeItem(foundEquipmentWithRarity, 1)
+	}
+
+	if random.Intn(2) == 0 {
+		spells := []string{"Livre de Sort : Boule de Feu", "Livre de Sort : Soin", "Livre de Sort : Régénération", "Livre de Sort : Poison", "Livre de Sort : Brûlure", "Livre de Sort : Éclair", "Livre de Sort : Barrière Sacrée"}
+		foundSpell := spells[random.Intn(len(spells))]
+		fmt.Printf("Le coffre contient également : %s.\n", foundSpell)
+		c.AddOrMergeItem(foundSpell, 1)
 	}
 	WaitForEnter()
 	return true
