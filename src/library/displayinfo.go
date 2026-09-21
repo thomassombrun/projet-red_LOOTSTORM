@@ -24,6 +24,7 @@ func DisplayInfo(c *Character) {
 	fmt.Printf("Mana : %d / %d\n", c.Mana, c.MaxMana)
 	fmt.Printf("Inventaire : %d / %d emplacements utilisés\n", len(c.Inventory), c.LimitInventory)
 	fmt.Printf("Slots libres : %d\n", c.LimitInventory-len(c.Inventory))
+	fmt.Printf("Améliorations d'inventaire : %d / 3\n", c.LimitInventoryUpgrade)
 	fmt.Printf("Salle la plus avancée : %d\n", c.LastClearedRoom)
 
 	if c.PoisonTurns > 0 {

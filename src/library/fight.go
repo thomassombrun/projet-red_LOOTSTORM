@@ -111,6 +111,10 @@ func normalFight(c *Character, m *Monster, previousRoom int) {
 
 			CharacterTurn(c, m)
 
+			if c.CurrentHP <= 0 {
+				break
+			}
+
 			if m.CurrentHP <= 0 {
 				break
 			}
@@ -130,6 +134,10 @@ func normalFight(c *Character, m *Monster, previousRoom int) {
 			}
 
 			CharacterTurn(c, m)
+
+			if c.CurrentHP <= 0 {
+				break
+			}
 
 			if m.CurrentHP <= 0 {
 				break
@@ -226,7 +234,6 @@ func CharacterTurn(c *Character, m *Monster) {
 		case 2:
 			if SkillMenu(c, m) {
 				fmt.Println("Votre sort est lancé. Vous pouvez continuer votre tour ou le finir.")
-				continue
 			}
 			continue
 
