@@ -10,6 +10,7 @@ func TrainingFight(c *Character) {
 	fmt.Println()
 	fmt.Println("===== COMBAT D'ENTRAÎNEMENT =====")
 	fmt.Printf("%s affronte %s !\n", c.Name, monster.Name)
+	WaitForEnter()
 
 	for c.CurrentHP > 0 && monster.CurrentHP > 0 {
 		ClearTerminal()
@@ -36,6 +37,8 @@ func TrainingFight(c *Character) {
 			c.Respawn()
 			break
 		}
+
+		WaitForEnter()
 		turn++
 	}
 	fmt.Println()
@@ -108,6 +111,7 @@ func normalFight(c *Character, m *Monster, previousRoom int) {
 	} else {
 		fmt.Printf("%s commence le combat !\n", m.Name)
 	}
+	WaitForEnter()
 
 	for c.CurrentHP > 0 && m.CurrentHP > 0 {
 		ClearTerminal()
@@ -163,6 +167,8 @@ func normalFight(c *Character, m *Monster, previousRoom int) {
 				break
 			}
 		}
+
+		WaitForEnter()
 
 		playerTurn = !playerTurn
 
