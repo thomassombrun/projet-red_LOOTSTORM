@@ -20,7 +20,7 @@ func InitGoblin(name string, maxHP int, attack int) Monster {
 		CurrentHP:   40,
 		Attack:      5,
 		PoisonTurns: 0,
-		Initiative:  10,
+		Initiative:  100,
 		XPReward:    100,
 		GoldReward:  50,
 	}

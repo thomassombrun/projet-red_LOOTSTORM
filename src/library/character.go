@@ -33,6 +33,20 @@ type Character struct {
 }
 
 func InitCharacter(name string, class string, maxHP int) Character {
+	initiative := 100
+	switch class {
+	case "Assassin":
+		initiative = 130
+	case "Mage":
+		initiative = 110
+	case "Guerrier":
+		initiative = 90
+	case "Archer":
+		initiative = 120
+	case "Chevalier":
+		initiative = 80
+	}
+
 	return Character{
 		Name:                  name,
 		Class:                 class,
@@ -45,7 +59,7 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		Gold:                  100,
 		LimitInventory:        10,
 		LimitInventoryUpgrade: 0,
-		Initiative:            0,
+		Initiative:            initiative,
 		CurrentXP:             0,
 		MaxXP:                 100,
 		Mana:                  50,
