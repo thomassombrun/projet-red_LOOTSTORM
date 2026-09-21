@@ -76,6 +76,7 @@ func DisplayEquipmentAndSkills(c *Character) {
 			fmt.Printf("Casque : %s\n", c.Equip.Helmet)
 			fmt.Printf("Plastron : %s\n", c.Equip.Chestplate)
 			fmt.Printf("Bottes : %s\n", c.Equip.Boots)
+			fmt.Printf("Arme : %s (+%d dégâts)\n", c.Equip.Weapon, c.Equip.WeaponDamage)
 			WaitForEnter()
 		case 0:
 			return

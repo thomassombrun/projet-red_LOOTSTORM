@@ -158,6 +158,14 @@ func sellPrice(itemName string) int {
 		"Chapeau de l'aventurier":         8,
 		"Tunique de l'aventurier":         12,
 		"Bottes de l'aventurier":          10,
+		"Casque de gobelin":               8,
+		"Carapace de slime":               10,
+		"Dague de l'assassin":             8,
+		"Arc du chasseur":                 10,
+		"Marteau du guerrier":             10,
+		"Épée du chevalier":               12,
+		"Lame de gobelin":                 8,
+		"Bave de slime":                   6,
 	}
 	if price, found := prices[itemName]; found {
 		return price

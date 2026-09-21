@@ -136,7 +136,8 @@ func main() {
 		fmt.Println("4. Ouvrir l'inventaire")
 		fmt.Println("5. Marchand")
 		fmt.Println("6. Forgeron")
-		fmt.Println("7. Quitter le jeu")
+		fmt.Println("7. Enchanteur")
+		fmt.Println("8. Quitter le jeu")
 		fmt.Print("Votre choix : ")
 
 		var choice int
@@ -166,6 +167,9 @@ func main() {
 			library.ForgeronMenu(&player)
 
 		case 7:
+			library.EnchanterMenu(&player)
+
+		case 8:
 			fmt.Println("Merci d'avoir joué à Lootstorm ! À bientôt.")
 			return
 

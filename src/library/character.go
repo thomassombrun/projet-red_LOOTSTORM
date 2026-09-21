@@ -86,6 +86,7 @@ func InitCharacter(name string, class string, maxHP int) Character {
 			Helmet:     "Aucun",
 			Chestplate: "Aucun",
 			Boots:      "Aucun",
+			Weapon:     "Aucun",
 		},
 	}
 }

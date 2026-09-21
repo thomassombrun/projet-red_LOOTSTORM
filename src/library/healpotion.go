@@ -52,7 +52,7 @@ func TakeManaPot(c *Character, index int) {
 		return
 	}
 
-	const manaAmount = 30
+	const manaAmount = 50
 	c.Mana += manaAmount
 	if c.Mana > c.MaxMana {
 		c.Mana = c.MaxMana

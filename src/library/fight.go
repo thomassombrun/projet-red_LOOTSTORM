@@ -1,6 +1,9 @@
 package library
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 func TrainingFight(c *Character) {
 	monster := InitGoblin("Gobelin d'entrainement", 40, 5)
@@ -265,8 +268,11 @@ func CharacterTurn(c *Character, m *Monster) {
 
 		switch choice {
 		case 1:
-			damage := 5
+			damage := 5 + c.Equip.WeaponDamage
 			skillName := "Coup de poing"
+			if c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun" {
+				skillName = "Coup d'arme"
+			}
 
 			if len(c.Skill) > 0 {
 				damage = c.Skill[0].Damage
@@ -367,11 +373,32 @@ func GiveCombatReward(c *Character, m *Monster) {
 			m.GoldReward,
 		)
 	}
+	dropMonsterEquipment(c, m)
 	fmt.Printf(
 		"Or actuel : %d\n",
 		c.Gold,
 	)
 	fmt.Println("=======================")
+}
+
+func dropMonsterEquipment(c *Character, m *Monster) {
+	if rand.Intn(100) >= 35 {
+		return
+	}
+
+	var drops []string
+	switch m.Name {
+	case "Gobelin", "Boss gobelin":
+		drops = []string{"Casque de gobelin", "Lame de gobelin"}
+	case "Slime":
+		drops = []string{"Carapace de slime", "Bave de slime"}
+	default:
+		return
+	}
+
+	drop := drops[rand.Intn(len(drops))]
+	fmt.Printf("%s a laissé tomber : %s !\n", m.Name, drop)
+	c.AddOrMergeItem(drop, 1)
 }
 
 func GainExperience(c *Character, amount int) {
@@ -385,14 +412,18 @@ func GainExperience(c *Character, amount int) {
 		c.MaxHP += 10
 		c.CurrentHP += 10
 		c.Initiative += 5
-		c.MaxMana += 10
-		c.Mana += 10
+		manaGain := 10
+		if c.Class == "Mage" {
+			manaGain = 20
+		}
+		c.MaxMana += manaGain
+		c.Mana += manaGain
 
 		for i := range c.Skill {
 			c.Skill[i].Damage += 2
 		}
 
-		fmt.Printf("Niveau %d atteint ! PV max +10, mana max +10, initiative +5, dégâts des sorts +2.\n", c.Level)
+		fmt.Printf("Niveau %d atteint ! PV max +10, mana max +%d, initiative +5, dégâts des sorts +2.\n", c.Level, manaGain)
 	}
 
 	if c.CurrentHP > c.MaxHP {

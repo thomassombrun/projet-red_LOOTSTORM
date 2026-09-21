@@ -40,6 +40,7 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 		fmt.Println("0. Retour")
 		if !combatOnly {
 			fmt.Printf("%d. Jeter un objet\n", len(availableItems)+1)
+			fmt.Printf("%d. Déséquiper l'arme\n", len(availableItems)+2)
 		}
 		fmt.Print("Votre choix : ")
 
@@ -51,6 +52,11 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 		}
 		if !combatOnly && choice == len(availableItems)+1 {
 			discardItem(c)
+			return true
+		}
+		if !combatOnly && choice == len(availableItems)+2 {
+			UnequipWeapon(c)
+			WaitForEnter()
 			return true
 		}
 
@@ -100,7 +106,7 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 			WaitForEnter()
 			return true
 
-		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier":
+		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier", "Casque de gobelin", "Carapace de slime", "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime":
 			EquipItem(c, item.Name, inventoryIndex)
 			WaitForEnter()
 			return true
