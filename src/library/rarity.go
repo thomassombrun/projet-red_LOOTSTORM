@@ -92,6 +92,12 @@ func itemStatSummary(itemName string) string {
 	return " (" + strings.Join(stats, " / ") + ")"
 }
 
+// ItemStatSummary exposes itemStatSummary for callers outside the package
+// (e.g. the UI) so equipment bonuses can be shown next to inventory items.
+func ItemStatSummary(itemName string) string {
+	return itemStatSummary(itemName)
+}
+
 func scaledEquipmentStat(base int, rarity Rarity) int {
 	return int(float64(base) * rarityMultiplier(rarity))
 }

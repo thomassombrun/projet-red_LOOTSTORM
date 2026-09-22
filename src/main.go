@@ -1509,14 +1509,42 @@ func (g *Game) drawClassConfirmation(screen *ebiten.Image) {
 func (g *Game) drawStats(screen *ebiten.Image) {
 	g.drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
-	drawPanel(screen, 28, 78, 644, 338)
-	text := "LOOTSTORM / PERSONNAGE\n\n"
-	text += fmt.Sprintf("Nom          %s\nClasse       %s\nNiveau       %d\n\n", g.player.Name, g.player.Class, g.player.Level)
-	text += fmt.Sprintf("PV           %d / %d\nMana         %d / %d\nAttaque      %d\nInitiative   %d\nXP           %d / %d\nSalle        %d\nÉtage        %d\n\n", g.player.CurrentHP, g.player.MaxHP, g.player.Mana, g.player.MaxMana, g.player.Attack+g.player.Equip.WeaponDamage, g.player.Initiative, g.player.CurrentXP, g.player.MaxXP, g.player.LastClearedRoom, dungeonFloorForUI(g.player.LastClearedRoom+1))
-	text += fmt.Sprintf("Inventaire   %d / %d\nAméliorations %d / 3\nSlots libres %d\nOr           %d\n\n", len(g.player.Inventory), g.player.LimitInventory, g.player.LimitInventoryUpgrade, g.player.LimitInventory-len(g.player.Inventory), g.player.Gold)
-	text += fmt.Sprintf("Arme         %s (+%d ATQ)\nCasque       %s\nPlastron     %s\nBottes       %s\n\n%s\n\nÉchap : retour", g.player.Equip.Weapon, g.player.Equip.WeaponDamage, g.player.Equip.Helmet, g.player.Equip.Chestplate, g.player.Equip.Boots, library.ClassAdvantages(g.player.Class))
-	ebitenutil.DebugPrintAt(screen, text, 48, 98)
-	drawCharacterSprite(screen, 510, 98, 8, g.player.Name, g.player.Class)
+	p := g.player
+
+	drawPanel(screen, 28, 78, 300, 142)
+	ebitenutil.DebugPrintAt(screen, "IDENTITÉ", 44, 94)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Nom     %s", p.Name), 44, 114)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Classe  %s", p.Class), 44, 129)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Niveau  %d", p.Level), 44, 144)
+	drawCharacterSprite(screen, 216, 96, 4, p.Name, p.Class)
+
+	drawPanel(screen, 344, 78, 328, 142)
+	ebitenutil.DebugPrintAt(screen, "PROGRESSION", 360, 94)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Étage %d   //   Salle %d", dungeonFloorForUI(p.LastClearedRoom+1), p.LastClearedRoom+1), 360, 114)
+	drawBar(screen, 360, 128, 280, 12, p.CurrentXP, p.MaxXP, goldColor)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("XP  %d / %d", p.CurrentXP, p.MaxXP), 360, 148)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Inventaire  %d / %d     Améliorations  %d / 3", len(p.Inventory), p.LimitInventory, p.LimitInventoryUpgrade), 360, 168)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Or  %d", p.Gold), 360, 188)
+
+	drawPanel(screen, 28, 228, 300, 180)
+	ebitenutil.DebugPrintAt(screen, "STATISTIQUES DE COMBAT", 44, 244)
+	drawBar(screen, 44, 258, 250, 12, p.CurrentHP, p.MaxHP, redColor)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV  %d / %d", p.CurrentHP, p.MaxHP), 44, 278)
+	drawBar(screen, 44, 292, 250, 12, p.Mana, p.MaxMana, blueColor)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("MANA  %d / %d", p.Mana, p.MaxMana), 44, 312)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("ATTAQUE      %d", p.Attack+p.Equip.WeaponDamage), 44, 334)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("INITIATIVE   %d", p.Initiative), 44, 349)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("SLOTS LIBRES %d", p.LimitInventory-len(p.Inventory)), 44, 364)
+
+	drawPanel(screen, 344, 228, 328, 180)
+	ebitenutil.DebugPrintAt(screen, "ÉQUIPEMENT ACTIF", 360, 244)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("ARME       %s (+%d ATQ)", p.Equip.Weapon, p.Equip.WeaponDamage), 360, 266)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("CASQUE     %s%s", p.Equip.Helmet, library.ItemStatSummary(p.Equip.Helmet)), 360, 286)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PLASTRON   %s%s", p.Equip.Chestplate, library.ItemStatSummary(p.Equip.Chestplate)), 360, 306)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("BOTTES     %s%s", p.Equip.Boots, library.ItemStatSummary(p.Equip.Boots)), 360, 326)
+	ebitenutil.DebugPrintAt(screen, library.ClassAdvantages(p.Class), 360, 350)
+
+	ebitenutil.DebugPrintAt(screen, "Échap : retour", 28, 432)
 }
 
 func (g *Game) drawInventory(screen *ebiten.Image) {
@@ -1536,7 +1564,9 @@ func (g *Game) drawInventory(screen *ebiten.Image) {
 				cursor = ">>"
 			}
 			drawItemSprite(screen, 365, 127+index*17, 2, item.Name)
-			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s %02d  %-35s x%d", cursor, index+1, item.Name, item.Quantity), 48, 130+index*17)
+			bonus := library.ItemStatSummary(library.ItemDisplayName(item))
+			label := library.ItemDisplayName(item)
+			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s %02d  %-28s%s x%d", cursor, index+1, label, bonus, item.Quantity), 48, 130+index*17)
 		}
 	}
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Emplacements : %d / %d     Or : %d", len(g.player.Inventory), g.player.LimitInventory, g.player.Gold), 48, 385)
