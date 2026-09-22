@@ -1547,6 +1547,16 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return 700, 450
 }
 
+// DrawFinalScreen upscales the 700x450 canvas to the window with a crisp
+// nearest-neighbor blit (the window is an exact 2x multiple) instead of
+// Ebitengine's default smoothing, which was blurring the whole game.
+func (g *Game) DrawFinalScreen(screen ebiten.FinalScreen, offscreen *ebiten.Image, geoM ebiten.GeoM) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM = geoM
+	op.Filter = ebiten.FilterNearest
+	screen.DrawImage(offscreen, op)
+}
+
 func main() {
 	game := &Game{selected: 0}
 	ebiten.SetWindowSize(1400, 900)
