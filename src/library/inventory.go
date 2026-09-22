@@ -108,7 +108,7 @@ func accessInventory(c *Character, enemy *Monster, combatOnly bool) bool {
 			WaitForEnter()
 			return true
 
-		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier", "Casque de gobelin", "Carapace de slime", "Capuche spectrale", "Casque de golem", "Peau de troll renforcée", "Plumes du canard", "Heaume squelette", "Fourrure du loup", "Chapeau du sorcier", "Écailles de dragon", "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime", "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon", "Tunique de gobelin", "Bottes de gobelin", "Tunique de slime", "Bottes de slime", "Tunique spectrale", "Bottes spectrales", "Tunique de golem", "Bottes de golem", "Tunique de troll", "Bottes de troll", "Tunique du canard", "Bottes du canard", "Tunique du squelette", "Bottes du squelette", "Tunique du loup", "Bottes du loup", "Tunique du sorcier", "Bottes du sorcier", "Tunique du dragon", "Bottes du dragon":
+		case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier", "Casque de gobelin", "Carapace de slime", "Capuche spectrale", "Casque de golem", "Peau de troll renforcée", "Plumes du canard", "Heaume squelette", "Fourrure du loup", "Chapeau du sorcier", "Écailles de dragon", "Dague de l'assassin", "Arc du chasseur", "Arc long", "Arc composite", "Arc elfique", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime", "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon", "Tunique de gobelin", "Bottes de gobelin", "Tunique de slime", "Bottes de slime", "Tunique spectrale", "Bottes spectrales", "Tunique de golem", "Bottes de golem", "Tunique de troll", "Bottes de troll", "Tunique du canard", "Bottes du canard", "Tunique du squelette", "Bottes du squelette", "Tunique du loup", "Bottes du loup", "Tunique du sorcier", "Bottes du sorcier", "Tunique du dragon", "Bottes du dragon":
 			EquipItem(c, itemDisplayName(item), inventoryIndex)
 			WaitForEnter()
 			return true
@@ -142,15 +142,33 @@ func UpgradeInventorySlotSilent(c *Character) bool {
 }
 
 func IsInventoryFull(c *Character) bool {
-	if len(c.Inventory) >= c.LimitInventory {
+	if InventoryCount(c) >= c.LimitInventory {
 		fmt.Println("Votre inventaire est plein !")
-		fmt.Printf("Capacité : %d / %d\n", len(c.Inventory), c.LimitInventory)
+		fmt.Printf("Capacité : %d / %d\n", InventoryCount(c), c.LimitInventory)
 		return true
 	}
 	return false
 }
 
+// InventoryCount counts individual objects, including quantities in a stack.
+func InventoryCount(c *Character) int {
+	count := 0
+	for _, item := range c.Inventory {
+		if item.Quantity > 0 {
+			count += item.Quantity
+		}
+	}
+	return count
+}
+
 func (c *Character) AddOrMergeItem(itemName string, quantity int) {
+	if quantity <= 0 {
+		return
+	}
+	if InventoryCount(c)+quantity > c.LimitInventory {
+		fmt.Println("Votre inventaire est plein ! L'objet n'a pas pu être ajouté.")
+		return
+	}
 	baseName := normalizeItemName(itemName)
 	itemRarity := parseItemRarity(itemName)
 	for i := range c.Inventory {
@@ -163,10 +181,6 @@ func (c *Character) AddOrMergeItem(itemName string, quantity int) {
 			c.Inventory[i].Quantity += quantity
 			return
 		}
-	}
-	if len(c.Inventory) >= c.LimitInventory {
-		fmt.Println("Votre inventaire est plein ! L'ancien équipement n'a pas pu y être replacé.")
-		return
 	}
 	c.Inventory = append(c.Inventory, Item{Name: baseName, Quantity: quantity, Rarity: itemRarity})
 }

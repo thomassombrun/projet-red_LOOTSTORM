@@ -40,7 +40,7 @@ func EquipItem(c *Character, itemName string, index int) {
 	case "Bottes de l'aventurier":
 		slotType = "Boots"
 		hpBonus = 15
-	case "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime":
+	case "Dague de l'assassin", "Arc du chasseur", "Arc long", "Arc composite", "Arc elfique", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime":
 		slotType = "Weapon"
 		weaponDamage = weaponDamageBonus(baseName)
 	case "Lame spectrale", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon":
@@ -122,7 +122,15 @@ func weaponDamageBonus(itemName string) int {
 	switch base {
 	case "Dague de l'assassin", "Bave de slime":
 		return 8
-	case "Arc du chasseur", "Lame de gobelin":
+	case "Arc du chasseur":
+		return 10
+	case "Arc long":
+		return 14
+	case "Arc composite":
+		return 18
+	case "Arc elfique":
+		return 24
+	case "Lame de gobelin":
 		return 10
 	case "Lame spectrale", "Bâton maudit":
 		return 14

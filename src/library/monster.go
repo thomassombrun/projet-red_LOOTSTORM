@@ -50,7 +50,7 @@ func InitGhostLevel(name string, level int) Monster {
 }
 
 func InitGolem() Monster {
-	return Monster{Name: "Golem de Pierre", Pattern: "golem", Level: 1, MaxHP: 100, CurrentHP: 100, Attack: 12, Initiative: 3, XPReward: 250, GoldReward: 80, Effects: []Effect{}}
+	return Monster{Name: "Golem de Pierre", Pattern: "golem", Level: 1, MaxHP: 95, CurrentHP: 95, Attack: 10, Initiative: 3, XPReward: 250, GoldReward: 80, Effects: []Effect{}}
 }
 
 func InitTroll() Monster {
@@ -58,23 +58,23 @@ func InitTroll() Monster {
 }
 
 func InitDuck() Monster {
-	return Monster{Name: "Canard Démoniaque", Pattern: "duck", Level: 1, MaxHP: 300, CurrentHP: 300, Attack: 25, Initiative: 130, XPReward: 382, GoldReward: 37, Effects: []Effect{}}
+	return Monster{Name: "Canard Démoniaque", Pattern: "duck", Level: 1, MaxHP: 300, CurrentHP: 300, Attack: 28, Initiative: 140, XPReward: 450, GoldReward: 75, Effects: []Effect{}}
 }
 
 func InitSkeleton() Monster {
-	return Monster{Name: "Squelette Guerrier", Pattern: "skeleton", Level: 1, MaxHP: 50, CurrentHP: 50, Attack: 8, Initiative: 15, XPReward: 130, GoldReward: 35, Effects: []Effect{}}
+	return Monster{Name: "Squelette Guerrier", Pattern: "skeleton", Level: 1, MaxHP: 60, CurrentHP: 60, Attack: 9, Initiative: 15, XPReward: 130, GoldReward: 30, Effects: []Effect{}}
 }
 
 func InitWolf() Monster {
-	return Monster{Name: "Loup Sauvage", Pattern: "wolf", Level: 1, MaxHP: 45, CurrentHP: 45, Attack: 9, Initiative: 18, XPReward: 110, GoldReward: 30, Effects: []Effect{}}
+	return Monster{Name: "Loup Sauvage", Pattern: "wolf", Level: 1, MaxHP: 55, CurrentHP: 55, Attack: 10, Initiative: 18, XPReward: 110, GoldReward: 25, Effects: []Effect{}}
 }
 
 func InitWizard() Monster {
-	return Monster{Name: "Sorcier Maudit", Pattern: "wizard", Level: 1, MaxHP: 55, CurrentHP: 55, Attack: 11, Initiative: 12, XPReward: 220, GoldReward: 60, Effects: []Effect{}}
+	return Monster{Name: "Sorcier Maudit", Pattern: "wizard", Level: 1, MaxHP: 65, CurrentHP: 65, Attack: 12, Initiative: 12, XPReward: 220, GoldReward: 50, Effects: []Effect{}}
 }
 
 func InitDragon() Monster {
-	return Monster{Name: "Dragon Ancien", Pattern: "dragon", Level: 1, MaxHP: 200, CurrentHP: 200, Attack: 20, Initiative: 8, XPReward: 500, GoldReward: 200, Effects: []Effect{}}
+	return Monster{Name: "Dragon Ancien", Pattern: "dragon", Level: 1, MaxHP: 180, CurrentHP: 180, Attack: 18, Initiative: 8, XPReward: 500, GoldReward: 200, Effects: []Effect{}}
 }
 
 func initMonster(name string, level int, baseHP int, baseAttack int, initiative int, baseXP int, baseGold int) Monster {

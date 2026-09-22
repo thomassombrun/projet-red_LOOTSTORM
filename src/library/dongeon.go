@@ -98,7 +98,7 @@ func scaleSpecialMonster(monster Monster, roomNumber int) Monster {
 	monster.Level = level
 	monster.MaxHP += (level - 1) * 25
 	monster.CurrentHP = monster.MaxHP
-	monster.Attack += (level - 1) * 3
+	monster.Attack += (level - 1) * 2
 	monster.Initiative += (level - 1) * 2
 	monster.XPReward += (level - 1) * 40
 	monster.GoldReward += (level - 1) * 20

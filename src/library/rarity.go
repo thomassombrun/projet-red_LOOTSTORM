@@ -142,7 +142,7 @@ func rarityMultiplier(rarity Rarity) float64 {
 func monsterEquipmentPool(pattern string) []string {
 	switch pattern {
 	case "goblin":
-		return []string{"Casque de gobelin", "Lame de gobelin", "Tunique de gobelin", "Bottes de gobelin"}
+		return []string{"Casque de gobelin", "Lame de gobelin", "Tunique de gobelin", "Bottes de gobelin", "Arc du chasseur"}
 	case "slime":
 		return []string{"Carapace de slime", "Bave de slime", "Tunique de slime", "Bottes de slime"}
 	case "ghost":
@@ -156,11 +156,11 @@ func monsterEquipmentPool(pattern string) []string {
 	case "skeleton":
 		return []string{"Heaume squelette", "Épée squelette", "Tunique du squelette", "Bottes du squelette"}
 	case "wolf":
-		return []string{"Fourrure du loup", "Crocs du loup", "Tunique du loup", "Bottes du loup"}
+		return []string{"Fourrure du loup", "Crocs du loup", "Arc long", "Tunique du loup", "Bottes du loup"}
 	case "wizard":
 		return []string{"Chapeau du sorcier", "Bâton maudit", "Tunique du sorcier", "Bottes du sorcier"}
 	case "dragon":
-		return []string{"Écailles de dragon", "Griffe du dragon", "Tunique du dragon", "Bottes du dragon"}
+		return []string{"Écailles de dragon", "Griffe du dragon", "Arc elfique", "Tunique du dragon", "Bottes du dragon"}
 	default:
 		return nil
 	}
@@ -202,7 +202,7 @@ func slotForEquipment(itemName string) string {
 		return "Chestplate"
 	case "Bottes de l'aventurier", "Bottes de gobelin", "Bottes de slime", "Bottes spectrales", "Bottes de golem", "Bottes de troll", "Bottes du canard", "Bottes du squelette", "Bottes du loup", "Bottes du sorcier", "Bottes du dragon":
 		return "Boots"
-	case "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime", "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon":
+	case "Dague de l'assassin", "Arc du chasseur", "Arc long", "Arc composite", "Arc elfique", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime", "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon":
 		return "Weapon"
 	default:
 		return ""

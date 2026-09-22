@@ -451,7 +451,7 @@ func isEquipmentItem(name string) bool {
 		"Fourrure du loup", "Crocs du loup", "Tunique du loup", "Bottes du loup",
 		"Chapeau du sorcier", "Bâton maudit", "Tunique du sorcier", "Bottes du sorcier",
 		"Écailles de dragon", "Griffe du dragon", "Tunique du dragon", "Bottes du dragon",
-		"Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier",
+		"Dague de l'assassin", "Arc du chasseur", "Arc long", "Arc composite", "Arc elfique", "Marteau du guerrier", "Épée du chevalier",
 	} {
 		if base == item {
 			return true
@@ -600,6 +600,17 @@ func (g *game) adventureMonster(room int) library.Monster {
 		boss.GoldReward = 120 + room/10*50
 		return boss
 	}
+	if room >= 3 && g.random.Intn(100) < 5 {
+		monster := library.InitDuck()
+		monster.Level = room
+		monster.MaxHP += (room - 1) * 8
+		monster.CurrentHP = monster.MaxHP
+		monster.Attack += room - 1
+		monster.Initiative += room - 1
+		monster.XPReward += (room - 1) * 15
+		monster.GoldReward += (room - 1) * 8
+		return monster
+	}
 	var monster library.Monster
 	switch g.random.Intn(9) {
 	case 0:
@@ -622,14 +633,14 @@ func (g *game) adventureMonster(room int) library.Monster {
 		if room >= 5 {
 			monster = library.InitDragon()
 		} else {
-			monster = library.InitDuck()
+			monster = library.InitGoblinLevel("Gobelin", room)
 		}
 	}
 	monster.Level = room
 	if room > 1 {
 		monster.MaxHP += (room - 1) * 8
 		monster.CurrentHP = monster.MaxHP
-		monster.Attack += (room - 1) * 2
+		monster.Attack += room - 1
 		monster.Initiative += (room - 1)
 		monster.XPReward += (room - 1) * 15
 		monster.GoldReward += (room - 1) * 8
@@ -704,7 +715,7 @@ func (g *game) performCombatAttack() {
 }
 
 func (g *game) canTakeAssassinExtraAction() bool {
-	if g.player.Class != "Assassin" || g.assassinExtraAction || g.monster.CurrentHP <= 0 {
+	if g.player.Class != "Assassin" || g.assassinExtraAction || g.monster.CurrentHP <= 0 || g.combatTurn%2 == 0 {
 		return false
 	}
 	g.assassinExtraAction = true
@@ -1412,7 +1423,7 @@ func passiveDescription(class string) string {
 		"Guerrier":   "Atout aleatoire : arme, sort ou initiative en combat.",
 		"Mage":       "Sorts infligeant 1,5 fois leurs degats et progression de mana augmentee.",
 		"Archer":     "20% esquive et degats doubles avec l'Arc du chasseur.",
-		"Assassin":   "Ouverture x2, 30% esquive, saignement avec la Dague et double action.",
+		"Assassin":   "Ouverture x1,5, 22% esquive, saignement avec la Dague et action bonus un tour sur deux.",
 		"Chevalier":  "35% de chance de reduire les degats de moitie.",
 		"Samourai":   "15% esquive et 25% de chance de contre-attaque.",
 		"Clerc":      "Soins augmentes de 50%.",

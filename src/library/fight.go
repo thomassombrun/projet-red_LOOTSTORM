@@ -402,7 +402,7 @@ func CollectCombatReward(c *Character, m *Monster) CombatReward {
 	}
 	c.Gold += reward.Gold
 
-	if rand.Intn(100) < 35 {
+	if rand.Intn(100) < 22 {
 		pool := generateMonsterEquipment(m.Pattern, c.LastClearedRoom+1)
 		for _, baseName := range pool {
 			rarity := rollEquipmentRarity(c.LastClearedRoom + 1)
@@ -412,7 +412,7 @@ func CollectCombatReward(c *Character, m *Monster) CombatReward {
 			}
 			c.AddOrMergeItem(drop, 1)
 			reward.Drops = append(reward.Drops, drop)
-			if rand.Intn(100) >= 25 {
+			if rand.Intn(100) >= 15 {
 				break
 			}
 		}
@@ -428,7 +428,7 @@ func canStoreRewardItem(c *Character, itemName string) bool {
 			return true
 		}
 	}
-	return len(c.Inventory) < c.LimitInventory
+	return InventoryCount(c) < c.LimitInventory
 }
 
 func GiveCombatReward(c *Character, m *Monster) {
@@ -459,7 +459,7 @@ func GiveCombatReward(c *Character, m *Monster) {
 }
 
 func dropMonsterEquipment(c *Character, m *Monster) {
-	if rand.Intn(100) >= 35 {
+	if rand.Intn(100) >= 22 {
 		return
 	}
 
@@ -473,7 +473,7 @@ func dropMonsterEquipment(c *Character, m *Monster) {
 		drop := equipmentDisplayName(baseName, rarity)
 		fmt.Printf("%s a laissé tomber : %s !\n", m.Name, drop)
 		c.AddOrMergeItem(drop, 1)
-		if rand.Intn(100) < 25 {
+		if rand.Intn(100) < 15 {
 			break
 		}
 	}

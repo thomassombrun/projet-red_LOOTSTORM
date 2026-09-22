@@ -94,14 +94,8 @@ func BuyItem(c *Character, itemName string, price int) bool {
 		return false
 	}
 
-	itemExists := false
-	for _, item := range c.Inventory {
-		if item.Name == itemName {
-			itemExists = true
-			break
-		}
-	}
-	if !itemExists && IsInventoryFull(c) {
+	if InventoryCount(c)+1 > c.LimitInventory {
+		IsInventoryFull(c)
 		return false
 	}
 
@@ -123,14 +117,7 @@ func BuyItemSilent(c *Character, itemName string, price int) bool {
 	if c.Gold < price {
 		return false
 	}
-	itemExists := false
-	for _, item := range c.Inventory {
-		if item.Name == itemName {
-			itemExists = true
-			break
-		}
-	}
-	if !itemExists && len(c.Inventory) >= c.LimitInventory {
+	if InventoryCount(c)+1 > c.LimitInventory {
 		return false
 	}
 	c.Gold -= price
