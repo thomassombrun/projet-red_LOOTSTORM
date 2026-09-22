@@ -11,7 +11,12 @@ import (
 )
 
 const (
-	viewHeroSelect = iota
+	viewStart = iota
+	viewHeroSelect
+	viewHeroConfirm
+	viewNameInput
+	viewClassSelect
+	viewClassConfirm
 	viewDashboard
 	viewStats
 	viewInventory
@@ -46,6 +51,14 @@ func getHPForClass(class string) int {
 		return 100
 	case "Chevalier":
 		return 120
+	case "Samourai":
+		return 115
+	case "Clerc":
+		return 105
+	case "Barbare":
+		return 180
+	case "Invocateur":
+		return 90
 	default:
 		return 100
 	}
@@ -242,20 +255,23 @@ var menuOptions = []string{
 }
 
 type Game struct {
-	selected     int
-	heroSelected int
-	view         int
-	message      string
-	player       library.Character
-	initialized  bool
+	selected      int
+	heroSelected  int
+	view          int
+	message       string
+	player        library.Character
+	initialized   bool
+	startSelected int
+	classSelected int
+	customName    string
 }
 
 func (g *Game) initPlayer() {
 	if g.initialized {
 		return
 	}
-	g.view = viewHeroSelect
-	g.message = "Choisissez votre héros puis validez avec Entrée."
+	g.view = viewStart
+	g.message = "Choisissez votre mode de création."
 }
 
 func heroChoices() []library.Character {
@@ -274,14 +290,38 @@ func (g *Game) Update() error {
 	g.initPlayer()
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
-		if g.view == viewHeroSelect {
+		if g.view == viewStart {
 			return ebiten.Termination
 		}
-		g.view = viewDashboard
-		g.message = "Retour au tableau de bord."
+		switch g.view {
+		case viewHeroSelect, viewNameInput, viewClassSelect:
+			g.view = viewStart
+		case viewHeroConfirm:
+			g.view = viewHeroSelect
+		case viewClassConfirm:
+			g.view = viewClassSelect
+		default:
+			g.view = viewDashboard
+		}
+		g.message = "Retour à l'écran précédent."
+	}
+	if g.view == viewStart {
+		return g.updateStartSelection()
 	}
 	if g.view == viewHeroSelect {
 		return g.updateHeroSelection()
+	}
+	if g.view == viewHeroConfirm {
+		return g.updateHeroConfirmation()
+	}
+	if g.view == viewNameInput {
+		return g.updateNameInput()
+	}
+	if g.view == viewClassSelect {
+		return g.updateClassSelection()
+	}
+	if g.view == viewClassConfirm {
+		return g.updateClassConfirmation()
 	}
 	if g.view != viewDashboard {
 		return nil
@@ -319,6 +359,29 @@ func (g *Game) Update() error {
 	return nil
 }
 
+func (g *Game) updateStartSelection() error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) || inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		g.startSelected = 1 - g.startSelected
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key1) {
+		g.startSelected = 0
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		g.startSelected = 1
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+		if g.startSelected == 0 {
+			g.view = viewHeroSelect
+			g.message = "Choisissez un héros puis consultez sa confirmation."
+		} else {
+			g.customName = ""
+			g.view = viewNameInput
+			g.message = "Saisissez le nom de votre personnage."
+		}
+	}
+	return nil
+}
+
 func (g *Game) updateHeroSelection() error {
 	heroes := heroChoices()
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
@@ -333,10 +396,76 @@ func (g *Game) updateHeroSelection() error {
 		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-		g.player = heroes[g.heroSelected]
+		g.view = viewHeroConfirm
+	}
+	return nil
+}
+
+func (g *Game) updateHeroConfirmation() error {
+	if inpututil.IsKeyJustPressed(ebiten.Key1) || inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+		g.player = heroChoices()[g.heroSelected]
 		g.initialized = true
 		g.view = viewDashboard
 		g.message = fmt.Sprintf("%s rejoint l'aventure.", g.player.Name)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		g.view = viewHeroSelect
+	}
+	return nil
+}
+
+func (g *Game) updateNameInput() error {
+	for _, char := range ebiten.AppendInputChars(nil) {
+		if len([]rune(g.customName)) < 20 {
+			g.customName += string(char)
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+		runes := []rune(g.customName)
+		if len(runes) > 0 {
+			g.customName = string(runes[:len(runes)-1])
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) && len([]rune(g.customName)) > 0 {
+		g.classSelected = 0
+		g.view = viewClassSelect
+	}
+	return nil
+}
+
+func classChoices() []string {
+	return []string{"Guerrier", "Mage", "Archer", "Assassin", "Chevalier", "Samourai", "Clerc", "Barbare", "Invocateur"}
+}
+
+func (g *Game) updateClassSelection() error {
+	classes := classChoices()
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+		g.classSelected = (g.classSelected + len(classes) - 1) % len(classes)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		g.classSelected = (g.classSelected + 1) % len(classes)
+	}
+	for i := ebiten.Key1; i <= ebiten.Key9; i++ {
+		if inpututil.IsKeyJustPressed(i) {
+			g.classSelected = int(i - ebiten.Key1)
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+		g.view = viewClassConfirm
+	}
+	return nil
+}
+
+func (g *Game) updateClassConfirmation() error {
+	if inpututil.IsKeyJustPressed(ebiten.Key1) || inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+		className := classChoices()[g.classSelected]
+		g.player = library.InitCharacter(g.customName, className, getHPForClass(className))
+		g.initialized = true
+		g.view = viewDashboard
+		g.message = fmt.Sprintf("%s rejoint l'aventure.", g.player.Name)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		g.view = viewClassSelect
 	}
 	return nil
 }
@@ -376,8 +505,28 @@ func (g *Game) handleChoice(idx int) error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.initPlayer()
 	screen.Fill(color.RGBA{R: 16, G: 20, B: 28, A: 255})
+	if g.view == viewStart {
+		g.drawStart(screen)
+		return
+	}
 	if g.view == viewHeroSelect {
 		g.drawHeroSelection(screen)
+		return
+	}
+	if g.view == viewHeroConfirm {
+		g.drawHeroConfirmation(screen)
+		return
+	}
+	if g.view == viewNameInput {
+		g.drawNameInput(screen)
+		return
+	}
+	if g.view == viewClassSelect {
+		g.drawClassSelection(screen)
+		return
+	}
+	if g.view == viewClassConfirm {
+		g.drawClassConfirmation(screen)
 		return
 	}
 
@@ -407,6 +556,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, text, 42, 40)
 }
 
+func (g *Game) drawStart(screen *ebiten.Image) {
+	first := "> "
+	second := "  "
+	if g.startSelected == 1 {
+		first, second = "  ", "> "
+	}
+	text := fmt.Sprintf("LOOTSTORM / NOUVELLE PARTIE\n\n%s1. Choisir un personnage prédéfini\n%s2. Créer mon personnage\n\nFlèches haut/bas, 1-2 puis Entrée\nÉchap : quitter", first, second)
+	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+}
+
 func (g *Game) drawHeroSelection(screen *ebiten.Image) {
 	heroes := heroChoices()
 	selectedHero := heroes[g.heroSelected]
@@ -419,6 +578,37 @@ func (g *Game) drawHeroSelection(screen *ebiten.Image) {
 		text += fmt.Sprintf("%s%d. %-20s %-12s PV %d\n", cursor, index+1, hero.Name, hero.Class, hero.MaxHP)
 	}
 	text += fmt.Sprintf("\n=== %s ===\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\nFlèches haut/bas ou 1-7, Entrée : confirmer\nÉchap : quitter", selectedHero.Name, selectedHero.Class, selectedHero.MaxHP, selectedHero.Attack, selectedHero.Initiative, library.ClassAdvantages(selectedHero.Class))
+	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+}
+
+func (g *Game) drawHeroConfirmation(screen *ebiten.Image) {
+	hero := heroChoices()[g.heroSelected]
+	text := fmt.Sprintf("LOOTSTORM / CONFIRMATION\n\n%s\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\n1. Valider ce personnage\n2. Choisir un autre personnage\n\nEntrée : valider", hero.Name, hero.Class, hero.MaxHP, hero.Attack, hero.Initiative, library.ClassAdvantages(hero.Class))
+	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+}
+
+func (g *Game) drawNameInput(screen *ebiten.Image) {
+	text := fmt.Sprintf("LOOTSTORM / CRÉATION\n\nChoisissez le nom de votre personnage :\n\n> %s_\n\nEntrée : continuer\nRetour arrière : effacer\nÉchap : retour", g.customName)
+	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+}
+
+func (g *Game) drawClassSelection(screen *ebiten.Image) {
+	classes := classChoices()
+	text := fmt.Sprintf("LOOTSTORM / CHOIX DE CLASSE\n\nNom : %s\n\n", g.customName)
+	for index, className := range classes {
+		cursor := "  "
+		if index == g.classSelected {
+			cursor = "> "
+		}
+		text += fmt.Sprintf("%s%d. %-12s PV %d\n", cursor, index+1, className, getHPForClass(className))
+	}
+	text += fmt.Sprintf("\nAvantage : %s\n\nFlèches haut/bas ou 1-9, Entrée : continuer", library.ClassAdvantages(classes[g.classSelected]))
+	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+}
+
+func (g *Game) drawClassConfirmation(screen *ebiten.Image) {
+	className := classChoices()[g.classSelected]
+	text := fmt.Sprintf("LOOTSTORM / CONFIRMATION DE CLASSE\n\nNom : %s\nClasse : %s\nPV de base : %d\n\n%s\n\n1. Valider cette classe\n2. Choisir une autre classe\n\nEntrée : valider", g.customName, className, getHPForClass(className), library.ClassAdvantages(className))
 	ebitenutil.DebugPrintAt(screen, text, 42, 40)
 }
 
