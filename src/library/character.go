@@ -172,7 +172,7 @@ func BasicAttackDamage(c *Character) int {
 		missingRatio := float64(c.MaxHP-c.CurrentHP) / float64(c.MaxHP)
 		damage += int(float64(damage) * missingRatio)
 	}
-	if c.Class == "Archer" && c.Equip.Weapon == "Arc du chasseur" {
+	if c.Class == "Archer" && normalizeItemName(c.Equip.Weapon) == "Arc du chasseur" {
 		damage *= 2
 	}
 	return damage
@@ -248,7 +248,7 @@ func AssassinOpeningAttack(c *Character, m *Monster) bool {
 }
 
 func ApplyAssassinBleed(c *Character, m *Monster) {
-	if c.Class != "Assassin" || c.Equip.Weapon != "Dague de l'assassin" {
+	if c.Class != "Assassin" || normalizeItemName(c.Equip.Weapon) != "Dague de l'assassin" {
 		return
 	}
 

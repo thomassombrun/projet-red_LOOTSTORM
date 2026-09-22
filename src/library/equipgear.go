@@ -18,6 +18,14 @@ func currentEquippedForSlot(c *Character, slotType string) string {
 }
 
 func EquipItem(c *Character, itemName string, index int) {
+	equipItem(c, itemName, index, true)
+}
+
+func EquipItemDirect(c *Character, itemName string, index int) {
+	equipItem(c, itemName, index, false)
+}
+
+func equipItem(c *Character, itemName string, index int, askReplacement bool) {
 	var slotType string
 	var hpBonus int
 	var weaponDamage int
@@ -61,22 +69,26 @@ func EquipItem(c *Character, itemName string, index int) {
 	}
 	currentEquipped := currentEquippedForSlot(c, slotType)
 	if currentEquipped != "" && currentEquipped != "Aucun" && normalizeItemName(currentEquipped) != baseName {
-		fmt.Println("Vous avez déjà un équipement dans cette catégorie :")
-		fmt.Printf("- Actuel : %s%s\n", currentEquipped, itemStatSummary(currentEquipped))
-		fmt.Printf("- Nouveau : %s%s\n", equipmentDisplayName(baseName, itemRarity), itemStatSummary(itemName))
-		fmt.Println("1. Équiper le nouvel objet et remettre l'ancien dans l'inventaire")
-		fmt.Println("2. Garder l'ancien équipement")
-		fmt.Print("Votre choix : ")
+		if !askReplacement {
+			replaceExisting = true
+		} else {
+			fmt.Println("Vous avez déjà un équipement dans cette catégorie :")
+			fmt.Printf("- Actuel : %s%s\n", currentEquipped, itemStatSummary(currentEquipped))
+			fmt.Printf("- Nouveau : %s%s\n", equipmentDisplayName(baseName, itemRarity), itemStatSummary(itemName))
+			fmt.Println("1. Équiper le nouvel objet et remettre l'ancien dans l'inventaire")
+			fmt.Println("2. Garder l'ancien équipement")
+			fmt.Print("Votre choix : ")
 
-		var choice int
-		fmt.Scanln(&choice)
-		if choice == 2 {
-			if c.Inventory[index].Quantity <= 0 {
-				c.Inventory = append(c.Inventory[:index], c.Inventory[index+1:]...)
+			var choice int
+			fmt.Scanln(&choice)
+			if choice == 2 {
+				if c.Inventory[index].Quantity <= 0 {
+					c.Inventory = append(c.Inventory[:index], c.Inventory[index+1:]...)
+				}
+				return
 			}
-			return
+			replaceExisting = true
 		}
-		replaceExisting = true
 	}
 
 	item := &c.Inventory[index]

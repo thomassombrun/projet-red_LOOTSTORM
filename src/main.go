@@ -25,6 +25,7 @@ const (
 	viewForge
 	viewEnchanter
 	viewCombat
+	viewCombatSkills
 )
 
 func normalizeClass(class string) string {
@@ -273,6 +274,9 @@ type Game struct {
 	combatTurn         int
 	combatMessage      string
 	combatAdvancesRoom bool
+	combatStarted      bool
+	merchantSelected   int
+	skillSelected      int
 }
 
 func (g *Game) initPlayer() {
@@ -315,6 +319,8 @@ func (g *Game) Update() error {
 			g.view = viewClassSelect
 		case viewCombat, viewMerchant, viewForge, viewEnchanter:
 			g.view = viewDashboard
+		case viewCombatSkills:
+			g.view = viewCombat
 		default:
 			g.view = viewDashboard
 		}
@@ -340,6 +346,12 @@ func (g *Game) Update() error {
 	}
 	if g.view == viewCombat {
 		return g.updateCombat()
+	}
+	if g.view == viewCombatSkills {
+		return g.updateCombatSkills()
+	}
+	if g.view == viewInventory {
+		return g.updateInventory()
 	}
 	if g.view == viewMerchant {
 		return g.updateMerchant()
@@ -510,6 +522,7 @@ func (g *Game) handleChoice(idx int) error {
 		g.enemy = makeMonster(library.InitGoblin("Gobelin d'entraînement", 40, 5))
 		g.combatTurn = 1
 		g.combatAdvancesRoom = false
+		g.combatStarted = false
 		g.combatMessage = "Le combat d'entraînement commence."
 		g.view = viewCombat
 
@@ -569,6 +582,7 @@ func (g *Game) startAdventureEncounter() {
 	}
 	g.combatTurn = 1
 	g.combatAdvancesRoom = true
+	g.combatStarted = false
 	g.combatMessage = fmt.Sprintf("%s apparaît dans la salle %d.", g.enemy.Name, room)
 	g.view = viewCombat
 }
@@ -578,11 +592,41 @@ func (g *Game) updateCombat() error {
 		g.view = viewDashboard
 		return nil
 	}
+	if !g.combatStarted {
+		library.StartCombatBonuses(&g.player)
+		library.AssassinOpeningAttack(&g.player, g.enemy)
+		g.combatStarted = true
+		if g.enemy.CurrentHP <= 0 {
+			if g.combatAdvancesRoom {
+				g.player.LastClearedRoom++
+			}
+			library.GainExperience(&g.player, g.enemy.XPReward)
+			g.player.Gold += g.enemy.GoldReward
+			g.message = "Victoire grâce à votre frappe d'ouverture."
+			g.enemy = nil
+			return nil
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		g.skillSelected = 0
+		g.view = viewCombatSkills
+		return nil
+	}
 	if inpututil.IsKeyJustPressed(ebiten.Key1) || enterPressed() {
+		library.ApplyCharacterEffects(&g.player)
 		damage := library.BasicAttackDamage(&g.player)
 		g.enemy.CurrentHP -= damage
 		if g.enemy.CurrentHP < 0 {
 			g.enemy.CurrentHP = 0
+		}
+		if g.player.Class == "Assassin" && g.enemy.CurrentHP > 0 {
+			g.enemy.CurrentHP -= library.BasicAttackDamage(&g.player)
+			if g.enemy.CurrentHP < 0 {
+				g.enemy.CurrentHP = 0
+			}
+		}
+		if g.player.Summon != nil && g.enemy.CurrentHP > 0 {
+			library.SummonAttack(&g.player, g.enemy)
 		}
 		if g.enemy.CurrentHP <= 0 {
 			if g.combatAdvancesRoom {
@@ -595,13 +639,24 @@ func (g *Game) updateCombat() error {
 			g.enemy = nil
 			return nil
 		}
+		library.ApplyMonsterEffects(g.enemy)
+		if g.enemy.CurrentHP <= 0 {
+			g.message = "L'ennemi succombe à ses effets."
+			g.enemy = nil
+			return nil
+		}
 		damage = library.MonsterPatternDamage(g.enemy, g.combatTurn)
+		if library.CheckHolyBarrier(&g.player) || library.TryDodge(&g.player) {
+			damage = 0
+		}
+		damage = library.BlockDamage(&g.player, damage)
 		g.player.CurrentHP -= damage
 		if g.player.CurrentHP < 0 {
 			g.player.CurrentHP = 0
 		}
 		g.combatMessage = fmt.Sprintf("Vous infligez %d dégâts. %s riposte pour %d.", library.BasicAttackDamage(&g.player), g.enemy.Name, damage)
 		g.combatTurn++
+		library.TryCounterAttack(&g.player, g.enemy)
 		if g.player.CurrentHP <= 0 {
 			g.player.CurrentHP = g.player.MaxHP / 2
 			g.enemy = nil
@@ -617,22 +672,226 @@ func (g *Game) updateCombat() error {
 	return nil
 }
 
-func (g *Game) updateMerchant() error {
-	if inpututil.IsKeyJustPressed(ebiten.Key1) {
-		if library.BuyItem(&g.player, "Potion de vie", 3) {
-			g.message = "Potion de vie achetée."
-		} else {
-			g.message = "Achat impossible."
+func (g *Game) updateCombatSkills() error {
+	if g.enemy == nil {
+		g.view = viewDashboard
+		return nil
+	}
+	if len(g.player.Skill) == 0 {
+		g.view = viewCombat
+		return nil
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+		g.skillSelected = (g.skillSelected + len(g.player.Skill) - 1) % len(g.player.Skill)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		g.skillSelected = (g.skillSelected + 1) % len(g.player.Skill)
+	}
+	for key := ebiten.Key1; key <= ebiten.Key9; key++ {
+		if inpututil.IsKeyJustPressed(key) {
+			index := int(key - ebiten.Key1)
+			if index < len(g.player.Skill) {
+				g.skillSelected = index
+			}
 		}
 	}
-	if inpututil.IsKeyJustPressed(ebiten.Key2) {
-		if library.BuyItem(&g.player, "Potion de mana", 6) {
-			g.message = "Potion de mana achetée."
-		} else {
-			g.message = "Achat impossible."
+	if enterPressed() {
+		if g.castSelectedSkill() {
+			g.view = viewCombat
+			g.combatTurn++
+			g.enemyTurn()
 		}
 	}
 	return nil
+}
+
+func (g *Game) castSelectedSkill() bool {
+	skill := g.player.Skill[g.skillSelected]
+	if g.player.Mana < skill.ManaCost {
+		g.combatMessage = "Mana insuffisante."
+		return false
+	}
+	g.player.Mana -= skill.ManaCost
+	switch skill.Name {
+	case "Soin":
+		heal := skill.HealAmount
+		if g.player.Class == "Clerc" {
+			heal = heal * 3 / 2
+		}
+		g.player.CurrentHP += heal
+		if g.player.CurrentHP > g.player.MaxHP {
+			g.player.CurrentHP = g.player.MaxHP
+		}
+		g.combatMessage = fmt.Sprintf("Soin : +%d PV.", heal)
+	case "Régénération":
+		g.player.Effects = append(g.player.Effects, library.Effect{Name: "Régénération", Value: skill.HealAmount, TurnsLeft: skill.EffectTurns})
+		g.combatMessage = "Régénération active."
+	case "Poison", "Brûlure":
+		damage := library.SpellDamage(&g.player, skill.Damage)
+		g.enemy.Effects = append(g.enemy.Effects, library.Effect{Name: skill.Name, Value: damage, TurnsLeft: skill.EffectTurns})
+		g.combatMessage = fmt.Sprintf("%s appliqué.", skill.Name)
+	case "Éclair":
+		damage := library.SpellDamage(&g.player, skill.Damage)
+		g.enemy.CurrentHP -= damage
+		g.enemy.Initiative -= 15
+		g.combatMessage = fmt.Sprintf("Éclair inflige %d dégâts.", damage)
+	case "Barrière Sacrée":
+		g.player.HolyBarrier = true
+		g.combatMessage = "Barrière sacrée active."
+	case "Invocation de soldat":
+		if g.player.Summon != nil && g.player.Summon.CurrentHP > 0 {
+			g.player.Mana += skill.ManaCost
+			g.combatMessage = "Un soldat est déjà invoqué."
+			return false
+		}
+		hp, attack := library.SummonStats(&g.player)
+		g.player.Summon = &library.Monster{Name: "Soldat invoqué", Pattern: "summon", Level: g.player.Level, MaxHP: hp, CurrentHP: hp, Attack: attack}
+		g.combatMessage = "Soldat invoqué."
+	default:
+		damage := library.SpellDamage(&g.player, skill.Damage)
+		g.enemy.CurrentHP -= damage
+		g.combatMessage = fmt.Sprintf("%s inflige %d dégâts.", skill.Name, damage)
+	}
+	if g.enemy.CurrentHP < 0 {
+		g.enemy.CurrentHP = 0
+	}
+	if g.enemy.CurrentHP == 0 {
+		if g.combatAdvancesRoom {
+			g.player.LastClearedRoom++
+		}
+		library.GainExperience(&g.player, g.enemy.XPReward)
+		g.player.Gold += g.enemy.GoldReward
+		g.message = fmt.Sprintf("Victoire ! +%d XP, +%d or.", g.enemy.XPReward, g.enemy.GoldReward)
+		g.enemy = nil
+	}
+	return true
+}
+
+func (g *Game) enemyTurn() {
+	if g.enemy == nil {
+		return
+	}
+	library.ApplyMonsterEffects(g.enemy)
+	if g.enemy.CurrentHP <= 0 {
+		return
+	}
+	damage := library.MonsterPatternDamage(g.enemy, g.combatTurn)
+	if library.CheckHolyBarrier(&g.player) || library.TryDodge(&g.player) {
+		damage = 0
+	}
+	damage = library.BlockDamage(&g.player, damage)
+	g.player.CurrentHP -= damage
+	if g.player.CurrentHP < 0 {
+		g.player.CurrentHP = 0
+	}
+	if g.player.CurrentHP <= 0 {
+		g.player.CurrentHP = g.player.MaxHP / 2
+		g.enemy = nil
+		g.message = "Défaite. Vous revenez au tableau de bord."
+	}
+}
+
+func (g *Game) updateMerchant() error {
+	items := []struct {
+		name  string
+		price int
+	}{
+		{"Potion de vie", 3},
+		{"Potion de poison", 6},
+		{"Potion de mana", 6},
+		{"Livre de Sort : Boule de Feu", 25},
+		{"Livre de Sort : Soin", 25},
+		{"Livre de Sort : Régénération", 25},
+		{"Livre de Sort : Poison", 25},
+		{"Livre de Sort : Brûlure", 25},
+		{"Livre de Sort : Éclair", 25},
+		{"Livre de Sort : Barrière Sacrée", 25},
+		{"Fourrure de Loup", 4},
+		{"Peau de Troll", 7},
+		{"Cuir de Sanglier", 3},
+		{"Plume de Corbeau", 1},
+		{"Amelioration d'inventaire", 30},
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+		g.merchantSelected = (g.merchantSelected + len(items) - 1) % len(items)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		g.merchantSelected = (g.merchantSelected + 1) % len(items)
+	}
+	for key := ebiten.Key1; key <= ebiten.Key9; key++ {
+		if inpututil.IsKeyJustPressed(key) {
+			index := int(key - ebiten.Key1)
+			g.merchantSelected = index
+			if index < len(items) && library.BuyItem(&g.player, items[index].name, items[index].price) {
+				g.message = fmt.Sprintf("Acheté : %s.", items[index].name)
+			} else if index < len(items) {
+				g.message = "Achat impossible : or ou inventaire insuffisant."
+			}
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeyNumpadEnter) {
+		item := items[g.merchantSelected]
+		if library.BuyItem(&g.player, item.name, item.price) {
+			g.message = fmt.Sprintf("Acheté : %s.", item.name)
+		} else {
+			g.message = "Achat impossible : or ou inventaire insuffisant."
+		}
+	}
+	return nil
+}
+
+func (g *Game) updateInventory() error {
+	for key := ebiten.Key1; key <= ebiten.Key9; key++ {
+		if inpututil.IsKeyJustPressed(key) {
+			index := int(key - ebiten.Key1)
+			if index < len(g.player.Inventory) {
+				g.useInventoryItem(index)
+			}
+		}
+	}
+	return nil
+}
+
+func (g *Game) useInventoryItem(index int) {
+	if index < 0 || index >= len(g.player.Inventory) {
+		return
+	}
+	item := g.player.Inventory[index]
+	switch item.Name {
+	case "Potion de vie":
+		library.TakePot(&g.player, index)
+		g.message = "Potion de vie utilisée."
+	case "Potion de mana":
+		library.TakeManaPot(&g.player, index)
+		g.message = "Potion de mana utilisée."
+	case "Livre de Sort : Boule de Feu", "Livre de Sort : Soin", "Livre de Sort : Régénération", "Livre de Sort : Poison", "Livre de Sort : Brûlure", "Livre de Sort : Éclair", "Livre de Sort : Barrière Sacrée":
+		library.LearnSpellBook(&g.player, item.Name)
+		consumeInventoryItem(&g.player, index)
+		g.message = fmt.Sprintf("Livre appris : %s.", item.Name)
+	default:
+		if isFrontEquipment(item.Name) {
+			library.EquipItemDirect(&g.player, item.Name, index)
+			g.message = fmt.Sprintf("Équipement activé : %s.", item.Name)
+		} else {
+			g.message = "Cet objet n'est pas utilisable ici."
+		}
+	}
+}
+
+func isFrontEquipment(name string) bool {
+	switch name {
+	case "Chapeau de l'aventurier", "Tunique de l'aventurier", "Bottes de l'aventurier", "Casque de gobelin", "Carapace de slime", "Capuche spectrale", "Casque de golem", "Peau de troll renforcée", "Plumes du canard", "Heaume squelette", "Fourrure du loup", "Chapeau du sorcier", "Écailles de dragon", "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime", "Lame spectrale", "Marteau de golem", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon", "Tunique de gobelin", "Bottes de gobelin", "Tunique de slime", "Bottes de slime", "Tunique spectrale", "Bottes spectrales", "Tunique de golem", "Bottes de golem", "Tunique de troll", "Bottes de troll", "Tunique du canard", "Bottes du canard", "Tunique du squelette", "Bottes du squelette", "Tunique du loup", "Bottes du loup", "Tunique du sorcier", "Bottes du sorcier", "Tunique du dragon", "Bottes du dragon":
+		return true
+	default:
+		return false
+	}
+}
+
+func consumeInventoryItem(player *library.Character, index int) {
+	player.Inventory[index].Quantity--
+	if player.Inventory[index].Quantity <= 0 {
+		player.Inventory = append(player.Inventory[:index], player.Inventory[index+1:]...)
+	}
 }
 
 func (g *Game) updateForge() error {
@@ -703,6 +962,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 	if g.view == viewCombat {
 		g.drawCombat(screen)
+		return
+	}
+	if g.view == viewCombatSkills {
+		g.drawCombatSkills(screen)
 		return
 	}
 	if g.view == viewMerchant {
@@ -844,17 +1107,43 @@ func (g *Game) drawCombat(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, "1 ou Entrée : attaquer     3 : fuir     Échap : tableau de bord", 48, 390)
 }
 
+func (g *Game) drawCombatSkills(screen *ebiten.Image) {
+	drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
+	ebitenutil.DebugPrintAt(screen, "GRIMOIRE // SORTS DE COMBAT", 48, 98)
+	if len(g.player.Skill) == 0 {
+		ebitenutil.DebugPrintAt(screen, "Aucun sort connu.", 48, 145)
+	} else {
+		for index, skill := range g.player.Skill {
+			cursor := "  "
+			if index == g.skillSelected {
+				cursor = ">>"
+			}
+			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s %d  %-24s mana %d", cursor, index+1, skill.Name, skill.ManaCost), 48, 145+index*22)
+		}
+	}
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("MANA : %d / %d", g.player.Mana, g.player.MaxMana), 48, 350)
+	ebitenutil.DebugPrintAt(screen, g.combatMessage, 48, 370)
+	ebitenutil.DebugPrintAt(screen, "Flèches + Entrée : lancer     Échap : combat", 48, 395)
+}
+
 func (g *Game) drawMerchant(screen *ebiten.Image) {
 	drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	drawPanel(screen, 28, 78, 644, 338)
 	ebitenutil.DebugPrintAt(screen, "MARCHAND // COMPTOIR", 48, 98)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("OR DISPONIBLE : %d", g.player.Gold), 48, 122)
-	ebitenutil.DebugPrintAt(screen, "1  Potion de vie                 3 or", 48, 160)
-	ebitenutil.DebugPrintAt(screen, "2  Potion de mana                6 or", 48, 182)
-	ebitenutil.DebugPrintAt(screen, "3  Livre de sort                 25 or", 48, 204)
+	merchantItems := []string{"Potion de vie - 3 or", "Potion de poison - 6 or", "Potion de mana - 6 or", "Livre de Sort : Boule de Feu - 25 or", "Livre de Sort : Soin - 25 or", "Livre de Sort : Régénération - 25 or", "Livre de Sort : Poison - 25 or", "Livre de Sort : Brûlure - 25 or", "Livre de Sort : Éclair - 25 or", "Livre de Sort : Barrière Sacrée - 25 or", "Fourrure de Loup - 4 or", "Peau de Troll - 7 or", "Cuir de Sanglier - 3 or", "Plume de Corbeau - 1 or", "Amelioration d'inventaire - 30 or"}
+	for index, item := range merchantItems {
+		cursor := "  "
+		if index == g.merchantSelected {
+			cursor = ">>"
+		}
+		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s %02d  %s", cursor, index+1, item), 48, 145+index*15)
+	}
 	ebitenutil.DebugPrintAt(screen, g.message, 48, 255)
-	ebitenutil.DebugPrintAt(screen, "1-2 : acheter     Échap : retour", 48, 380)
+	ebitenutil.DebugPrintAt(screen, "Flèches + Entrée : acheter     1-9 : achat direct     Échap : retour", 48, 380)
 }
 
 func (g *Game) drawForge(screen *ebiten.Image) {
@@ -958,16 +1247,22 @@ func (g *Game) drawStats(screen *ebiten.Image) {
 }
 
 func (g *Game) drawInventory(screen *ebiten.Image) {
-	text := "LOOTSTORM / INVENTAIRE\n\n"
+	drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
+	ebitenutil.DebugPrintAt(screen, "INVENTAIRE // SACOCHE", 48, 98)
 	if len(g.player.Inventory) == 0 {
-		text += "Inventaire vide.\n"
+		ebitenutil.DebugPrintAt(screen, "Inventaire vide.", 48, 145)
 	} else {
 		for index, item := range g.player.Inventory {
-			text += fmt.Sprintf("%d. %s x%d\n", index+1, item.Name, item.Quantity)
+			if index >= 15 {
+				break
+			}
+			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%02d  %-35s x%d", index+1, item.Name, item.Quantity), 48, 130+index*17)
 		}
 	}
-	text += fmt.Sprintf("\nEmplacements : %d / %d\nOr : %d\n\nÉchap : retour", len(g.player.Inventory), g.player.LimitInventory, g.player.Gold)
-	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Emplacements : %d / %d     Or : %d", len(g.player.Inventory), g.player.LimitInventory, g.player.Gold), 48, 385)
+	ebitenutil.DebugPrintAt(screen, "1-9 : utiliser / apprendre     Échap : retour", 48, 402)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
