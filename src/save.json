@@ -1,50 +1,15 @@
 {
   "Name": "Himiko Toga",
   "Class": "Assassin",
-  "Level": 29,
-  "Attack": 61,
-  "MaxHP": 475,
-  "CurrentHP": 237,
+  "Level": 39,
+  "Attack": 81,
+  "MaxHP": 630,
+  "CurrentHP": 315,
   "Inventory": [
     {
-      "Name": "Capuche spectrale",
-      "Quantity": 1,
-      "Rarity": "Rare"
-    },
-    {
-      "Name": "Carapace de slime",
-      "Quantity": 2,
+      "Name": "Potion de vie",
+      "Quantity": 13,
       "Rarity": "Commun"
-    },
-    {
-      "Name": "Bottes de gobelin",
-      "Quantity": 1,
-      "Rarity": "Rare"
-    },
-    {
-      "Name": "Casque de gobelin",
-      "Quantity": 1,
-      "Rarity": "Commun"
-    },
-    {
-      "Name": "Bottes de gobelin",
-      "Quantity": 1,
-      "Rarity": "Commun"
-    },
-    {
-      "Name": "Griffe du dragon",
-      "Quantity": 2,
-      "Rarity": "Peu commun"
-    },
-    {
-      "Name": "Lame de gobelin",
-      "Quantity": 1,
-      "Rarity": "Peu commun"
-    },
-    {
-      "Name": "Bave de slime",
-      "Quantity": 1,
-      "Rarity": "Peu commun"
     },
     {
       "Name": "Plumes du canard",
@@ -52,7 +17,37 @@
       "Rarity": "Peu commun"
     },
     {
-      "Name": "Casque de golem",
+      "Name": "Griffe du dragon",
+      "Quantity": 1,
+      "Rarity": "Peu commun"
+    },
+    {
+      "Name": "Bottes du dragon",
+      "Quantity": 1,
+      "Rarity": "Peu commun"
+    },
+    {
+      "Name": "Tunique du dragon",
+      "Quantity": 2,
+      "Rarity": "Peu commun"
+    },
+    {
+      "Name": "Bottes du canard",
+      "Quantity": 1,
+      "Rarity": "Commun"
+    },
+    {
+      "Name": "Marteau de golem",
+      "Quantity": 1,
+      "Rarity": "Peu commun"
+    },
+    {
+      "Name": "Bec du canard",
+      "Quantity": 1,
+      "Rarity": "Peu commun"
+    },
+    {
+      "Name": "Tunique du canard",
       "Quantity": 1,
       "Rarity": "Peu commun"
     }
@@ -60,7 +55,7 @@
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 61,
+      "Damage": 411,
       "HealAmount": 0,
       "EffectTurns": 0,
       "Initiative": 0,
@@ -70,25 +65,25 @@
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 13464,
+  "Gold": 206,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
-    "Helmet": "Capuche spectrale [Épique]",
-    "Chestplate": "Tunique de slime [Peu commun]",
-    "Boots": "Bottes de golem [Rare]",
-    "Weapon": "Griffe du dragon [Peu commun]",
+    "Helmet": "Peau de troll renforcée [Rare]",
+    "Chestplate": "Tunique du dragon [Peu commun]",
+    "Boots": "Bottes du dragon [Peu commun]",
+    "Weapon": "Griffe du dragon [Rare]",
     "HelmetHP": 0,
     "ChestplateHP": 0,
     "BootsHP": 0,
-    "WeaponDamage": 28
+    "WeaponDamage": 33
   },
-  "Initiative": 270,
-  "CurrentXP": 1500,
-  "MaxXP": 2830,
-  "Mana": 330,
-  "MaxMana": 330,
-  "LastClearedRoom": 75,
+  "Initiative": 320,
+  "CurrentXP": 2264,
+  "MaxXP": 4755,
+  "Mana": 430,
+  "MaxMana": 430,
+  "LastClearedRoom": 129,
   "Summon": null,
   "CombatWeaponBonus": 0,
   "CombatSpellBonus": 0,
