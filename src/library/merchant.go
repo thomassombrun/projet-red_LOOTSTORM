@@ -135,11 +135,17 @@ func BuyItemSilent(c *Character, itemName string, price int) bool {
 	return true
 }
 
-// alreadyKnowsSpell reports whether itemName is a spell book for a skill the character already knows.
+// alreadyKnowsSpell reports whether itemName is a spell book for a skill the character already
+// knows or already owns unread in their inventory.
 func alreadyKnowsSpell(c *Character, itemName string) bool {
 	const spellPrefix = "Livre de Sort : "
 	if !strings.HasPrefix(itemName, spellPrefix) {
 		return false
+	}
+	for _, item := range c.Inventory {
+		if item.Name == itemName {
+			return true
+		}
 	}
 	spellName := strings.TrimPrefix(itemName, spellPrefix)
 	for _, knownSkill := range c.Skill {

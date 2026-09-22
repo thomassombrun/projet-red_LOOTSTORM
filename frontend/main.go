@@ -1547,7 +1547,7 @@ func (g *game) drawCredits(screenImage *ebiten.Image) {
 func (g *game) drawCombat(screenImage *ebiten.Image) {
 	title := "COMBAT D'ENTRAINEMENT"
 	if g.combatAdventure {
-		title = fmt.Sprintf("AVENTURE - SALLE %d", g.player.LastClearedRoom+1)
+		title = fmt.Sprintf("AVENTURE - SALLE %d - NIVEAU %d", g.player.LastClearedRoom+1, g.player.Level)
 	}
 	ebitenutil.DebugPrintAt(screenImage, title, 52, 124)
 	ebitenutil.DebugPrintAt(screenImage, "Fleches haut/bas: choisir   Entree: confirmer", 52, 152)
@@ -1607,12 +1607,15 @@ func selectionPrefix(selected bool) string {
 
 func (g *game) drawCombatSpells(screenImage *ebiten.Image) {
 	g.drawCombat(screenImage)
-	drawPanel(screenImage, 250, 120, 470, 360, false)
+	drawPanel(screenImage, 250, 120, 470, 450, false)
 	ebitenutil.DebugPrintAt(screenImage, "CHOISIR UN SORT", 285, 155)
 	for index, skill := range g.player.Skill {
-		y := 200 + index*38
+		y := 200 + index*32
+		if y > 550 {
+			break
+		}
 		if index == g.selected {
-			drawChoiceRow(screenImage, 275, float64(y-5), 390, 30, true)
+			drawChoiceRow(screenImage, 275, float64(y-5), 390, 28, true)
 		}
 		ebitenutil.DebugPrintAt(screenImage, fmt.Sprintf("%s %-24s Mana: %d", selectionPrefix(index == g.selected), skill.Name, skill.ManaCost), 290, y+5)
 	}
@@ -1620,10 +1623,13 @@ func (g *game) drawCombatSpells(screenImage *ebiten.Image) {
 
 func (g *game) drawCombatInventory(screenImage *ebiten.Image) {
 	g.drawCombat(screenImage)
-	drawPanel(screenImage, 250, 120, 470, 360, false)
+	drawPanel(screenImage, 250, 120, 470, 450, false)
 	ebitenutil.DebugPrintAt(screenImage, "CHOISIR UN OBJET", 285, 155)
 	for index, item := range g.player.Inventory {
-		y := 200 + index*34
+		y := 200 + index*32
+		if y > 550 {
+			break
+		}
 		if index == g.selected {
 			drawChoiceRow(screenImage, 275, float64(y-5), 390, 28, true)
 		}
