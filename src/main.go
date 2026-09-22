@@ -299,6 +299,23 @@ func (g *Game) initPlayer() {
 	g.message = "Choisissez votre mode de création."
 }
 
+// enterDashboard switches to the dashboard and autosaves the run so it can
+// be resumed from the start menu after closing the game.
+func (g *Game) enterDashboard() {
+	g.view = viewDashboard
+	if err := g.player.SaveGameSilent(); err != nil {
+		g.message = "Impossible de sauvegarder la partie."
+	}
+}
+
+func startMenuOptions() []string {
+	options := []string{"Choisir un personnage prédéfini", "Créer mon personnage"}
+	if library.HasSaveGame() {
+		options = append(options, "Continuer la partie sauvegardée")
+	}
+	return options
+}
+
 func enterPressed() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeyNumpadEnter)
 }
@@ -331,13 +348,13 @@ func (g *Game) Update() error {
 		case viewClassConfirm:
 			g.view = viewClassSelect
 		case viewCombat, viewMerchant, viewForge, viewEnchanter:
-			g.view = viewDashboard
+			g.enterDashboard()
 		case viewCombatSkills:
 			g.view = viewCombat
 		case viewCombatInventory:
 			g.view = viewCombat
 		default:
-			g.view = viewDashboard
+			g.enterDashboard()
 		}
 		g.message = "Retour à l'écran précédent."
 	}
@@ -417,17 +434,32 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) updateStartSelection() error {
-	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) || inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-		g.confirmSelected = 1 - g.confirmSelected
+	options := startMenuOptions()
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+		g.confirmSelected = (g.confirmSelected - 1 + len(options)) % len(options)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		g.confirmSelected = (g.confirmSelected + 1) % len(options)
 	}
 	if enterPressed() {
-		if g.confirmSelected == 0 {
+		switch g.confirmSelected {
+		case 0:
 			g.view = viewHeroSelect
 			g.message = "Choisissez un héros puis consultez sa confirmation."
-		} else {
+		case 1:
 			g.customName = ""
 			g.view = viewNameInput
 			g.message = "Saisissez le nom de votre personnage."
+		case 2:
+			saved, err := library.LoadGame()
+			if err != nil {
+				g.message = "Aucune sauvegarde valide trouvée."
+				return nil
+			}
+			g.player = saved
+			g.initialized = true
+			g.view = viewDashboard
+			g.message = fmt.Sprintf("Partie de %s restaurée.", g.player.Name)
 		}
 	}
 	return nil
@@ -455,7 +487,7 @@ func (g *Game) updateHeroConfirmation() error {
 	if enterPressed() && g.confirmSelected == 0 {
 		g.player = heroChoices()[g.heroSelected]
 		g.initialized = true
-		g.view = viewDashboard
+		g.enterDashboard()
 		g.message = fmt.Sprintf("%s rejoint l'aventure.", g.player.Name)
 	}
 	if enterPressed() && g.confirmSelected == 1 {
@@ -510,7 +542,7 @@ func (g *Game) updateClassConfirmation() error {
 		className := classChoices()[g.classSelected]
 		g.player = library.InitCharacter(g.customName, className, getHPForClass(className))
 		g.initialized = true
-		g.view = viewDashboard
+		g.enterDashboard()
 		g.message = fmt.Sprintf("%s rejoint l'aventure.", g.player.Name)
 	}
 	if enterPressed() && g.confirmSelected == 1 {
@@ -612,7 +644,7 @@ func (g *Game) startAdventureEncounter() {
 func (g *Game) updateCombat() error {
 	if g.enemy == nil {
 		if g.combatResult && (enterPressed() || inpututil.IsKeyJustPressed(ebiten.Key1)) {
-			g.view = viewDashboard
+			g.enterDashboard()
 			g.combatResult = false
 		}
 		return nil
@@ -741,7 +773,7 @@ func (g *Game) updateCombat() error {
 
 func (g *Game) updateCombatSkills() error {
 	if g.enemy == nil {
-		g.view = viewDashboard
+		g.enterDashboard()
 		return nil
 	}
 	if len(g.player.Skill) == 0 {
@@ -1462,12 +1494,15 @@ func (g *Game) drawStart(screen *ebiten.Image) {
 	g.drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	drawPanel(screen, 28, 78, 644, 338)
-	first := "> "
-	second := "  "
-	if g.confirmSelected == 1 {
-		first, second = "  ", "> "
+	text := "LOOTSTORM / NOUVELLE PARTIE\n\n"
+	for index, option := range startMenuOptions() {
+		cursor := "  "
+		if index == g.confirmSelected {
+			cursor = "> "
+		}
+		text += fmt.Sprintf("%s%s\n", cursor, option)
 	}
-	text := fmt.Sprintf("LOOTSTORM / NOUVELLE PARTIE\n\n%sChoisir un personnage prédéfini\n%sCréer mon personnage\n\nFlèches haut/bas + Entrée\nÉchap : quitter", first, second)
+	text += "\nFlèches haut/bas + Entrée\nÉchap : quitter"
 	ebitenutil.DebugPrintAt(screen, text, 48, 98)
 }
 
