@@ -981,7 +981,7 @@ func (g *Game) useInventoryItem(index int) {
 		g.message = fmt.Sprintf("Livre appris : %s.", item.Name)
 	default:
 		if isFrontEquipment(item.Name) {
-			library.EquipItemDirect(&g.player, item.Name, index)
+			library.EquipItemDirect(&g.player, library.ItemDisplayName(item), index)
 			g.message = fmt.Sprintf("Équipement activé : %s.", item.Name)
 		} else {
 			g.message = "Cet objet n'est pas utilisable ici."
@@ -1429,16 +1429,22 @@ func dungeonFloorForUI(room int) int {
 }
 
 func (g *Game) drawStart(screen *ebiten.Image) {
+	g.drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
 	first := "> "
 	second := "  "
 	if g.confirmSelected == 1 {
 		first, second = "  ", "> "
 	}
 	text := fmt.Sprintf("LOOTSTORM / NOUVELLE PARTIE\n\n%sChoisir un personnage prédéfini\n%sCréer mon personnage\n\nFlèches haut/bas + Entrée\nÉchap : quitter", first, second)
-	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+	ebitenutil.DebugPrintAt(screen, text, 48, 98)
 }
 
 func (g *Game) drawHeroSelection(screen *ebiten.Image) {
+	g.drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
 	heroes := heroChoices()
 	selectedHero := heroes[g.heroSelected]
 	text := "LOOTSTORM / CHOIX DU HÉROS\n\n"
@@ -1450,21 +1456,32 @@ func (g *Game) drawHeroSelection(screen *ebiten.Image) {
 		text += fmt.Sprintf("%s%d. %-20s %-12s PV %d\n", cursor, index+1, hero.Name, hero.Class, hero.MaxHP)
 	}
 	text += fmt.Sprintf("\n=== %s ===\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\nFlèches haut/bas + Entrée : sélectionner\nÉchap : quitter", selectedHero.Name, selectedHero.Class, selectedHero.MaxHP, selectedHero.Attack, selectedHero.Initiative, library.ClassAdvantages(selectedHero.Class))
-	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+	ebitenutil.DebugPrintAt(screen, text, 48, 98)
+	drawCharacterSprite(screen, 560, 102, 4, selectedHero.Name, selectedHero.Class)
 }
 
 func (g *Game) drawHeroConfirmation(screen *ebiten.Image) {
+	g.drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
 	hero := heroChoices()[g.heroSelected]
 	text := fmt.Sprintf("LOOTSTORM / CONFIRMATION\n\n%s\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\nFlèches : valider ou revenir\nEntrée : confirmer le choix", hero.Name, hero.Class, hero.MaxHP, hero.Attack, hero.Initiative, library.ClassAdvantages(hero.Class))
-	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+	ebitenutil.DebugPrintAt(screen, text, 48, 98)
+	drawCharacterSprite(screen, 560, 102, 4, hero.Name, hero.Class)
 }
 
 func (g *Game) drawNameInput(screen *ebiten.Image) {
+	g.drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
 	text := fmt.Sprintf("LOOTSTORM / CRÉATION\n\nChoisissez le nom de votre personnage :\n\n> %s_\n\nEntrée : continuer\nRetour arrière : effacer\nÉchap : retour", g.customName)
-	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+	ebitenutil.DebugPrintAt(screen, text, 48, 98)
 }
 
 func (g *Game) drawClassSelection(screen *ebiten.Image) {
+	g.drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
 	classes := classChoices()
 	text := fmt.Sprintf("LOOTSTORM / CHOIX DE CLASSE\n\nNom : %s\n\n", g.customName)
 	for index, className := range classes {
@@ -1475,22 +1492,31 @@ func (g *Game) drawClassSelection(screen *ebiten.Image) {
 		text += fmt.Sprintf("%s%d. %-12s PV %d\n", cursor, index+1, className, getHPForClass(className))
 	}
 	text += fmt.Sprintf("\nAvantage : %s\n\nFlèches haut/bas + Entrée : sélectionner", library.ClassAdvantages(classes[g.classSelected]))
-	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+	ebitenutil.DebugPrintAt(screen, text, 48, 98)
+	drawCharacterSprite(screen, 560, 102, 4, g.customName, classes[g.classSelected])
 }
 
 func (g *Game) drawClassConfirmation(screen *ebiten.Image) {
+	g.drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
 	className := classChoices()[g.classSelected]
 	text := fmt.Sprintf("LOOTSTORM / CONFIRMATION DE CLASSE\n\nNom : %s\nClasse : %s\nPV de base : %d\n\n%s\n\nFlèches : valider ou revenir\nEntrée : confirmer la classe", g.customName, className, getHPForClass(className), library.ClassAdvantages(className))
-	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+	ebitenutil.DebugPrintAt(screen, text, 48, 98)
+	drawCharacterSprite(screen, 560, 102, 4, g.customName, className)
 }
 
 func (g *Game) drawStats(screen *ebiten.Image) {
+	g.drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
 	text := "LOOTSTORM / PERSONNAGE\n\n"
 	text += fmt.Sprintf("Nom          %s\nClasse       %s\nNiveau       %d\n\n", g.player.Name, g.player.Class, g.player.Level)
 	text += fmt.Sprintf("PV           %d / %d\nMana         %d / %d\nAttaque      %d\nInitiative   %d\nXP           %d / %d\nSalle        %d\nÉtage        %d\n\n", g.player.CurrentHP, g.player.MaxHP, g.player.Mana, g.player.MaxMana, g.player.Attack+g.player.Equip.WeaponDamage, g.player.Initiative, g.player.CurrentXP, g.player.MaxXP, g.player.LastClearedRoom, dungeonFloorForUI(g.player.LastClearedRoom+1))
 	text += fmt.Sprintf("Inventaire   %d / %d\nAméliorations %d / 3\nSlots libres %d\nOr           %d\n\n", len(g.player.Inventory), g.player.LimitInventory, g.player.LimitInventoryUpgrade, g.player.LimitInventory-len(g.player.Inventory), g.player.Gold)
 	text += fmt.Sprintf("Arme         %s (+%d ATQ)\nCasque       %s\nPlastron     %s\nBottes       %s\n\n%s\n\nÉchap : retour", g.player.Equip.Weapon, g.player.Equip.WeaponDamage, g.player.Equip.Helmet, g.player.Equip.Chestplate, g.player.Equip.Boots, library.ClassAdvantages(g.player.Class))
-	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+	ebitenutil.DebugPrintAt(screen, text, 48, 98)
+	drawCharacterSprite(screen, 560, 102, 4, g.player.Name, g.player.Class)
 }
 
 func (g *Game) drawInventory(screen *ebiten.Image) {

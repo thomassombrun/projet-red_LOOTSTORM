@@ -61,6 +61,13 @@ func itemDisplayName(item Item) string {
 	return fmt.Sprintf("%s [%s]", item.Name, item.Rarity)
 }
 
+// ItemDisplayName exposes itemDisplayName for callers outside the package
+// (e.g. the UI) so an item's rarity is preserved when passed back into
+// rarity-aware functions like EquipItem.
+func ItemDisplayName(item Item) string {
+	return itemDisplayName(item)
+}
+
 func equipmentDisplayName(name string, rarity Rarity) string {
 	base := normalizeItemName(name)
 	if rarity == "" {
