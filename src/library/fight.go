@@ -137,8 +137,6 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 	WaitForEnter()
 
 	for c.CurrentHP > 0 && m.CurrentHP > 0 {
-		ClearTerminal()
-
 		fmt.Println()
 		fmt.Printf("========== TOUR %d ==========\n", turn)
 
@@ -267,8 +265,6 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 
 func CharacterTurn(c *Character, m *Monster) {
 	for {
-		ClearTerminal()
-
 		fmt.Println()
 		fmt.Println("===== TOUR DU JOUEUR =====")
 		fmt.Println("1. Attaquer")

@@ -71,6 +71,10 @@ func classAdvantages(className string) string {
 	return advantages[className]
 }
 
+func ClassAdvantages(className string) string {
+	return classAdvantages(className)
+}
+
 func LireNomAvecEspaces() string {
 	var mot1, mot2, mot3 string
 	n, _ := fmt.Scanln(&mot1, &mot2, &mot3)

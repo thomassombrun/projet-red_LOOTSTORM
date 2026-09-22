@@ -1,54 +1,65 @@
 {
-  "Name": "Himiko Toga",
-  "Class": "Assassin",
-  "Level": 7,
-  "Attack": 17,
-  "MaxHP": 212,
-  "CurrentHP": 21,
+  "Name": "Patrick Bouldefeu",
+  "Class": "Mage",
+  "Level": 3,
+  "Attack": 9,
+  "MaxHP": 100,
+  "CurrentHP": 42,
   "Inventory": [
     {
       "Name": "Potion de vie",
       "Quantity": 3,
       "Rarity": ""
-    },
-    {
-      "Name": "Massue de troll",
-      "Quantity": 1,
-      "Rarity": "Commun"
     }
   ],
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 17,
+      "Damage": 9,
       "HealAmount": 0,
       "EffectTurns": 0,
       "Initiative": 0,
       "ManaCost": 0
+    },
+    {
+      "Name": "Boule de Feu",
+      "Damage": 37,
+      "HealAmount": 0,
+      "EffectTurns": 0,
+      "Initiative": 0,
+      "ManaCost": 50
+    },
+    {
+      "Name": "Éclair",
+      "Damage": 17,
+      "HealAmount": 0,
+      "EffectTurns": 0,
+      "Initiative": -15,
+      "ManaCost": 20
     }
   ],
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 630,
+  "Gold": 200,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
-    "Helmet": "Capuche spectrale [Commun]",
+    "Helmet": "Aucun",
     "Chestplate": "Aucun",
-    "Boots": "Bottes de golem [Rare]",
-    "Weapon": "Marteau de golem [Commun]",
+    "Boots": "Aucun",
+    "Weapon": "Aucun",
     "HelmetHP": 0,
     "ChestplateHP": 0,
     "BootsHP": 0,
-    "WeaponDamage": 18
+    "WeaponDamage": 0
   },
-  "Initiative": 160,
-  "CurrentXP": 170,
-  "MaxXP": 355,
-  "Mana": 110,
+  "Initiative": 120,
+  "CurrentXP": 70,
+  "MaxXP": 165,
+  "Mana": 45,
   "MaxMana": 110,
-  "LastClearedRoom": 7,
+  "LastClearedRoom": 4,
   "Summon": null,
   "CombatWeaponBonus": 0,
   "CombatSpellBonus": 0,

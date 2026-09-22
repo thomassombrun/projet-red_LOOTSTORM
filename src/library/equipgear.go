@@ -85,31 +85,30 @@ func EquipItem(c *Character, itemName string, index int) {
 		c.Inventory = append(c.Inventory[:index], c.Inventory[index+1:]...)
 	}
 
-	baseStatsMultiplier := rarityMultiplier(itemRarity)
 	if slotType == "Weapon" {
-		weaponDamage = int(float64(weaponDamage) * baseStatsMultiplier)
+		weaponDamage = scaledEquipmentStat(weaponDamage, itemRarity)
 	}
 	if slotType != "Weapon" {
-		hpBonus = int(float64(hpBonus) * baseStatsMultiplier)
+		hpBonus = scaledEquipmentStat(hpBonus, itemRarity)
 	}
 
 	switch slotType {
 	case "Helmet":
 		if replaceExisting && c.Equip.Helmet != "" && c.Equip.Helmet != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Helmet, 1)
-			c.MaxHP -= equipmentHPBonus(normalizeItemName(c.Equip.Helmet))
+			c.MaxHP -= scaledEquipmentStat(equipmentHPBonus(c.Equip.Helmet), parseItemRarity(c.Equip.Helmet))
 		}
 		c.Equip.Helmet = equipmentDisplayName(baseName, itemRarity)
 	case "Chestplate":
 		if replaceExisting && c.Equip.Chestplate != "" && c.Equip.Chestplate != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Chestplate, 1)
-			c.MaxHP -= equipmentHPBonus(normalizeItemName(c.Equip.Chestplate))
+			c.MaxHP -= scaledEquipmentStat(equipmentHPBonus(c.Equip.Chestplate), parseItemRarity(c.Equip.Chestplate))
 		}
 		c.Equip.Chestplate = equipmentDisplayName(baseName, itemRarity)
 	case "Boots":
 		if replaceExisting && c.Equip.Boots != "" && c.Equip.Boots != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Boots, 1)
-			c.MaxHP -= equipmentHPBonus(normalizeItemName(c.Equip.Boots))
+			c.MaxHP -= scaledEquipmentStat(equipmentHPBonus(c.Equip.Boots), parseItemRarity(c.Equip.Boots))
 		}
 		c.Equip.Boots = equipmentDisplayName(baseName, itemRarity)
 	case "Weapon":

@@ -87,6 +87,21 @@ func main() {
 					continue
 				}
 
+				if heroChoice >= 1 && heroChoice <= 7 {
+					selectedHero := []library.Character{c1, c2, c3, c4, c5, c6, c7}[heroChoice-1]
+					fmt.Printf("\n=== Résumé de %s ===\n", selectedHero.Name)
+					fmt.Printf("Classe : %s | PV : %d | Attaque : %d | Initiative : %d\n", selectedHero.Class, selectedHero.MaxHP, selectedHero.Attack, selectedHero.Initiative)
+					fmt.Println(library.ClassAdvantages(selectedHero.Class))
+					fmt.Println("1. Choisir ce personnage")
+					fmt.Println("2. Voir un autre personnage")
+					fmt.Print("Votre choix : ")
+					var heroConfirmation int
+					fmt.Scanln(&heroConfirmation)
+					if heroConfirmation != 1 {
+						continue
+					}
+				}
+
 				switch heroChoice {
 				case 1:
 					player = c1

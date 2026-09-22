@@ -71,17 +71,22 @@ func equipmentDisplayName(name string, rarity Rarity) string {
 
 func itemStatSummary(itemName string) string {
 	base := normalizeItemName(itemName)
+	rarity := parseItemRarity(itemName)
 	var stats []string
 	if hp := equipmentHPBonus(base); hp > 0 {
-		stats = append(stats, fmt.Sprintf("+%d PV", hp))
+		stats = append(stats, fmt.Sprintf("+%d PV", scaledEquipmentStat(hp, rarity)))
 	}
 	if dmg := weaponDamageBonus(base); dmg > 0 {
-		stats = append(stats, fmt.Sprintf("+%d ATQ", dmg))
+		stats = append(stats, fmt.Sprintf("+%d ATQ", scaledEquipmentStat(dmg, rarity)))
 	}
 	if len(stats) == 0 {
 		return ""
 	}
 	return " (" + strings.Join(stats, " / ") + ")"
+}
+
+func scaledEquipmentStat(base int, rarity Rarity) int {
+	return int(float64(base) * rarityMultiplier(rarity))
 }
 
 func rollEquipmentRarity(dungeonTier int) Rarity {
