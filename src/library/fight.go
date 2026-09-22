@@ -411,24 +411,36 @@ func GiveCombatReward(c *Character, m *Monster) {
 }
 
 func dropMonsterEquipment(c *Character, m *Monster) {
+	for _, drop := range collectMonsterEquipment(c, m) {
+		fmt.Printf("%s a laissé tomber : %s !\n", m.Name, drop)
+	}
+}
+
+func DropMonsterEquipment(c *Character, m *Monster) []string {
+	return collectMonsterEquipment(c, m)
+}
+
+func collectMonsterEquipment(c *Character, m *Monster) []string {
 	if rand.Intn(100) >= 35 {
-		return
+		return nil
 	}
 
 	pool := generateMonsterEquipment(m.Pattern, c.LastClearedRoom+1)
 	if len(pool) == 0 {
-		return
+		return nil
 	}
 
+	drops := make([]string, 0, len(pool))
 	for _, baseName := range pool {
 		rarity := rollEquipmentRarity(c.LastClearedRoom + 1)
 		drop := equipmentDisplayName(baseName, rarity)
-		fmt.Printf("%s a laissé tomber : %s !\n", m.Name, drop)
 		c.AddOrMergeItem(drop, 1)
+		drops = append(drops, drop)
 		if rand.Intn(100) < 25 {
 			break
 		}
 	}
+	return drops
 }
 
 func GainExperience(c *Character, amount int) {

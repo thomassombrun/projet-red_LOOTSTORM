@@ -284,6 +284,7 @@ type Game struct {
 	enchanterSelected       int
 	inventorySelected       int
 	combatAction            int
+	confirmSelected         int
 }
 
 func (g *Game) initPlayer() {
@@ -412,16 +413,10 @@ func (g *Game) Update() error {
 
 func (g *Game) updateStartSelection() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) || inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-		g.startSelected = 1 - g.startSelected
-	}
-	if inpututil.IsKeyJustPressed(ebiten.Key1) {
-		g.startSelected = 0
-	}
-	if inpututil.IsKeyJustPressed(ebiten.Key2) {
-		g.startSelected = 1
+		g.confirmSelected = 1 - g.confirmSelected
 	}
 	if enterPressed() {
-		if g.startSelected == 0 {
+		if g.confirmSelected == 0 {
 			g.view = viewHeroSelect
 			g.message = "Choisissez un héros puis consultez sa confirmation."
 		} else {
@@ -441,25 +436,24 @@ func (g *Game) updateHeroSelection() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 		g.heroSelected = (g.heroSelected + 1) % len(heroes)
 	}
-	for i := ebiten.Key1; i <= ebiten.Key7; i++ {
-		if inpututil.IsKeyJustPressed(i) {
-			g.heroSelected = int(i - ebiten.Key1)
-		}
-	}
 	if enterPressed() {
+		g.confirmSelected = 0
 		g.view = viewHeroConfirm
 	}
 	return nil
 }
 
 func (g *Game) updateHeroConfirmation() error {
-	if inpututil.IsKeyJustPressed(ebiten.Key1) || enterPressed() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) || inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		g.confirmSelected = 1 - g.confirmSelected
+	}
+	if enterPressed() && g.confirmSelected == 0 {
 		g.player = heroChoices()[g.heroSelected]
 		g.initialized = true
 		g.view = viewDashboard
 		g.message = fmt.Sprintf("%s rejoint l'aventure.", g.player.Name)
 	}
-	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+	if enterPressed() && g.confirmSelected == 1 {
 		g.view = viewHeroSelect
 	}
 	return nil
@@ -496,26 +490,25 @@ func (g *Game) updateClassSelection() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 		g.classSelected = (g.classSelected + 1) % len(classes)
 	}
-	for i := ebiten.Key1; i <= ebiten.Key9; i++ {
-		if inpututil.IsKeyJustPressed(i) {
-			g.classSelected = int(i - ebiten.Key1)
-		}
-	}
 	if enterPressed() {
+		g.confirmSelected = 0
 		g.view = viewClassConfirm
 	}
 	return nil
 }
 
 func (g *Game) updateClassConfirmation() error {
-	if inpututil.IsKeyJustPressed(ebiten.Key1) || enterPressed() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) || inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		g.confirmSelected = 1 - g.confirmSelected
+	}
+	if enterPressed() && g.confirmSelected == 0 {
 		className := classChoices()[g.classSelected]
 		g.player = library.InitCharacter(g.customName, className, getHPForClass(className))
 		g.initialized = true
 		g.view = viewDashboard
 		g.message = fmt.Sprintf("%s rejoint l'aventure.", g.player.Name)
 	}
-	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+	if enterPressed() && g.confirmSelected == 1 {
 		g.view = viewClassSelect
 	}
 	return nil
@@ -642,12 +635,19 @@ func (g *Game) updateCombat() error {
 		library.AssassinOpeningAttack(&g.player, g.enemy)
 		g.combatStarted = true
 		if g.enemy.CurrentHP <= 0 {
+			drops := []string{}
 			if g.combatAdvancesRoom {
 				g.player.LastClearedRoom++
 			}
-			library.GainExperience(&g.player, g.enemy.XPReward)
-			g.player.Gold += g.enemy.GoldReward
+			if g.combatAdvancesRoom {
+				library.GainExperience(&g.player, g.enemy.XPReward)
+				g.player.Gold += g.enemy.GoldReward
+				drops = library.DropMonsterEquipment(&g.player, g.enemy)
+			}
 			g.message = "Victoire grâce à votre frappe d'ouverture."
+			if len(drops) > 0 {
+				g.message += fmt.Sprintf(" Loot : %v.", drops)
+			}
 			g.enemy = nil
 			g.combatResult = true
 			return nil
@@ -680,12 +680,19 @@ func (g *Game) updateCombat() error {
 			library.SummonAttack(&g.player, g.enemy)
 		}
 		if g.enemy.CurrentHP <= 0 {
+			drops := []string{}
 			if g.combatAdvancesRoom {
 				g.player.LastClearedRoom++
 			}
-			library.GainExperience(&g.player, g.enemy.XPReward)
-			g.player.Gold += g.enemy.GoldReward
+			if g.combatAdvancesRoom {
+				library.GainExperience(&g.player, g.enemy.XPReward)
+				g.player.Gold += g.enemy.GoldReward
+				drops = library.DropMonsterEquipment(&g.player, g.enemy)
+			}
 			g.combatMessage = fmt.Sprintf("Victoire ! +%d XP, +%d or.", g.enemy.XPReward, g.enemy.GoldReward)
+			if len(drops) > 0 {
+				g.combatMessage += fmt.Sprintf(" Loot : %v.", drops)
+			}
 			g.message = g.combatMessage
 			g.enemy = nil
 			g.combatResult = true
@@ -849,12 +856,19 @@ func (g *Game) castSelectedSkill() bool {
 		g.enemy.CurrentHP = 0
 	}
 	if g.enemy.CurrentHP == 0 {
+		drops := []string{}
 		if g.combatAdvancesRoom {
 			g.player.LastClearedRoom++
 		}
-		library.GainExperience(&g.player, g.enemy.XPReward)
-		g.player.Gold += g.enemy.GoldReward
+		if g.combatAdvancesRoom {
+			library.GainExperience(&g.player, g.enemy.XPReward)
+			g.player.Gold += g.enemy.GoldReward
+			drops = library.DropMonsterEquipment(&g.player, g.enemy)
+		}
 		g.message = fmt.Sprintf("Victoire ! +%d XP, +%d or.", g.enemy.XPReward, g.enemy.GoldReward)
+		if len(drops) > 0 {
+			g.message += fmt.Sprintf(" Loot : %v.", drops)
+		}
 		g.enemy = nil
 		g.combatResult = true
 	}
@@ -1135,6 +1149,7 @@ func (g *Game) drawDashboard(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, "PROFIL DU HÉROS", 44, 91)
 	ebitenutil.DebugPrintAt(screen, g.player.Name, 44, 111)
 	ebitenutil.DebugPrintAt(screen, g.player.Class, 44, 126)
+	drawCharacterSprite(screen, 270, 102, 4, g.player.Class)
 	drawBar(screen, 44, 151, 250, 10, g.player.CurrentHP, g.player.MaxHP, redColor)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV  %d / %d", g.player.CurrentHP, g.player.MaxHP), 44, 164)
 	drawBar(screen, 44, 181, 250, 10, g.player.Mana, g.player.MaxMana, blueColor)
@@ -1194,10 +1209,12 @@ func (g *Game) drawCombat(screen *ebiten.Image) {
 	}
 	ebitenutil.DebugPrintAt(screen, "VOUS", 48, 95)
 	ebitenutil.DebugPrintAt(screen, g.player.Name, 48, 113)
+	drawCharacterSprite(screen, 250, 165, 5, g.player.Class)
 	drawBar(screen, 48, 140, 245, 14, g.player.CurrentHP, g.player.MaxHP, redColor)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV %d / %d", g.player.CurrentHP, g.player.MaxHP), 48, 160)
 	ebitenutil.DebugPrintAt(screen, "ENNEMI", 364, 95)
 	ebitenutil.DebugPrintAt(screen, g.enemy.Name, 364, 113)
+	drawMonsterSprite(screen, 535, 165, 5, g.enemy.Pattern)
 	drawBar(screen, 364, 140, 280, 14, g.enemy.CurrentHP, g.enemy.MaxHP, redColor)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV %d / %d", g.enemy.CurrentHP, g.enemy.MaxHP), 364, 160)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("TOUR %d", g.combatTurn), 590, 95)
@@ -1295,10 +1312,16 @@ func (g *Game) drawForge(screen *ebiten.Image) {
 	}
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s 1  Chapeau de l'aventurier       5 or", forgeCursor(0)), 48, 145)
 	ebitenutil.DebugPrintAt(screen, "   Requis : 1 Plume de Corbeau + 1 Cuir de Sanglier", 48, 162)
+	drawResourceSprite(screen, 560, 143, 3, "Plume de Corbeau")
+	drawResourceSprite(screen, 585, 143, 3, "Cuir de Sanglier")
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s 2  Tunique de l'aventurier       5 or", forgeCursor(1)), 48, 187)
 	ebitenutil.DebugPrintAt(screen, "   Requis : 2 Fourrures de Loup + 1 Peau de Troll", 48, 204)
+	drawResourceSprite(screen, 560, 185, 3, "Fourrure de Loup")
+	drawResourceSprite(screen, 585, 185, 3, "Peau de Troll")
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s 3  Bottes de l'aventurier        5 or", forgeCursor(2)), 48, 229)
 	ebitenutil.DebugPrintAt(screen, "   Requis : 1 Fourrure de Loup + 1 Cuir de Sanglier", 48, 246)
+	drawResourceSprite(screen, 560, 227, 3, "Fourrure de Loup")
+	drawResourceSprite(screen, 585, 227, 3, "Cuir de Sanglier")
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("OR : %d", g.player.Gold), 48, 275)
 	ebitenutil.DebugPrintAt(screen, g.message, 48, 300)
 	ebitenutil.DebugPrintAt(screen, "Flèches : sélectionner     Entrée : fabriquer     Échap : retour", 48, 380)
@@ -1336,10 +1359,10 @@ func dungeonFloorForUI(room int) int {
 func (g *Game) drawStart(screen *ebiten.Image) {
 	first := "> "
 	second := "  "
-	if g.startSelected == 1 {
+	if g.confirmSelected == 1 {
 		first, second = "  ", "> "
 	}
-	text := fmt.Sprintf("LOOTSTORM / NOUVELLE PARTIE\n\n%s1. Choisir un personnage prédéfini\n%s2. Créer mon personnage\n\nFlèches haut/bas, 1-2 puis Entrée\nÉchap : quitter", first, second)
+	text := fmt.Sprintf("LOOTSTORM / NOUVELLE PARTIE\n\n%sChoisir un personnage prédéfini\n%sCréer mon personnage\n\nFlèches haut/bas + Entrée\nÉchap : quitter", first, second)
 	ebitenutil.DebugPrintAt(screen, text, 42, 40)
 }
 
@@ -1354,13 +1377,13 @@ func (g *Game) drawHeroSelection(screen *ebiten.Image) {
 		}
 		text += fmt.Sprintf("%s%d. %-20s %-12s PV %d\n", cursor, index+1, hero.Name, hero.Class, hero.MaxHP)
 	}
-	text += fmt.Sprintf("\n=== %s ===\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\nFlèches haut/bas ou 1-7, Entrée : confirmer\nÉchap : quitter", selectedHero.Name, selectedHero.Class, selectedHero.MaxHP, selectedHero.Attack, selectedHero.Initiative, library.ClassAdvantages(selectedHero.Class))
+	text += fmt.Sprintf("\n=== %s ===\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\nFlèches haut/bas + Entrée : sélectionner\nÉchap : quitter", selectedHero.Name, selectedHero.Class, selectedHero.MaxHP, selectedHero.Attack, selectedHero.Initiative, library.ClassAdvantages(selectedHero.Class))
 	ebitenutil.DebugPrintAt(screen, text, 42, 40)
 }
 
 func (g *Game) drawHeroConfirmation(screen *ebiten.Image) {
 	hero := heroChoices()[g.heroSelected]
-	text := fmt.Sprintf("LOOTSTORM / CONFIRMATION\n\n%s\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\n1. Valider ce personnage\n2. Choisir un autre personnage\n\nEntrée : valider", hero.Name, hero.Class, hero.MaxHP, hero.Attack, hero.Initiative, library.ClassAdvantages(hero.Class))
+	text := fmt.Sprintf("LOOTSTORM / CONFIRMATION\n\n%s\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\nFlèches : valider ou revenir\nEntrée : confirmer le choix", hero.Name, hero.Class, hero.MaxHP, hero.Attack, hero.Initiative, library.ClassAdvantages(hero.Class))
 	ebitenutil.DebugPrintAt(screen, text, 42, 40)
 }
 
@@ -1379,13 +1402,13 @@ func (g *Game) drawClassSelection(screen *ebiten.Image) {
 		}
 		text += fmt.Sprintf("%s%d. %-12s PV %d\n", cursor, index+1, className, getHPForClass(className))
 	}
-	text += fmt.Sprintf("\nAvantage : %s\n\nFlèches haut/bas ou 1-9, Entrée : continuer", library.ClassAdvantages(classes[g.classSelected]))
+	text += fmt.Sprintf("\nAvantage : %s\n\nFlèches haut/bas + Entrée : sélectionner", library.ClassAdvantages(classes[g.classSelected]))
 	ebitenutil.DebugPrintAt(screen, text, 42, 40)
 }
 
 func (g *Game) drawClassConfirmation(screen *ebiten.Image) {
 	className := classChoices()[g.classSelected]
-	text := fmt.Sprintf("LOOTSTORM / CONFIRMATION DE CLASSE\n\nNom : %s\nClasse : %s\nPV de base : %d\n\n%s\n\n1. Valider cette classe\n2. Choisir une autre classe\n\nEntrée : valider", g.customName, className, getHPForClass(className), library.ClassAdvantages(className))
+	text := fmt.Sprintf("LOOTSTORM / CONFIRMATION DE CLASSE\n\nNom : %s\nClasse : %s\nPV de base : %d\n\n%s\n\nFlèches : valider ou revenir\nEntrée : confirmer la classe", g.customName, className, getHPForClass(className), library.ClassAdvantages(className))
 	ebitenutil.DebugPrintAt(screen, text, 42, 40)
 }
 
@@ -1414,6 +1437,7 @@ func (g *Game) drawInventory(screen *ebiten.Image) {
 			if index == g.inventorySelected {
 				cursor = ">>"
 			}
+			drawItemSprite(screen, 365, 127+index*17, 2, item.Name)
 			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s %02d  %-35s x%d", cursor, index+1, item.Name, item.Quantity), 48, 130+index*17)
 		}
 	}
