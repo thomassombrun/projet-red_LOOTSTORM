@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 func normalizeClass(class string) string {
@@ -221,16 +222,96 @@ func maincli() {
 	}
 }
 
+var menuOptions = []string{
+	"Afficher mes statistiques",
+	"Aventure",
+	"Combat d'entraînement",
+	"Ouvrir l'inventaire",
+	"Marchand",
+	"Forgeron",
+	"Enchanteur",
+	"Quitter le jeu",
+}
+
 type Game struct {
-	menuText string
+	selected int
+	message  string
 }
 
 func (g *Game) Update() error {
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+		g.selected--
+		if g.selected < 0 {
+			g.selected = len(menuOptions) - 1
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		g.selected++
+		if g.selected >= len(menuOptions) {
+			g.selected = 0
+		}
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+		g.handleChoice(g.selected)
+	}
+
+	for i := ebiten.Key1; i <= ebiten.Key8; i++ {
+		if inpututil.IsKeyJustPressed(i) {
+			idx := int(i - ebiten.Key1)
+			g.selected = idx
+			g.handleChoice(idx)
+		}
+	}
+
 	return nil
 }
 
+func (g *Game) handleChoice(idx int) {
+	switch idx {
+	case 0:
+		g.message = "Stats affichées (à brancher sur library.DisplayInfo)"
+
+	case 1:
+		g.message = "Départ en aventure (à brancher sur library.StartAdventure)"
+
+	case 2:
+		g.message = "Combat d'entraînement (à brancher sur library.TrainingFight)"
+
+	case 3:
+		g.message = "Inventaire ouvert (à brancher sur library.AccessInventory)"
+
+	case 4:
+		g.message = "Marchand (à brancher sur library.MerchantMenu)"
+
+	case 5:
+		g.message = "Forgeron (à brancher sur library.ForgeronMenu)"
+
+	case 6:
+		g.message = "Enchanteur (à brancher sur library.EnchanterMenu)"
+
+	case 7:
+		g.message = "Fermeture..."
+
+	}
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
-	ebitenutil.DebugPrint(screen, g.menuText)
+	text := "===== LOOTSTORM =====\n\n"
+
+	for i, opt := range menuOptions {
+		cursor := "  "
+		if i == g.selected {
+			cursor = "> "
+		}
+		text += fmt.Sprintf("%s%d. %s\n", cursor, i+1, opt)
+	}
+
+	text += "\n(Flèches haut/bas + Entrée, ou touches 1-8)\n\n"
+	text += g.message
+
+	ebitenutil.DebugPrint(screen, text)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -238,9 +319,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func main() {
-	game := &Game{
-		menuText: "BIENVENUE DANS LOOTSTORM\n\n1. Choisir un héros\n2. Créer un personnage",
-	}
+	game := &Game{selected: 0}
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Lootstorm")
 	if err := ebiten.RunGame(game); err != nil {
