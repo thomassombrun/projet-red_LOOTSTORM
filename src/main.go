@@ -1134,6 +1134,17 @@ func drawPanel(screen *ebiten.Image, x, y, width, height int) {
 	}
 }
 
+// darkenColor scales a color's RGB channels down by factor (0-1), keeping alpha.
+func darkenColor(c color.Color, factor float64) color.RGBA {
+	r, g, b, a := c.RGBA()
+	return color.RGBA{
+		R: uint8(float64(r>>8) * factor),
+		G: uint8(float64(g>>8) * factor),
+		B: uint8(float64(b>>8) * factor),
+		A: uint8(a >> 8),
+	}
+}
+
 func drawBar(screen *ebiten.Image, x, y, width, height, value, maximum int, fill color.Color) {
 	if maximum < 1 {
 		maximum = 1
@@ -1145,10 +1156,28 @@ func drawBar(screen *ebiten.Image, x, y, width, height, value, maximum int, fill
 	if ratio > 1 {
 		ratio = 1
 	}
+	fx, fy, fw, fh := float32(x), float32(y), float32(width), float32(height)
+
+	// recessed frame + track
+	ebitenutil.DrawRect(screen, float64(x-2), float64(y-2), float64(width)+4, float64(height)+4, color.RGBA{R: 0, G: 0, B: 0, A: 160})
 	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width), float64(height), color.RGBA{R: 8, G: 12, B: 20, A: 255})
-	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width)*ratio, float64(height), fill)
-	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width)*ratio, float64(height)/2, color.RGBA{R: 255, G: 255, B: 255, A: 60})
-	vector.StrokeRect(screen, float32(x), float32(y), float32(width), float32(height), 1, color.RGBA{R: 10, G: 12, B: 16, A: 255}, true)
+
+	fillWidth := float64(width) * ratio
+	if fillWidth > 0.5 {
+		dark := darkenColor(fill, 0.55)
+		ebitenutil.DrawRect(screen, float64(x), float64(y), fillWidth, float64(height), dark)
+		ebitenutil.DrawRect(screen, float64(x), float64(y), fillWidth, float64(height)*0.6, fill)
+		ebitenutil.DrawRect(screen, float64(x), float64(y), fillWidth, float64(height)*0.3, color.RGBA{R: 255, G: 255, B: 255, A: 75})
+		vector.StrokeLine(screen, fx+float32(fillWidth), fy, fx+float32(fillWidth), fy+fh, 1, darkenColor(fill, 0.3), true)
+	}
+
+	// segment ticks for a gauge look
+	for i := 1; i < 5; i++ {
+		tx := fx + fw*float32(i)/5
+		vector.StrokeLine(screen, tx, fy, tx, fy+fh, 1, color.RGBA{R: 0, G: 0, B: 0, A: 70}, false)
+	}
+
+	vector.StrokeRect(screen, fx, fy, fw, fh, 1.5, panelEdge, true)
 }
 
 func (g *Game) drawLogo(screen *ebiten.Image) {
@@ -1618,9 +1647,9 @@ func (g *Game) DrawFinalScreen(screen ebiten.FinalScreen, offscreen *ebiten.Imag
 
 func main() {
 	game := &Game{selected: 0}
-	// Size the (bordered, non-fullscreen) window to the largest exact
-	// multiple of the 700x450 canvas that fits the screen, so the final
-	// upscale is always an integer ratio and stays pixel-crisp.
+	// Start at the largest exact multiple of the 700x450 canvas that fits
+	// the screen (keeps the final upscale pixel-crisp), then maximize the
+	// bordered window so it fills the screen without going fullscreen.
 	windowWidth, windowHeight := 1400, 900
 	if monitor := ebiten.Monitor(); monitor != nil {
 		monitorWidth, monitorHeight := monitor.Size()
@@ -1631,13 +1660,12 @@ func main() {
 		if scale < 1 {
 			scale = 1
 		}
-		if scale > 2 {
-			scale-- // leave room for the title bar and taskbar
-		}
 		windowWidth, windowHeight = 700*scale, 450*scale
 	}
 	ebiten.SetWindowSize(windowWidth, windowHeight)
 	ebiten.SetWindowTitle("Lootstorm")
+	ebiten.SetWindowResizable(true)
+	ebiten.MaximizeWindow()
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)
 	}
