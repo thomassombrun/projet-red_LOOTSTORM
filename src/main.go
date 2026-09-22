@@ -634,7 +634,7 @@ func (g *Game) drawInventory(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return 1400, 900
+	return 700, 450
 }
 
 func main() {
