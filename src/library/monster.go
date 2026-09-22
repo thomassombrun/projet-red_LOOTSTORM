@@ -103,7 +103,6 @@ func MonsterPatternDamage(m *Monster, turn int) int {
 	case "golem":
 		if turn%3 == 0 {
 			damage = m.Attack * 2
-			fmt.Println("Le Golem charge son poing de pierre !")
 		}
 	case "troll":
 		if turn%3 == 0 {
@@ -111,32 +110,26 @@ func MonsterPatternDamage(m *Monster, turn int) int {
 			if m.CurrentHP > m.MaxHP {
 				m.CurrentHP = m.MaxHP
 			}
-			fmt.Printf("%s récupère 10 PV !\n", m.Name)
 		}
 	case "duck":
 		if turn%2 == 0 {
 			damage = m.Attack * 2
-			fmt.Printf("%s esquive l'attaque et contre-attaque !\n", m.Name)
 		}
 	case "skeleton":
 		if turn%4 == 0 {
 			damage = m.Attack * 3
-			fmt.Println("Le Squelette effectue une attaque fracassante !")
 		}
 	case "wolf":
 		if turn%3 == 0 {
 			damage = m.Attack * 2
-			fmt.Println("Le Loup bondit sur sa proie !")
 		}
 	case "wizard":
 		if turn%3 == 0 {
 			damage = m.Attack * 2
-			fmt.Println("Le Sorcier Maudit lance une magie noire !")
 		}
 	case "dragon":
 		if turn%3 == 0 {
 			damage = m.Attack * 3
-			fmt.Println("Le Dragon crache une immense flamme !")
 		}
 	}
 	return damage

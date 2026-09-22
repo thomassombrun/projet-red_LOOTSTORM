@@ -84,6 +84,10 @@ func MerchantMenu(c *Character) {
 }
 
 func BuyItem(c *Character, itemName string, price int) bool {
+	if itemName == "Amelioration d'inventaire" && c.LimitInventoryUpgrade >= 3 {
+		fmt.Println("Vous avez déjà utilisé les 3 améliorations d'inventaire disponibles.")
+		return false
+	}
 	if c.Gold < price {
 		fmt.Println()
 		fmt.Println("Vous n'avez pas assez de pièces d'or.")
@@ -108,6 +112,29 @@ func BuyItem(c *Character, itemName string, price int) bool {
 	fmt.Printf("Vous avez acheté : %s\n", itemName)
 	fmt.Printf("Prix : %d pièces d'or\n", price)
 	fmt.Printf("Pièces d'or restantes : %d\n", c.Gold)
+	return true
+}
+
+// BuyItemSilent applies a purchase without writing to the console.
+func BuyItemSilent(c *Character, itemName string, price int) bool {
+	if itemName == "Amelioration d'inventaire" && c.LimitInventoryUpgrade >= 3 {
+		return false
+	}
+	if c.Gold < price {
+		return false
+	}
+	itemExists := false
+	for _, item := range c.Inventory {
+		if item.Name == itemName {
+			itemExists = true
+			break
+		}
+	}
+	if !itemExists && len(c.Inventory) >= c.LimitInventory {
+		return false
+	}
+	c.Gold -= price
+	c.AddOrMergeItem(itemName, 1)
 	return true
 }
 

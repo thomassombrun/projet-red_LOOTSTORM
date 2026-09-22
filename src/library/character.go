@@ -1,7 +1,6 @@
 package library
 
 import (
-	"fmt"
 	"math/rand"
 )
 
@@ -88,7 +87,7 @@ func InitCharacter(name string, class string, maxHP int) Character {
 		Attack:                5,
 		MaxHP:                 maxHP,
 		CurrentHP:             maxHP / 2,
-		Inventory:             []Item{{Name: "Potion de vie", Quantity: 3}},
+		Inventory:             []Item{{Name: "Potion de vie", Quantity: 3, Rarity: RarityCommon}},
 		Skill:                 skills,
 		Effects:               []Effect{},
 		HolyBarrier:           false,
@@ -141,7 +140,6 @@ func TryDodge(c *Character) bool {
 	if chance == 0 || rand.Intn(100) >= chance {
 		return false
 	}
-	fmt.Printf("%s profite de son agilité (%d%% d'esquive).\n", c.Name, chance)
 	return true
 }
 
@@ -158,8 +156,6 @@ func BlockDamage(c *Character, damage int) int {
 	}
 
 	blockedDamage := damage / 2
-	fmt.Printf("%s bloque une partie de l'attaque (%d%% de chance) !\n", c.Name, chance)
-	fmt.Printf("Dégâts réduits : %d -> %d.\n", damage, blockedDamage)
 	return blockedDamage
 }
 
@@ -172,7 +168,7 @@ func BasicAttackDamage(c *Character) int {
 		missingRatio := float64(c.MaxHP-c.CurrentHP) / float64(c.MaxHP)
 		damage += int(float64(damage) * missingRatio)
 	}
-	if c.Class == "Archer" && c.Equip.Weapon == "Arc du chasseur" {
+	if c.Class == "Archer" && normalizeItemName(c.Equip.Weapon) == "Arc du chasseur" {
 		damage *= 2
 	}
 	return damage
@@ -193,13 +189,10 @@ func StartCombatBonuses(c *Character) {
 	switch rand.Intn(3) {
 	case 0:
 		c.CombatWeaponBonus = 8
-		fmt.Println("Atout du Guerrier : bonus de dégâts d'arme pour ce combat.")
 	case 1:
 		c.CombatSpellBonus = 8
-		fmt.Println("Atout du Guerrier : bonus de dégâts de sort pour ce combat.")
 	case 2:
 		c.CombatInitiativeBonus = 20
-		fmt.Println("Atout du Guerrier : bonus d'initiative pour ce combat.")
 	}
 }
 
@@ -218,11 +211,6 @@ func TryCounterAttack(c *Character, m *Monster) bool {
 		m.CurrentHP = 0
 	}
 
-	attackName := "Coup de poing"
-	if IsWeaponEquipped(c) {
-		attackName = "Coup d'arme"
-	}
-	fmt.Printf("%s contre-attaque avec %s et inflige %d dégâts à %s !\n", c.Name, attackName, damage, m.Name)
 	return true
 }
 
@@ -237,24 +225,17 @@ func AssassinOpeningAttack(c *Character, m *Monster) bool {
 		m.CurrentHP = 0
 	}
 
-	attackName := "Coup de poing"
-	if IsWeaponEquipped(c) {
-		attackName = "Coup d'arme"
-	}
-	fmt.Printf("%s frappe par surprise avec %s et inflige %d dégâts à %s !\n", c.Name, attackName, damage, m.Name)
-	fmt.Printf("PV de %s : %d / %d\n", m.Name, m.CurrentHP, m.MaxHP)
 	ApplyAssassinBleed(c, m)
 	return true
 }
 
 func ApplyAssassinBleed(c *Character, m *Monster) {
-	if c.Class != "Assassin" || c.Equip.Weapon != "Dague de l'assassin" {
+	if c.Class != "Assassin" || normalizeItemName(c.Equip.Weapon) != "Dague de l'assassin" {
 		return
 	}
 
 	damage := 5 + c.Level*2
 	m.Effects = append(m.Effects, Effect{Name: "Saignement", Value: damage, TurnsLeft: 3})
-	fmt.Printf("La dague inflige Saignement : %d dégâts pendant 3 tours.\n", damage)
 }
 
 func SummonStats(c *Character) (int, int) {

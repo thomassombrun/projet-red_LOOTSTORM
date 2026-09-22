@@ -61,6 +61,10 @@ func itemDisplayName(item Item) string {
 	return fmt.Sprintf("%s [%s]", item.Name, item.Rarity)
 }
 
+func ItemDisplayName(item Item) string {
+	return itemDisplayName(item)
+}
+
 func equipmentDisplayName(name string, rarity Rarity) string {
 	base := normalizeItemName(name)
 	if rarity == "" {
@@ -82,6 +86,9 @@ func itemStatSummary(itemName string) string {
 		return ""
 	}
 	return " (" + strings.Join(stats, " / ") + ")"
+}
+func ItemStatSummary(itemName string) string {
+	return itemStatSummary(itemName)
 }
 
 func rollEquipmentRarity(dungeonTier int) Rarity {

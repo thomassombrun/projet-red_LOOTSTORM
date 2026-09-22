@@ -132,6 +132,15 @@ func UpgradeInventorySlot(c *Character) {
 	fmt.Printf("Améliorations utilisées : %d / 3\n", c.LimitInventoryUpgrade)
 }
 
+func UpgradeInventorySlotSilent(c *Character) bool {
+	if c.LimitInventoryUpgrade >= 3 {
+		return false
+	}
+	c.LimitInventory += 10
+	c.LimitInventoryUpgrade++
+	return true
+}
+
 func IsInventoryFull(c *Character) bool {
 	if len(c.Inventory) >= c.LimitInventory {
 		fmt.Println("Votre inventaire est plein !")
@@ -143,8 +152,14 @@ func IsInventoryFull(c *Character) bool {
 
 func (c *Character) AddOrMergeItem(itemName string, quantity int) {
 	baseName := normalizeItemName(itemName)
+	itemRarity := parseItemRarity(itemName)
 	for i := range c.Inventory {
-		if normalizeItemName(c.Inventory[i].Name) == baseName && c.Inventory[i].Rarity == parseItemRarity(itemName) {
+		existingRarity := c.Inventory[i].Rarity
+		if existingRarity == "" {
+			existingRarity = RarityCommon
+		}
+		if normalizeItemName(c.Inventory[i].Name) == baseName && existingRarity == itemRarity {
+			c.Inventory[i].Rarity = existingRarity
 			c.Inventory[i].Quantity += quantity
 			return
 		}
@@ -153,7 +168,7 @@ func (c *Character) AddOrMergeItem(itemName string, quantity int) {
 		fmt.Println("Votre inventaire est plein ! L'ancien équipement n'a pas pu y être replacé.")
 		return
 	}
-	c.Inventory = append(c.Inventory, Item{Name: baseName, Quantity: quantity, Rarity: parseItemRarity(itemName)})
+	c.Inventory = append(c.Inventory, Item{Name: baseName, Quantity: quantity, Rarity: itemRarity})
 }
 
 func discardItem(c *Character) {
