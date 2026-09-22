@@ -267,11 +267,15 @@ type Game struct {
 }
 
 func (g *Game) initPlayer() {
-	if g.initialized {
+	if g.initialized || g.view != viewStart {
 		return
 	}
 	g.view = viewStart
 	g.message = "Choisissez votre mode de création."
+}
+
+func enterPressed() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeyNumpadEnter)
 }
 
 func heroChoices() []library.Character {
@@ -340,7 +344,7 @@ func (g *Game) Update() error {
 		}
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+	if enterPressed() {
 		if err := g.handleChoice(g.selected); err != nil {
 			return err
 		}
@@ -369,7 +373,7 @@ func (g *Game) updateStartSelection() error {
 	if inpututil.IsKeyJustPressed(ebiten.Key2) {
 		g.startSelected = 1
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+	if enterPressed() {
 		if g.startSelected == 0 {
 			g.view = viewHeroSelect
 			g.message = "Choisissez un héros puis consultez sa confirmation."
@@ -395,14 +399,14 @@ func (g *Game) updateHeroSelection() error {
 			g.heroSelected = int(i - ebiten.Key1)
 		}
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+	if enterPressed() {
 		g.view = viewHeroConfirm
 	}
 	return nil
 }
 
 func (g *Game) updateHeroConfirmation() error {
-	if inpututil.IsKeyJustPressed(ebiten.Key1) || inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+	if inpututil.IsKeyJustPressed(ebiten.Key1) || enterPressed() {
 		g.player = heroChoices()[g.heroSelected]
 		g.initialized = true
 		g.view = viewDashboard
@@ -426,7 +430,7 @@ func (g *Game) updateNameInput() error {
 			g.customName = string(runes[:len(runes)-1])
 		}
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) && len([]rune(g.customName)) > 0 {
+	if enterPressed() && len([]rune(g.customName)) > 0 {
 		g.classSelected = 0
 		g.view = viewClassSelect
 	}
@@ -450,14 +454,14 @@ func (g *Game) updateClassSelection() error {
 			g.classSelected = int(i - ebiten.Key1)
 		}
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+	if enterPressed() {
 		g.view = viewClassConfirm
 	}
 	return nil
 }
 
 func (g *Game) updateClassConfirmation() error {
-	if inpututil.IsKeyJustPressed(ebiten.Key1) || inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+	if inpututil.IsKeyJustPressed(ebiten.Key1) || enterPressed() {
 		className := classChoices()[g.classSelected]
 		g.player = library.InitCharacter(g.customName, className, getHPForClass(className))
 		g.initialized = true
@@ -504,7 +508,7 @@ func (g *Game) handleChoice(idx int) error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.initPlayer()
-	screen.Fill(color.RGBA{R: 16, G: 20, B: 28, A: 255})
+	screen.Fill(color.RGBA{R: 10, G: 14, B: 22, A: 255})
 	if g.view == viewStart {
 		g.drawStart(screen)
 		return
@@ -539,21 +543,96 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		return
 	}
 
-	text := "LOOTSTORM\n\n"
-	text += fmt.Sprintf("Héros : %s\nClasse : %s   Niveau : %d\n\n", g.player.Name, g.player.Class, g.player.Level)
+	g.drawDashboard(screen)
+}
 
-	for i, opt := range menuOptions {
+var (
+	panelColor = color.RGBA{R: 22, G: 29, B: 43, A: 255}
+	panelEdge  = color.RGBA{R: 48, G: 61, B: 83, A: 255}
+	goldColor  = color.RGBA{R: 238, G: 184, B: 74, A: 255}
+	blueColor  = color.RGBA{R: 76, G: 164, B: 235, A: 255}
+	redColor   = color.RGBA{R: 226, G: 83, B: 91, A: 255}
+)
+
+func drawPanel(screen *ebiten.Image, x, y, width, height int) {
+	ebitenutil.DrawRect(screen, float64(x+2), float64(y+2), float64(width), float64(height), color.RGBA{R: 5, G: 8, B: 14, A: 180})
+	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width), float64(height), panelColor)
+	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width), 1, panelEdge)
+	ebitenutil.DrawRect(screen, float64(x), float64(y+height-1), float64(width), 1, panelEdge)
+}
+
+func drawBar(screen *ebiten.Image, x, y, width, height, value, maximum int, fill color.Color) {
+	if maximum < 1 {
+		maximum = 1
+	}
+	ratio := float64(value) / float64(maximum)
+	if ratio < 0 {
+		ratio = 0
+	}
+	if ratio > 1 {
+		ratio = 1
+	}
+	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width), float64(height), color.RGBA{R: 8, G: 12, B: 20, A: 255})
+	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width)*ratio, float64(height), fill)
+}
+
+func (g *Game) drawLogo(screen *ebiten.Image) {
+	ebitenutil.DrawRect(screen, 28, 21, 5, 24, goldColor)
+	ebitenutil.DrawRect(screen, 38, 21, 5, 24, goldColor)
+	ebitenutil.DrawRect(screen, 48, 21, 5, 24, goldColor)
+	ebitenutil.DrawRect(screen, 33, 29, 15, 5, goldColor)
+	ebitenutil.DebugPrintAt(screen, "LOOTSTORM", 66, 25)
+	ebitenutil.DebugPrintAt(screen, "DUNGEON // ADVENTURE", 66, 40)
+}
+
+func (g *Game) drawDashboard(screen *ebiten.Image) {
+	g.drawLogo(screen)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s  //  %s", g.player.Name, g.player.Class), 500, 28)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("NIVEAU %d", g.player.Level), 590, 43)
+
+	drawPanel(screen, 28, 75, 300, 142)
+	ebitenutil.DebugPrintAt(screen, "PROFIL DU HÉROS", 44, 91)
+	ebitenutil.DebugPrintAt(screen, g.player.Name, 44, 111)
+	ebitenutil.DebugPrintAt(screen, g.player.Class, 44, 126)
+	drawBar(screen, 44, 151, 250, 10, g.player.CurrentHP, g.player.MaxHP, redColor)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV  %d / %d", g.player.CurrentHP, g.player.MaxHP), 44, 164)
+	drawBar(screen, 44, 181, 250, 10, g.player.Mana, g.player.MaxMana, blueColor)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("MANA  %d / %d", g.player.Mana, g.player.MaxMana), 44, 194)
+
+	drawPanel(screen, 344, 75, 328, 142)
+	ebitenutil.DebugPrintAt(screen, "PROGRESSION", 360, 91)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("ÉTAGE %d   //   SALLE %d", dungeonFloorForUI(g.player.LastClearedRoom+1), g.player.LastClearedRoom+1), 360, 112)
+	drawBar(screen, 360, 143, 280, 12, g.player.CurrentXP, g.player.MaxXP, goldColor)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("XP  %d / %d", g.player.CurrentXP, g.player.MaxXP), 360, 159)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("ATTAQUE  %d     INITIATIVE  %d", g.player.Attack+g.player.Equip.WeaponDamage, g.player.Initiative), 360, 181)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("OR  %d     INVENTAIRE  %d / %d", g.player.Gold, len(g.player.Inventory), g.player.LimitInventory), 360, 196)
+
+	drawPanel(screen, 28, 238, 300, 180)
+	ebitenutil.DebugPrintAt(screen, "NAVIGATION", 44, 254)
+	for index, option := range menuOptions {
 		cursor := "  "
-		if i == g.selected {
-			cursor = "> "
+		if index == g.selected {
+			cursor = ">>"
 		}
-		text += fmt.Sprintf("%s%d. %s\n", cursor, i+1, opt)
+		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s %d  %s", cursor, index+1, option), 44, 274+index*17)
 	}
 
-	text += "\nFlèches haut/bas + Entrée, ou touches 1-8\nÉchap : retour au tableau de bord\n\n"
-	text += g.message
+	drawPanel(screen, 344, 238, 328, 180)
+	ebitenutil.DebugPrintAt(screen, "ÉQUIPEMENT ACTIF", 360, 254)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("ARME       %s", g.player.Equip.Weapon), 360, 278)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("CASQUE     %s", g.player.Equip.Helmet), 360, 299)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PLASTRON   %s", g.player.Equip.Chestplate), 360, 320)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("BOTTES     %s", g.player.Equip.Boots), 360, 341)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("BONUS ARME  +%d ATQ", g.player.Equip.WeaponDamage), 360, 369)
+	ebitenutil.DebugPrintAt(screen, g.message, 360, 395)
+	ebitenutil.DebugPrintAt(screen, "FLÈCHES  naviguer     ENTRÉE  sélectionner     ÉCHAP  retour", 28, 432)
+}
 
-	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+func dungeonFloorForUI(room int) int {
+	if room < 1 {
+		return 1
+	}
+	return (room-1)/10 + 1
 }
 
 func (g *Game) drawStart(screen *ebiten.Image) {
