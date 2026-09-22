@@ -1577,13 +1577,20 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return 700, 450
 }
 
-// DrawFinalScreen upscales the 700x450 canvas to the window with a crisp
-// nearest-neighbor blit (the window is an exact 2x multiple) instead of
-// Ebitengine's default smoothing, which was blurring the whole game.
+// DrawFinalScreen upscales the 700x450 canvas to the window. It snaps to a
+// crisp nearest-neighbor blit whenever the scale is (close to) a whole
+// number — which is the common case in windowed mode — and falls back to
+// smooth linear filtering for the fractional scales fullscreen produces on
+// arbitrary monitor resolutions, avoiding jagged edges.
 func (g *Game) DrawFinalScreen(screen ebiten.FinalScreen, offscreen *ebiten.Image, geoM ebiten.GeoM) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM = geoM
-	op.Filter = ebiten.FilterNearest
+	scale := geoM.Element(0, 0)
+	if math.Abs(scale-math.Round(scale)) < 0.02 {
+		op.Filter = ebiten.FilterNearest
+	} else {
+		op.Filter = ebiten.FilterLinear
+	}
 	screen.DrawImage(offscreen, op)
 }
 
@@ -1591,6 +1598,7 @@ func main() {
 	game := &Game{selected: 0}
 	ebiten.SetWindowSize(1400, 900)
 	ebiten.SetWindowTitle("Lootstorm")
+	ebiten.SetFullscreen(true)
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)
 	}
