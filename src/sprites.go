@@ -1,12 +1,64 @@
 package main
 
 import (
+	"bytes"
+	"embed"
+	"image"
 	"image/color"
+	_ "image/png"
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
+
+//go:embed assets/*.png
+var spriteAssets embed.FS
+
+// characterImagePaths maps a character's name to a hand-drawn sprite asset.
+// Characters without an entry fall back to the procedural pixel sprite below.
+var characterImagePaths = map[string]string{
+	"Himiko Toga": "assets/himiko_toga.png",
+}
+
+var characterImageCache = map[string]*ebiten.Image{}
+
+func loadCharacterImage(name string) *ebiten.Image {
+	path, hasImage := characterImagePaths[name]
+	if !hasImage {
+		return nil
+	}
+	if img, cached := characterImageCache[name]; cached {
+		return img
+	}
+	data, err := spriteAssets.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	decoded, _, err := image.Decode(bytes.NewReader(data))
+	if err != nil {
+		return nil
+	}
+	img := ebiten.NewImageFromImage(decoded)
+	characterImageCache[name] = img
+	return img
+}
+
+func drawScaledImage(screen *ebiten.Image, img *ebiten.Image, x, y, targetSize int) {
+	bounds := img.Bounds()
+	width, height := bounds.Dx(), bounds.Dy()
+	if width == 0 || height == 0 {
+		return
+	}
+	factor := float64(targetSize) / float64(width)
+	if height > width {
+		factor = float64(targetSize) / float64(height)
+	}
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(factor, factor)
+	op.GeoM.Translate(float64(x), float64(y))
+	screen.DrawImage(img, op)
+}
 
 var spritePalette = map[rune]color.RGBA{
 	'.': {R: 0, G: 0, B: 0, A: 0},
@@ -34,7 +86,11 @@ func drawPixelSprite(screen *ebiten.Image, x, y, scale int, pattern string) {
 	}
 }
 
-func drawCharacterSprite(screen *ebiten.Image, x, y, scale int, class string) {
+func drawCharacterSprite(screen *ebiten.Image, x, y, scale int, name, class string) {
+	if img := loadCharacterImage(name); img != nil {
+		drawScaledImage(screen, img, x, y, scale*11)
+		return
+	}
 	pattern := "....KK....\n...KSSK...\n...KWWK...\n..KKKKKK..\n...BBBB...\n..BBBBBB..\n..B....B..\n.K......K.\n.K......K."
 	switch class {
 	case "Mage":

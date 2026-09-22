@@ -1149,7 +1149,7 @@ func (g *Game) drawDashboard(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, "PROFIL DU HÉROS", 44, 91)
 	ebitenutil.DebugPrintAt(screen, g.player.Name, 44, 111)
 	ebitenutil.DebugPrintAt(screen, g.player.Class, 44, 126)
-	drawCharacterSprite(screen, 270, 102, 4, g.player.Class)
+	drawCharacterSprite(screen, 270, 102, 4, g.player.Name, g.player.Class)
 	drawBar(screen, 44, 151, 250, 10, g.player.CurrentHP, g.player.MaxHP, redColor)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV  %d / %d", g.player.CurrentHP, g.player.MaxHP), 44, 164)
 	drawBar(screen, 44, 181, 250, 10, g.player.Mana, g.player.MaxMana, blueColor)
@@ -1209,7 +1209,7 @@ func (g *Game) drawCombat(screen *ebiten.Image) {
 	}
 	ebitenutil.DebugPrintAt(screen, "VOUS", 48, 95)
 	ebitenutil.DebugPrintAt(screen, g.player.Name, 48, 113)
-	drawCharacterSprite(screen, 250, 165, 5, g.player.Class)
+	drawCharacterSprite(screen, 250, 165, 5, g.player.Name, g.player.Class)
 	drawBar(screen, 48, 140, 245, 14, g.player.CurrentHP, g.player.MaxHP, redColor)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV %d / %d", g.player.CurrentHP, g.player.MaxHP), 48, 160)
 	ebitenutil.DebugPrintAt(screen, "ENNEMI", 364, 95)
