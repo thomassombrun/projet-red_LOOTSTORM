@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"projet/src/library"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 func normalizeClass(class string) string {
@@ -39,7 +41,7 @@ func getHPForClass(class string) int {
 	}
 }
 
-func main() {
+func maincli() {
 	fmt.Println("========================================")
 	fmt.Println("       BIENVENUE DANS LOOTSTORM         ")
 	fmt.Println("========================================")
@@ -215,5 +217,27 @@ func main() {
 		default:
 			fmt.Println("Choix invalide, veuillez réessayer.")
 		}
+	}
+}
+
+type Game struct{}
+
+func (g *Game) Update() error {
+	return nil
+}
+
+func (g *Game) Draw(screen *ebiten.Image) {
+	// rien pour l'instant
+}
+
+func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	return 640, 480
+}
+
+func main() {
+	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowTitle("Mon Jeu")
+	if err := ebiten.RunGame(&Game{}); err != nil {
+		panic(err)
 	}
 }
