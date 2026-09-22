@@ -10,6 +10,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	_ "golang.org/x/image/webp"
 )
 
 // spriteAssets embeds everything under assets/ so new hand-drawn sprites are
