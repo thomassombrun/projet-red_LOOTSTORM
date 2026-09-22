@@ -93,39 +93,30 @@ func main() {
 				case 1:
 					player = c1
 					selected = true
-					break
 				case 2:
 					player = c2
 					selected = true
-					break
 				case 3:
 					player = c3
 					selected = true
-					break
 				case 4:
 					player = c4
 					selected = true
-					break
 				case 5:
 					player = c5
 					selected = true
-					break
 				case 6:
 					player = c6
 					selected = true
-					break
 				case 7:
 					player = c7
 					selected = true
-					break
 				case 8:
 					player = c8
 					selected = true
-					break
 				case 0:
 					fmt.Println("Retour au menu principal.")
 					selected = false
-					break
 				default:
 					library.ClearTerminal()
 
