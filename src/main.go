@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"math"
 	"math/rand"
 	"projet/src/library"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 const (
@@ -285,6 +287,7 @@ type Game struct {
 	inventorySelected       int
 	combatAction            int
 	confirmSelected         int
+	frameCount              int
 }
 
 func (g *Game) initPlayer() {
@@ -312,6 +315,7 @@ func heroChoices() []library.Character {
 }
 
 func (g *Game) Update() error {
+	g.frameCount++
 	g.initPlayer()
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
@@ -1101,18 +1105,32 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 var (
-	panelColor = color.RGBA{R: 22, G: 29, B: 43, A: 255}
-	panelEdge  = color.RGBA{R: 48, G: 61, B: 83, A: 255}
-	goldColor  = color.RGBA{R: 238, G: 184, B: 74, A: 255}
-	blueColor  = color.RGBA{R: 76, G: 164, B: 235, A: 255}
-	redColor   = color.RGBA{R: 226, G: 83, B: 91, A: 255}
+	panelColor    = color.RGBA{R: 22, G: 29, B: 43, A: 235}
+	panelColorTop = color.RGBA{R: 32, G: 41, B: 58, A: 235}
+	panelEdge     = color.RGBA{R: 168, G: 138, B: 82, A: 255}
+	goldColor     = color.RGBA{R: 238, G: 184, B: 74, A: 255}
+	blueColor     = color.RGBA{R: 76, G: 164, B: 235, A: 255}
+	redColor      = color.RGBA{R: 226, G: 83, B: 91, A: 255}
 )
 
 func drawPanel(screen *ebiten.Image, x, y, width, height int) {
-	ebitenutil.DrawRect(screen, float64(x+2), float64(y+2), float64(width), float64(height), color.RGBA{R: 5, G: 8, B: 14, A: 180})
+	fx, fy, fw, fh := float32(x), float32(y), float32(width), float32(height)
+	ebitenutil.DrawRect(screen, float64(x+4), float64(y+4), float64(width), float64(height), color.RGBA{R: 0, G: 0, B: 0, A: 150})
 	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width), float64(height), panelColor)
-	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width), 1, panelEdge)
-	ebitenutil.DrawRect(screen, float64(x), float64(y+height-1), float64(width), 1, panelEdge)
+	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width), float64(height)/3, panelColorTop)
+	vector.StrokeRect(screen, fx, fy, fw, fh, 2, panelEdge, true)
+	corner := float32(12)
+	for _, c := range [][2]float32{{fx, fy}, {fx + fw, fy}, {fx, fy + fh}, {fx + fw, fy + fh}} {
+		dx, dy := corner, corner
+		if c[0] > fx {
+			dx = -corner
+		}
+		if c[1] > fy {
+			dy = -corner
+		}
+		vector.StrokeLine(screen, c[0], c[1], c[0]+dx, c[1], 3, goldColor, true)
+		vector.StrokeLine(screen, c[0], c[1], c[0], c[1]+dy, 3, goldColor, true)
+	}
 }
 
 func drawBar(screen *ebiten.Image, x, y, width, height, value, maximum int, fill color.Color) {
@@ -1128,6 +1146,8 @@ func drawBar(screen *ebiten.Image, x, y, width, height, value, maximum int, fill
 	}
 	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width), float64(height), color.RGBA{R: 8, G: 12, B: 20, A: 255})
 	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width)*ratio, float64(height), fill)
+	ebitenutil.DrawRect(screen, float64(x), float64(y), float64(width)*ratio, float64(height)/2, color.RGBA{R: 255, G: 255, B: 255, A: 60})
+	vector.StrokeRect(screen, float32(x), float32(y), float32(width), float32(height), 1, color.RGBA{R: 10, G: 12, B: 16, A: 255}, true)
 }
 
 func (g *Game) drawLogo(screen *ebiten.Image) {
@@ -1140,7 +1160,7 @@ func (g *Game) drawLogo(screen *ebiten.Image) {
 }
 
 func (g *Game) drawDashboard(screen *ebiten.Image) {
-	drawDungeonBackdrop(screen)
+	g.drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s  //  %s", g.player.Name, g.player.Class), 500, 28)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("NIVEAU %d", g.player.Level), 590, 43)
@@ -1184,19 +1204,71 @@ func (g *Game) drawDashboard(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, "FLÈCHES  naviguer     ENTRÉE  sélectionner     ÉCHAP  retour", 28, 432)
 }
 
-func drawDungeonBackdrop(screen *ebiten.Image) {
-	ebitenutil.DrawRect(screen, 0, 0, 700, 450, color.RGBA{R: 10, G: 14, B: 22, A: 255})
-	ebitenutil.DrawRect(screen, 0, 0, 700, 5, color.RGBA{R: 95, G: 54, B: 48, A: 255})
-	for x := 0; x < 700; x += 70 {
-		ebitenutil.DrawRect(screen, float64(x), 58, 60, 1, color.RGBA{R: 32, G: 43, B: 58, A: 255})
+func brickShade(col, row int) color.RGBA {
+	h := uint32(col*928371+row*123457) % 16
+	base := uint8(30 + h)
+	return color.RGBA{R: base, G: base + 5, B: base + 14, A: 255}
+}
+
+func drawTorch(screen *ebiten.Image, x, y int, frame int) {
+	flicker := float32(math.Sin(float64(frame)*0.18+float64(x))) * 3
+	fx, fy := float32(x), float32(y)
+	vector.DrawFilledCircle(screen, fx, fy, 20+flicker, color.RGBA{R: 255, G: 130, B: 40, A: 35}, true)
+	vector.DrawFilledCircle(screen, fx, fy, 12+flicker*0.6, color.RGBA{R: 255, G: 160, B: 60, A: 70}, true)
+	ebitenutil.DrawRect(screen, float64(x-2), float64(y+4), 4, 16, color.RGBA{R: 44, G: 34, B: 26, A: 255})
+	ebitenutil.DrawRect(screen, float64(x-6), float64(y), 12, 5, color.RGBA{R: 60, G: 46, B: 34, A: 255})
+	vector.DrawFilledCircle(screen, fx, fy-2+flicker*0.2, 6, color.RGBA{R: 255, G: 110, B: 30, A: 255}, true)
+	vector.DrawFilledCircle(screen, fx, fy-4+flicker*0.3, 3, color.RGBA{R: 255, G: 224, B: 130, A: 255}, true)
+}
+
+func (g *Game) drawDungeonBackdrop(screen *ebiten.Image) {
+	const width, height = 700, 450
+	const wallHeight = 270
+	ebitenutil.DrawRect(screen, 0, 0, width, wallHeight, color.RGBA{R: 26, G: 24, B: 28, A: 255})
+	brickW, brickH := 44, 24
+	for row := 0; row*brickH < wallHeight; row++ {
+		offset := 0
+		if row%2 == 1 {
+			offset = brickW / 2
+		}
+		for col := -1; col*brickW < width+brickW; col++ {
+			bx := col*brickW + offset
+			by := row * brickH
+			ebitenutil.DrawRect(screen, float64(bx+1), float64(by+1), float64(brickW-2), float64(brickH-2), brickShade(col, row))
+		}
 	}
-	for y := 70; y < 450; y += 48 {
-		ebitenutil.DrawRect(screen, 0, float64(y), 700, 1, color.RGBA{R: 17, G: 24, B: 35, A: 255})
+	ebitenutil.DrawRect(screen, 0, float64(wallHeight-6), width, 6, color.RGBA{R: 12, G: 12, B: 16, A: 200})
+
+	ebitenutil.DrawRect(screen, 0, wallHeight, width, height-wallHeight, color.RGBA{R: 34, G: 27, B: 22, A: 255})
+	for x := 0; x < width; x += 58 {
+		shade := color.RGBA{R: 42, G: 33, B: 27, A: 255}
+		if (x/58)%2 == 0 {
+			shade = color.RGBA{R: 38, G: 30, B: 24, A: 255}
+		}
+		ebitenutil.DrawRect(screen, float64(x+1), float64(wallHeight+1), 56, float64(height-wallHeight-2), shade)
+	}
+	for y := wallHeight; y < height; y += 40 {
+		ebitenutil.DrawRect(screen, 0, float64(y), width, 1, color.RGBA{R: 18, G: 14, B: 12, A: 150})
+	}
+
+	for _, tx := range []int{90, 350, 610} {
+		drawTorch(screen, tx, 44, g.frameCount)
+	}
+
+	vignetteLayers := 5
+	for i := 0; i < vignetteLayers; i++ {
+		alpha := uint8(26 - i*5)
+		inset := float64(i * 6)
+		shadow := color.RGBA{R: 0, G: 0, B: 0, A: alpha}
+		ebitenutil.DrawRect(screen, inset, inset, width-2*inset, 4, shadow)
+		ebitenutil.DrawRect(screen, inset, height-inset-4, width-2*inset, 4, shadow)
+		ebitenutil.DrawRect(screen, inset, inset, 4, height-2*inset, shadow)
+		ebitenutil.DrawRect(screen, width-inset-4, inset, 4, height-2*inset, shadow)
 	}
 }
 
 func (g *Game) drawCombat(screen *ebiten.Image) {
-	drawDungeonBackdrop(screen)
+	g.drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	drawPanel(screen, 28, 78, 300, 140)
 	drawPanel(screen, 344, 78, 328, 140)
@@ -1239,7 +1311,7 @@ func (g *Game) drawCombat(screen *ebiten.Image) {
 }
 
 func (g *Game) drawCombatSkills(screen *ebiten.Image) {
-	drawDungeonBackdrop(screen)
+	g.drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	drawPanel(screen, 28, 78, 644, 338)
 	ebitenutil.DebugPrintAt(screen, "GRIMOIRE // SORTS DE COMBAT", 48, 98)
@@ -1260,7 +1332,7 @@ func (g *Game) drawCombatSkills(screen *ebiten.Image) {
 }
 
 func (g *Game) drawCombatInventory(screen *ebiten.Image) {
-	drawDungeonBackdrop(screen)
+	g.drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	drawPanel(screen, 28, 78, 644, 338)
 	ebitenutil.DebugPrintAt(screen, "INVENTAIRE // COMBAT", 48, 98)
@@ -1282,7 +1354,7 @@ func (g *Game) drawCombatInventory(screen *ebiten.Image) {
 }
 
 func (g *Game) drawMerchant(screen *ebiten.Image) {
-	drawDungeonBackdrop(screen)
+	g.drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	drawPanel(screen, 28, 78, 644, 338)
 	ebitenutil.DebugPrintAt(screen, "MARCHAND // COMPTOIR", 48, 98)
@@ -1300,7 +1372,7 @@ func (g *Game) drawMerchant(screen *ebiten.Image) {
 }
 
 func (g *Game) drawForge(screen *ebiten.Image) {
-	drawDungeonBackdrop(screen)
+	g.drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	drawPanel(screen, 28, 78, 644, 338)
 	ebitenutil.DebugPrintAt(screen, "FORGERON // ÉTABLI", 48, 98)
@@ -1328,7 +1400,7 @@ func (g *Game) drawForge(screen *ebiten.Image) {
 }
 
 func (g *Game) drawEnchanter(screen *ebiten.Image) {
-	drawDungeonBackdrop(screen)
+	g.drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	drawPanel(screen, 28, 78, 644, 338)
 	ebitenutil.DebugPrintAt(screen, "ENCHANTEUR // AUTEL", 48, 98)
@@ -1422,7 +1494,7 @@ func (g *Game) drawStats(screen *ebiten.Image) {
 }
 
 func (g *Game) drawInventory(screen *ebiten.Image) {
-	drawDungeonBackdrop(screen)
+	g.drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	drawPanel(screen, 28, 78, 644, 338)
 	ebitenutil.DebugPrintAt(screen, "INVENTAIRE // SACOCHE", 48, 98)
