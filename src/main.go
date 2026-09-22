@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	viewDashboard = iota
+	viewHeroSelect = iota
+	viewDashboard
 	viewStats
 	viewInventory
 )
@@ -241,28 +242,46 @@ var menuOptions = []string{
 }
 
 type Game struct {
-	selected    int
-	view        int
-	message     string
-	player      library.Character
-	initialized bool
+	selected     int
+	heroSelected int
+	view         int
+	message      string
+	player       library.Character
+	initialized  bool
 }
 
 func (g *Game) initPlayer() {
 	if g.initialized {
 		return
 	}
-	g.player = library.InitCharacter("Himiko Toga", "Assassin", 100)
-	g.message = "Bienvenue dans le donjon."
-	g.initialized = true
+	g.view = viewHeroSelect
+	g.message = "Choisissez votre héros puis validez avec Entrée."
+}
+
+func heroChoices() []library.Character {
+	return []library.Character{
+		library.InitCharacter("Himiko Toga", "Assassin", 100),
+		library.InitCharacter("Link", "Chevalier", 120),
+		library.InitCharacter("Patrick Bouldefeu", "Mage", 80),
+		library.InitCharacter("Musashi", "Samourai", 115),
+		library.InitCharacter("Clara", "Clerc", 105),
+		library.InitCharacter("Ragnar", "Barbare", 180),
+		library.InitCharacter("Orion", "Invocateur", 90),
+	}
 }
 
 func (g *Game) Update() error {
 	g.initPlayer()
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		if g.view == viewHeroSelect {
+			return ebiten.Termination
+		}
 		g.view = viewDashboard
 		g.message = "Retour au tableau de bord."
+	}
+	if g.view == viewHeroSelect {
+		return g.updateHeroSelection()
 	}
 	if g.view != viewDashboard {
 		return nil
@@ -282,21 +301,47 @@ func (g *Game) Update() error {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-		g.handleChoice(g.selected)
+		if err := g.handleChoice(g.selected); err != nil {
+			return err
+		}
 	}
 
 	for i := ebiten.Key1; i <= ebiten.Key8; i++ {
 		if inpututil.IsKeyJustPressed(i) {
 			idx := int(i - ebiten.Key1)
 			g.selected = idx
-			g.handleChoice(idx)
+			if err := g.handleChoice(idx); err != nil {
+				return err
+			}
 		}
 	}
 
 	return nil
 }
 
-func (g *Game) handleChoice(idx int) {
+func (g *Game) updateHeroSelection() error {
+	heroes := heroChoices()
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+		g.heroSelected = (g.heroSelected + len(heroes) - 1) % len(heroes)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		g.heroSelected = (g.heroSelected + 1) % len(heroes)
+	}
+	for i := ebiten.Key1; i <= ebiten.Key7; i++ {
+		if inpututil.IsKeyJustPressed(i) {
+			g.heroSelected = int(i - ebiten.Key1)
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+		g.player = heroes[g.heroSelected]
+		g.initialized = true
+		g.view = viewDashboard
+		g.message = fmt.Sprintf("%s rejoint l'aventure.", g.player.Name)
+	}
+	return nil
+}
+
+func (g *Game) handleChoice(idx int) error {
 	switch idx {
 	case 0:
 		g.view = viewStats
@@ -323,13 +368,18 @@ func (g *Game) handleChoice(idx int) {
 
 	case 7:
 		g.message = "Fermeture..."
-
+		return ebiten.Termination
 	}
+	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.initPlayer()
 	screen.Fill(color.RGBA{R: 16, G: 20, B: 28, A: 255})
+	if g.view == viewHeroSelect {
+		g.drawHeroSelection(screen)
+		return
+	}
 
 	if g.view == viewStats {
 		g.drawStats(screen)
@@ -357,6 +407,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, text, 42, 40)
 }
 
+func (g *Game) drawHeroSelection(screen *ebiten.Image) {
+	heroes := heroChoices()
+	selectedHero := heroes[g.heroSelected]
+	text := "LOOTSTORM / CHOIX DU HÉROS\n\n"
+	for index, hero := range heroes {
+		cursor := "  "
+		if index == g.heroSelected {
+			cursor = "> "
+		}
+		text += fmt.Sprintf("%s%d. %-20s %-12s PV %d\n", cursor, index+1, hero.Name, hero.Class, hero.MaxHP)
+	}
+	text += fmt.Sprintf("\n=== %s ===\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\nFlèches haut/bas ou 1-7, Entrée : confirmer\nÉchap : quitter", selectedHero.Name, selectedHero.Class, selectedHero.MaxHP, selectedHero.Attack, selectedHero.Initiative, library.ClassAdvantages(selectedHero.Class))
+	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+}
+
 func (g *Game) drawStats(screen *ebiten.Image) {
 	text := "LOOTSTORM / PERSONNAGE\n\n"
 	text += fmt.Sprintf("Nom          %s\nClasse       %s\nNiveau       %d\n\n", g.player.Name, g.player.Class, g.player.Level)
@@ -379,12 +444,12 @@ func (g *Game) drawInventory(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return 640, 480
+	return 1100, 700
 }
 
 func main() {
 	game := &Game{selected: 0}
-	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowSize(1100, 700)
 	ebiten.SetWindowTitle("Lootstorm")
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)
