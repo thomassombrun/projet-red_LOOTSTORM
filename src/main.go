@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"math/rand"
 	"projet/src/library"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -20,6 +21,10 @@ const (
 	viewDashboard
 	viewStats
 	viewInventory
+	viewMerchant
+	viewForge
+	viewEnchanter
+	viewCombat
 )
 
 func normalizeClass(class string) string {
@@ -255,15 +260,19 @@ var menuOptions = []string{
 }
 
 type Game struct {
-	selected      int
-	heroSelected  int
-	view          int
-	message       string
-	player        library.Character
-	initialized   bool
-	startSelected int
-	classSelected int
-	customName    string
+	selected           int
+	heroSelected       int
+	view               int
+	message            string
+	player             library.Character
+	initialized        bool
+	startSelected      int
+	classSelected      int
+	customName         string
+	enemy              *library.Monster
+	combatTurn         int
+	combatMessage      string
+	combatAdvancesRoom bool
 }
 
 func (g *Game) initPlayer() {
@@ -304,6 +313,8 @@ func (g *Game) Update() error {
 			g.view = viewHeroSelect
 		case viewClassConfirm:
 			g.view = viewClassSelect
+		case viewCombat, viewMerchant, viewForge, viewEnchanter:
+			g.view = viewDashboard
 		default:
 			g.view = viewDashboard
 		}
@@ -326,6 +337,18 @@ func (g *Game) Update() error {
 	}
 	if g.view == viewClassConfirm {
 		return g.updateClassConfirmation()
+	}
+	if g.view == viewCombat {
+		return g.updateCombat()
+	}
+	if g.view == viewMerchant {
+		return g.updateMerchant()
+	}
+	if g.view == viewForge {
+		return g.updateForge()
+	}
+	if g.view == viewEnchanter {
+		return g.updateEnchanter()
 	}
 	if g.view != viewDashboard {
 		return nil
@@ -481,27 +504,163 @@ func (g *Game) handleChoice(idx int) error {
 		g.message = "Fiche personnage ouverte."
 
 	case 1:
-		g.message = "Le mode aventure sera connecté au prochain écran."
+		g.startAdventureEncounter()
 
 	case 2:
-		g.message = "Le combat d'entraînement sera connecté au prochain écran."
+		g.enemy = makeMonster(library.InitGoblin("Gobelin d'entraînement", 40, 5))
+		g.combatTurn = 1
+		g.combatAdvancesRoom = false
+		g.combatMessage = "Le combat d'entraînement commence."
+		g.view = viewCombat
 
 	case 3:
 		g.view = viewInventory
 		g.message = "Inventaire ouvert."
 
 	case 4:
-		g.message = "Marchand (à brancher sur library.MerchantMenu)"
+		g.view = viewMerchant
+		g.message = "Le marchand attend votre visite."
 
 	case 5:
-		g.message = "Forgeron (à brancher sur library.ForgeronMenu)"
+		g.view = viewForge
+		g.message = "Le forgeron prépare son établi."
 
 	case 6:
-		g.message = "Enchanteur (à brancher sur library.EnchanterMenu)"
+		g.view = viewEnchanter
+		g.message = "L'enchanteur examine vos sorts."
 
 	case 7:
 		g.message = "Fermeture..."
 		return ebiten.Termination
+	}
+	return nil
+}
+
+func makeMonster(monster library.Monster) *library.Monster {
+	return &monster
+}
+
+func (g *Game) startAdventureEncounter() {
+	room := g.player.LastClearedRoom + 1
+	if room%10 == 0 {
+		boss := library.InitGoblinLevel("Boss de l'étage", room+2)
+		boss.MaxHP += 60 + dungeonFloorForUI(room)*25
+		boss.CurrentHP = boss.MaxHP
+		boss.Attack += 8 + dungeonFloorForUI(room)*3
+		boss.XPReward = g.player.MaxXP - g.player.CurrentXP + 50
+		g.enemy = makeMonster(boss)
+	} else {
+		switch rand.Intn(7) {
+		case 0:
+			g.enemy = makeMonster(library.InitGoblinLevel("Gobelin", room))
+		case 1:
+			g.enemy = makeMonster(library.InitSlimeLevel("Slime", room))
+		case 2:
+			g.enemy = makeMonster(library.InitGhostLevel("Fantôme", room))
+		case 3:
+			g.enemy = makeMonster(library.InitGolem())
+		case 4:
+			g.enemy = makeMonster(library.InitTroll())
+		case 5:
+			g.enemy = makeMonster(library.InitDuck())
+		default:
+			g.enemy = makeMonster(library.InitDragon())
+		}
+	}
+	g.combatTurn = 1
+	g.combatAdvancesRoom = true
+	g.combatMessage = fmt.Sprintf("%s apparaît dans la salle %d.", g.enemy.Name, room)
+	g.view = viewCombat
+}
+
+func (g *Game) updateCombat() error {
+	if g.enemy == nil {
+		g.view = viewDashboard
+		return nil
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key1) || enterPressed() {
+		damage := library.BasicAttackDamage(&g.player)
+		g.enemy.CurrentHP -= damage
+		if g.enemy.CurrentHP < 0 {
+			g.enemy.CurrentHP = 0
+		}
+		if g.enemy.CurrentHP <= 0 {
+			if g.combatAdvancesRoom {
+				g.player.LastClearedRoom++
+			}
+			library.GainExperience(&g.player, g.enemy.XPReward)
+			g.player.Gold += g.enemy.GoldReward
+			g.combatMessage = fmt.Sprintf("Victoire ! +%d XP, +%d or.", g.enemy.XPReward, g.enemy.GoldReward)
+			g.message = g.combatMessage
+			g.enemy = nil
+			return nil
+		}
+		damage = library.MonsterPatternDamage(g.enemy, g.combatTurn)
+		g.player.CurrentHP -= damage
+		if g.player.CurrentHP < 0 {
+			g.player.CurrentHP = 0
+		}
+		g.combatMessage = fmt.Sprintf("Vous infligez %d dégâts. %s riposte pour %d.", library.BasicAttackDamage(&g.player), g.enemy.Name, damage)
+		g.combatTurn++
+		if g.player.CurrentHP <= 0 {
+			g.player.CurrentHP = g.player.MaxHP / 2
+			g.enemy = nil
+			g.combatMessage = "Défaite. Vous revenez au tableau de bord."
+			g.message = g.combatMessage
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key3) {
+		g.enemy = nil
+		g.combatMessage = "Vous quittez le combat."
+		g.message = g.combatMessage
+	}
+	return nil
+}
+
+func (g *Game) updateMerchant() error {
+	if inpututil.IsKeyJustPressed(ebiten.Key1) {
+		if library.BuyItem(&g.player, "Potion de vie", 3) {
+			g.message = "Potion de vie achetée."
+		} else {
+			g.message = "Achat impossible."
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		if library.BuyItem(&g.player, "Potion de mana", 6) {
+			g.message = "Potion de mana achetée."
+		} else {
+			g.message = "Achat impossible."
+		}
+	}
+	return nil
+}
+
+func (g *Game) updateForge() error {
+	if inpututil.IsKeyJustPressed(ebiten.Key1) {
+		library.FabriquerObjet(&g.player, "Chapeau de l'aventurier")
+		g.message = "Tentative de fabrication effectuée."
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		library.FabriquerObjet(&g.player, "Tunique de l'aventurier")
+		g.message = "Tentative de fabrication effectuée."
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key3) {
+		library.FabriquerObjet(&g.player, "Bottes de l'aventurier")
+		g.message = "Tentative de fabrication effectuée."
+	}
+	return nil
+}
+
+func (g *Game) updateEnchanter() error {
+	for i := ebiten.Key1; i <= ebiten.Key9; i++ {
+		if inpututil.IsKeyJustPressed(i) {
+			index := int(i - ebiten.Key1)
+			if library.EnchantSkill(&g.player, index) {
+				g.message = "Sort enchanté : dégâts +5."
+			} else {
+				g.message = "Enchantement impossible : or insuffisant ou sort non compatible."
+			}
+		}
 	}
 	return nil
 }
@@ -540,6 +699,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 	if g.view == viewInventory {
 		g.drawInventory(screen)
+		return
+	}
+	if g.view == viewCombat {
+		g.drawCombat(screen)
+		return
+	}
+	if g.view == viewMerchant {
+		g.drawMerchant(screen)
+		return
+	}
+	if g.view == viewForge {
+		g.drawForge(screen)
+		return
+	}
+	if g.view == viewEnchanter {
+		g.drawEnchanter(screen)
 		return
 	}
 
@@ -586,6 +761,7 @@ func (g *Game) drawLogo(screen *ebiten.Image) {
 }
 
 func (g *Game) drawDashboard(screen *ebiten.Image) {
+	drawDungeonBackdrop(screen)
 	g.drawLogo(screen)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%s  //  %s", g.player.Name, g.player.Class), 500, 28)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("NIVEAU %d", g.player.Level), 590, 43)
@@ -626,6 +802,88 @@ func (g *Game) drawDashboard(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("BONUS ARME  +%d ATQ", g.player.Equip.WeaponDamage), 360, 369)
 	ebitenutil.DebugPrintAt(screen, g.message, 360, 395)
 	ebitenutil.DebugPrintAt(screen, "FLÈCHES  naviguer     ENTRÉE  sélectionner     ÉCHAP  retour", 28, 432)
+}
+
+func drawDungeonBackdrop(screen *ebiten.Image) {
+	ebitenutil.DrawRect(screen, 0, 0, 700, 450, color.RGBA{R: 10, G: 14, B: 22, A: 255})
+	ebitenutil.DrawRect(screen, 0, 0, 700, 5, color.RGBA{R: 95, G: 54, B: 48, A: 255})
+	for x := 0; x < 700; x += 70 {
+		ebitenutil.DrawRect(screen, float64(x), 58, 60, 1, color.RGBA{R: 32, G: 43, B: 58, A: 255})
+	}
+	for y := 70; y < 450; y += 48 {
+		ebitenutil.DrawRect(screen, 0, float64(y), 700, 1, color.RGBA{R: 17, G: 24, B: 35, A: 255})
+	}
+}
+
+func (g *Game) drawCombat(screen *ebiten.Image) {
+	drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 300, 140)
+	drawPanel(screen, 344, 78, 328, 140)
+	drawPanel(screen, 28, 236, 644, 180)
+	if g.enemy == nil {
+		ebitenutil.DebugPrintAt(screen, "COMBAT TERMINÉ", 48, 100)
+		ebitenutil.DebugPrintAt(screen, g.combatMessage, 48, 125)
+		ebitenutil.DebugPrintAt(screen, "Échap : retour au tableau de bord", 48, 180)
+		return
+	}
+	ebitenutil.DebugPrintAt(screen, "VOUS", 48, 95)
+	ebitenutil.DebugPrintAt(screen, g.player.Name, 48, 113)
+	drawBar(screen, 48, 140, 245, 14, g.player.CurrentHP, g.player.MaxHP, redColor)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV %d / %d", g.player.CurrentHP, g.player.MaxHP), 48, 160)
+	ebitenutil.DebugPrintAt(screen, "ENNEMI", 364, 95)
+	ebitenutil.DebugPrintAt(screen, g.enemy.Name, 364, 113)
+	drawBar(screen, 364, 140, 280, 14, g.enemy.CurrentHP, g.enemy.MaxHP, redColor)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV %d / %d", g.enemy.CurrentHP, g.enemy.MaxHP), 364, 160)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("TOUR %d", g.combatTurn), 590, 95)
+	ebitenutil.DebugPrintAt(screen, "ACTIONS", 48, 255)
+	ebitenutil.DebugPrintAt(screen, ">> 1  Attaque de base", 48, 280)
+	ebitenutil.DebugPrintAt(screen, "   2  Sorts / objets (à venir)", 48, 300)
+	ebitenutil.DebugPrintAt(screen, "   3  Fuir", 48, 320)
+	ebitenutil.DebugPrintAt(screen, g.combatMessage, 48, 360)
+	ebitenutil.DebugPrintAt(screen, "1 ou Entrée : attaquer     3 : fuir     Échap : tableau de bord", 48, 390)
+}
+
+func (g *Game) drawMerchant(screen *ebiten.Image) {
+	drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
+	ebitenutil.DebugPrintAt(screen, "MARCHAND // COMPTOIR", 48, 98)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("OR DISPONIBLE : %d", g.player.Gold), 48, 122)
+	ebitenutil.DebugPrintAt(screen, "1  Potion de vie                 3 or", 48, 160)
+	ebitenutil.DebugPrintAt(screen, "2  Potion de mana                6 or", 48, 182)
+	ebitenutil.DebugPrintAt(screen, "3  Livre de sort                 25 or", 48, 204)
+	ebitenutil.DebugPrintAt(screen, g.message, 48, 255)
+	ebitenutil.DebugPrintAt(screen, "1-2 : acheter     Échap : retour", 48, 380)
+}
+
+func (g *Game) drawForge(screen *ebiten.Image) {
+	drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
+	ebitenutil.DebugPrintAt(screen, "FORGERON // ÉTABLI", 48, 98)
+	ebitenutil.DebugPrintAt(screen, "1  Chapeau de l'aventurier       5 or", 48, 150)
+	ebitenutil.DebugPrintAt(screen, "2  Tunique de l'aventurier       5 or", 48, 175)
+	ebitenutil.DebugPrintAt(screen, "3  Bottes de l'aventurier        5 or", 48, 200)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("OR : %d", g.player.Gold), 48, 245)
+	ebitenutil.DebugPrintAt(screen, g.message, 48, 280)
+	ebitenutil.DebugPrintAt(screen, "1-3 : fabriquer     Échap : retour", 48, 380)
+}
+
+func (g *Game) drawEnchanter(screen *ebiten.Image) {
+	drawDungeonBackdrop(screen)
+	g.drawLogo(screen)
+	drawPanel(screen, 28, 78, 644, 338)
+	ebitenutil.DebugPrintAt(screen, "ENCHANTEUR // AUTEL", 48, 98)
+	if len(g.player.Skill) == 0 {
+		ebitenutil.DebugPrintAt(screen, "Aucun sort connu.", 48, 145)
+	} else {
+		for index, skill := range g.player.Skill {
+			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%d  %-24s dégâts %d", index+1, skill.Name, skill.Damage), 48, 145+index*22)
+		}
+	}
+	ebitenutil.DebugPrintAt(screen, g.message, 48, 280)
+	ebitenutil.DebugPrintAt(screen, "1-9 : enchanter     Échap : retour", 48, 380)
 }
 
 func dungeonFloorForUI(room int) int {
