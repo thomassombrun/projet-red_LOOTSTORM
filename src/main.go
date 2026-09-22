@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"projet/src/library"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -1542,9 +1543,30 @@ func (g *Game) drawStats(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("CASQUE     %s%s", p.Equip.Helmet, library.ItemStatSummary(p.Equip.Helmet)), 360, 286)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PLASTRON   %s%s", p.Equip.Chestplate, library.ItemStatSummary(p.Equip.Chestplate)), 360, 306)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("BOTTES     %s%s", p.Equip.Boots, library.ItemStatSummary(p.Equip.Boots)), 360, 326)
-	ebitenutil.DebugPrintAt(screen, library.ClassAdvantages(p.Class), 360, 350)
+	ebitenutil.DebugPrintAt(screen, wrapText(library.ClassAdvantages(p.Class), 42), 360, 350)
 
 	ebitenutil.DebugPrintAt(screen, "Échap : retour", 28, 432)
+}
+
+// wrapText breaks text into lines of at most maxChars, splitting on spaces so
+// long sentences (like class advantage descriptions) don't overflow a panel.
+func wrapText(text string, maxChars int) string {
+	words := strings.Fields(text)
+	if len(words) == 0 {
+		return text
+	}
+	var lines []string
+	line := words[0]
+	for _, word := range words[1:] {
+		if len(line)+1+len(word) > maxChars {
+			lines = append(lines, line)
+			line = word
+			continue
+		}
+		line += " " + word
+	}
+	lines = append(lines, line)
+	return strings.Join(lines, "\n")
 }
 
 func (g *Game) drawInventory(screen *ebiten.Image) {
@@ -1596,9 +1618,26 @@ func (g *Game) DrawFinalScreen(screen ebiten.FinalScreen, offscreen *ebiten.Imag
 
 func main() {
 	game := &Game{selected: 0}
-	ebiten.SetWindowSize(1400, 900)
+	// Size the (bordered, non-fullscreen) window to the largest exact
+	// multiple of the 700x450 canvas that fits the screen, so the final
+	// upscale is always an integer ratio and stays pixel-crisp.
+	windowWidth, windowHeight := 1400, 900
+	if monitor := ebiten.Monitor(); monitor != nil {
+		monitorWidth, monitorHeight := monitor.Size()
+		scale := monitorWidth / 700
+		if alt := monitorHeight / 450; alt < scale {
+			scale = alt
+		}
+		if scale < 1 {
+			scale = 1
+		}
+		if scale > 2 {
+			scale-- // leave room for the title bar and taskbar
+		}
+		windowWidth, windowHeight = 700*scale, 450*scale
+	}
+	ebiten.SetWindowSize(windowWidth, windowHeight)
 	ebiten.SetWindowTitle("Lootstorm")
-	ebiten.SetFullscreen(true)
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)
 	}
