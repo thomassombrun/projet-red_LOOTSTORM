@@ -19,6 +19,7 @@ func StartAdventure(c *Character) {
 		floor := dungeonFloor(roomNumber)
 		ClearTerminal()
 		fmt.Printf("===== ÉTAGE %d - SALLE %d =====\n", floor, roomNumber)
+		fmt.Printf("Niveau du joueur : %d\n", c.Level)
 
 		roomCleared := playRandomRoom(c, roomNumber, random)
 		if !roomCleared {

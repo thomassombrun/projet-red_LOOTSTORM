@@ -1,6 +1,9 @@
 package library
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func MerchantMenu(c *Character) {
 	for {
@@ -88,6 +91,10 @@ func BuyItem(c *Character, itemName string, price int) bool {
 		fmt.Println("Vous avez déjà utilisé les 3 améliorations d'inventaire disponibles.")
 		return false
 	}
+	if alreadyKnowsSpell(c, itemName) {
+		fmt.Println("Vous connaissez déjà ce sort.")
+		return false
+	}
 	if c.Gold < price {
 		fmt.Println()
 		fmt.Println("Vous n'avez pas assez de pièces d'or.")
@@ -114,6 +121,9 @@ func BuyItemSilent(c *Character, itemName string, price int) bool {
 	if itemName == "Amelioration d'inventaire" && c.LimitInventoryUpgrade >= 3 {
 		return false
 	}
+	if alreadyKnowsSpell(c, itemName) {
+		return false
+	}
 	if c.Gold < price {
 		return false
 	}
@@ -123,6 +133,21 @@ func BuyItemSilent(c *Character, itemName string, price int) bool {
 	c.Gold -= price
 	c.AddOrMergeItem(itemName, 1)
 	return true
+}
+
+// alreadyKnowsSpell reports whether itemName is a spell book for a skill the character already knows.
+func alreadyKnowsSpell(c *Character, itemName string) bool {
+	const spellPrefix = "Livre de Sort : "
+	if !strings.HasPrefix(itemName, spellPrefix) {
+		return false
+	}
+	spellName := strings.TrimPrefix(itemName, spellPrefix)
+	for _, knownSkill := range c.Skill {
+		if knownSkill.Name == spellName {
+			return true
+		}
+	}
+	return false
 }
 
 func SellItem(c *Character) {
