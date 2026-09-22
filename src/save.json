@@ -1,31 +1,66 @@
 {
-  "Name": "Max",
+  "Name": "Himiko Toga",
   "Class": "Assassin",
-  "Level": 3,
-  "Attack": 9,
-  "MaxHP": 120,
-  "CurrentHP": 65,
+  "Level": 29,
+  "Attack": 61,
+  "MaxHP": 475,
+  "CurrentHP": 237,
   "Inventory": [
     {
-      "Name": "Potion de vie",
-      "Quantity": 3,
-      "Rarity": ""
+      "Name": "Capuche spectrale",
+      "Quantity": 1,
+      "Rarity": "Rare"
     },
     {
-      "Name": "Potion de poison",
+      "Name": "Carapace de slime",
+      "Quantity": 2,
+      "Rarity": "Commun"
+    },
+    {
+      "Name": "Bottes de gobelin",
+      "Quantity": 1,
+      "Rarity": "Rare"
+    },
+    {
+      "Name": "Casque de gobelin",
       "Quantity": 1,
       "Rarity": "Commun"
     },
     {
-      "Name": "Tunique de slime",
+      "Name": "Bottes de gobelin",
       "Quantity": 1,
       "Rarity": "Commun"
+    },
+    {
+      "Name": "Griffe du dragon",
+      "Quantity": 2,
+      "Rarity": "Peu commun"
+    },
+    {
+      "Name": "Lame de gobelin",
+      "Quantity": 1,
+      "Rarity": "Peu commun"
+    },
+    {
+      "Name": "Bave de slime",
+      "Quantity": 1,
+      "Rarity": "Peu commun"
+    },
+    {
+      "Name": "Plumes du canard",
+      "Quantity": 1,
+      "Rarity": "Peu commun"
+    },
+    {
+      "Name": "Casque de golem",
+      "Quantity": 1,
+      "Rarity": "Peu commun"
     }
   ],
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 24,
+      "Damage": 61,
       "HealAmount": 0,
       "EffectTurns": 0,
       "Initiative": 0,
@@ -35,25 +70,25 @@
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 124,
+  "Gold": 13464,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
-    "Helmet": "Aucun",
-    "Chestplate": "Aucun",
-    "Boots": "Aucun",
-    "Weapon": "Aucun",
+    "Helmet": "Capuche spectrale [Épique]",
+    "Chestplate": "Tunique de slime [Peu commun]",
+    "Boots": "Bottes de golem [Rare]",
+    "Weapon": "Griffe du dragon [Peu commun]",
     "HelmetHP": 0,
     "ChestplateHP": 0,
     "BootsHP": 0,
-    "WeaponDamage": 0
+    "WeaponDamage": 28
   },
-  "Initiative": 140,
-  "CurrentXP": 90,
-  "MaxXP": 165,
-  "Mana": 70,
-  "MaxMana": 70,
-  "LastClearedRoom": 3,
+  "Initiative": 270,
+  "CurrentXP": 1500,
+  "MaxXP": 2830,
+  "Mana": 330,
+  "MaxMana": 330,
+  "LastClearedRoom": 75,
   "Summon": null,
   "CombatWeaponBonus": 0,
   "CombatSpellBonus": 0,

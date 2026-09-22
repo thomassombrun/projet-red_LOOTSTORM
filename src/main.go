@@ -599,6 +599,10 @@ func makeMonster(monster library.Monster) *library.Monster {
 
 func (g *Game) startAdventureEncounter() {
 	room := g.player.LastClearedRoom + 1
+	if room%10 != 0 && rand.Intn(100) < 12 {
+		g.triggerStatueRoom(room)
+		return
+	}
 	if room%10 == 0 {
 		boss := library.InitGoblinLevel("Boss de l'étage", room+2)
 		boss.MaxHP += 60 + dungeonFloorForUI(room)*25
@@ -639,6 +643,16 @@ func (g *Game) startAdventureEncounter() {
 	g.combatAction = 0
 	g.combatMessage = fmt.Sprintf("%s apparaît dans la salle %d.", g.enemy.Name, room)
 	g.view = viewCombat
+}
+
+// triggerStatueRoom handles the peaceful room variant: a healing statue that
+// fully restores HP and mana instead of a monster encounter.
+func (g *Game) triggerStatueRoom(room int) {
+	g.player.CurrentHP = g.player.MaxHP
+	g.player.Mana = g.player.MaxMana
+	g.player.LastClearedRoom = room
+	g.message = fmt.Sprintf("Salle %d : une statue antique restaure tous vos PV et votre mana !", room)
+	g.enterDashboard()
 }
 
 func (g *Game) updateCombat() error {
@@ -987,6 +1001,19 @@ func (g *Game) updateInventory() error {
 	}
 	if enterPressed() && g.inventorySelected < len(g.player.Inventory) {
 		g.useInventoryItem(g.inventorySelected)
+		if len(g.player.Inventory) == 0 {
+			g.inventorySelected = 0
+		} else if g.inventorySelected >= len(g.player.Inventory) {
+			g.inventorySelected = len(g.player.Inventory) - 1
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyS) && g.inventorySelected < len(g.player.Inventory) {
+		name, price, ok := library.SellInventoryItem(&g.player, g.inventorySelected)
+		if ok {
+			g.message = fmt.Sprintf("Vendu : %s pour %d or.", name, price)
+		} else {
+			g.message = "Impossible de vendre cet objet."
+		}
 		if len(g.player.Inventory) == 0 {
 			g.inventorySelected = 0
 		} else if g.inventorySelected >= len(g.player.Inventory) {
@@ -1656,7 +1683,7 @@ func (g *Game) drawInventory(screen *ebiten.Image) {
 		}
 	}
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Emplacements : %d / %d     Or : %d", len(g.player.Inventory), g.player.LimitInventory, g.player.Gold), 48, 385)
-	ebitenutil.DebugPrintAt(screen, "Flèches : sélectionner     Entrée : utiliser / équiper     Échap : retour", 48, 402)
+	ebitenutil.DebugPrintAt(screen, "Flèches : sélectionner     Entrée : utiliser / équiper     S : vendre     Échap : retour", 48, 402)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

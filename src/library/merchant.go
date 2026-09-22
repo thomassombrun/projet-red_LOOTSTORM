@@ -142,6 +142,24 @@ func SellItem(c *Character) {
 	fmt.Printf("Vous avez vendu 1 %s pour %d pièces d'or.\n", item.Name, price)
 }
 
+// SellPrice exposes sellPrice for callers outside the package (e.g. the UI).
+func SellPrice(itemName string) int {
+	return sellPrice(itemName)
+}
+
+// SellInventoryItem sells one unit of the item at index without requiring
+// interactive input, for callers like the graphical UI.
+func SellInventoryItem(c *Character, index int) (itemName string, price int, ok bool) {
+	if index < 0 || index >= len(c.Inventory) {
+		return "", 0, false
+	}
+	item := c.Inventory[index]
+	price = sellPrice(item.Name)
+	c.Gold += price
+	removeInventoryQuantity(c, index, 1)
+	return item.Name, price, true
+}
+
 func sellPrice(itemName string) int {
 	prices := map[string]int{
 		"Potion de vie":                   1,
