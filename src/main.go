@@ -1169,10 +1169,10 @@ func (g *Game) drawDashboard(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, "PROFIL DU HÉROS", 44, 91)
 	ebitenutil.DebugPrintAt(screen, g.player.Name, 44, 111)
 	ebitenutil.DebugPrintAt(screen, g.player.Class, 44, 126)
-	drawCharacterSprite(screen, 270, 102, 4, g.player.Name, g.player.Class)
-	drawBar(screen, 44, 151, 250, 10, g.player.CurrentHP, g.player.MaxHP, redColor)
+	drawCharacterSprite(screen, 264, 95, 4, g.player.Name, g.player.Class)
+	drawBar(screen, 44, 151, 210, 10, g.player.CurrentHP, g.player.MaxHP, redColor)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV  %d / %d", g.player.CurrentHP, g.player.MaxHP), 44, 164)
-	drawBar(screen, 44, 181, 250, 10, g.player.Mana, g.player.MaxMana, blueColor)
+	drawBar(screen, 44, 181, 210, 10, g.player.Mana, g.player.MaxMana, blueColor)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("MANA  %d / %d", g.player.Mana, g.player.MaxMana), 44, 194)
 
 	drawPanel(screen, 344, 75, 328, 142)
@@ -1281,13 +1281,13 @@ func (g *Game) drawCombat(screen *ebiten.Image) {
 	}
 	ebitenutil.DebugPrintAt(screen, "VOUS", 48, 95)
 	ebitenutil.DebugPrintAt(screen, g.player.Name, 48, 113)
-	drawCharacterSprite(screen, 250, 165, 5, g.player.Name, g.player.Class)
-	drawBar(screen, 48, 140, 245, 14, g.player.CurrentHP, g.player.MaxHP, redColor)
+	drawCharacterSprite(screen, 246, 88, 5, g.player.Name, g.player.Class)
+	drawBar(screen, 48, 140, 190, 14, g.player.CurrentHP, g.player.MaxHP, redColor)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV %d / %d", g.player.CurrentHP, g.player.MaxHP), 48, 160)
 	ebitenutil.DebugPrintAt(screen, "ENNEMI", 364, 95)
 	ebitenutil.DebugPrintAt(screen, g.enemy.Name, 364, 113)
-	drawMonsterSprite(screen, 535, 165, 5, g.enemy.Pattern)
-	drawBar(screen, 364, 140, 280, 14, g.enemy.CurrentHP, g.enemy.MaxHP, redColor)
+	drawMonsterSprite(screen, 528, 88, 5, g.enemy.Pattern)
+	drawBar(screen, 364, 140, 155, 14, g.enemy.CurrentHP, g.enemy.MaxHP, redColor)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("PV %d / %d", g.enemy.CurrentHP, g.enemy.MaxHP), 364, 160)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("TOUR %d", g.combatTurn), 590, 95)
 	ebitenutil.DebugPrintAt(screen, "ACTIONS", 48, 255)
@@ -1457,7 +1457,7 @@ func (g *Game) drawHeroSelection(screen *ebiten.Image) {
 	}
 	text += fmt.Sprintf("\n=== %s ===\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\nFlèches haut/bas + Entrée : sélectionner\nÉchap : quitter", selectedHero.Name, selectedHero.Class, selectedHero.MaxHP, selectedHero.Attack, selectedHero.Initiative, library.ClassAdvantages(selectedHero.Class))
 	ebitenutil.DebugPrintAt(screen, text, 48, 98)
-	drawCharacterSprite(screen, 560, 102, 4, selectedHero.Name, selectedHero.Class)
+	drawCharacterSprite(screen, 510, 98, 8, selectedHero.Name, selectedHero.Class)
 }
 
 func (g *Game) drawHeroConfirmation(screen *ebiten.Image) {
@@ -1467,7 +1467,7 @@ func (g *Game) drawHeroConfirmation(screen *ebiten.Image) {
 	hero := heroChoices()[g.heroSelected]
 	text := fmt.Sprintf("LOOTSTORM / CONFIRMATION\n\n%s\nClasse : %s\nPV : %d\nAttaque : %d\nInitiative : %d\n\n%s\n\nFlèches : valider ou revenir\nEntrée : confirmer le choix", hero.Name, hero.Class, hero.MaxHP, hero.Attack, hero.Initiative, library.ClassAdvantages(hero.Class))
 	ebitenutil.DebugPrintAt(screen, text, 48, 98)
-	drawCharacterSprite(screen, 560, 102, 4, hero.Name, hero.Class)
+	drawCharacterSprite(screen, 510, 98, 8, hero.Name, hero.Class)
 }
 
 func (g *Game) drawNameInput(screen *ebiten.Image) {
@@ -1493,7 +1493,7 @@ func (g *Game) drawClassSelection(screen *ebiten.Image) {
 	}
 	text += fmt.Sprintf("\nAvantage : %s\n\nFlèches haut/bas + Entrée : sélectionner", library.ClassAdvantages(classes[g.classSelected]))
 	ebitenutil.DebugPrintAt(screen, text, 48, 98)
-	drawCharacterSprite(screen, 560, 102, 4, g.customName, classes[g.classSelected])
+	drawCharacterSprite(screen, 510, 98, 8, g.customName, classes[g.classSelected])
 }
 
 func (g *Game) drawClassConfirmation(screen *ebiten.Image) {
@@ -1503,7 +1503,7 @@ func (g *Game) drawClassConfirmation(screen *ebiten.Image) {
 	className := classChoices()[g.classSelected]
 	text := fmt.Sprintf("LOOTSTORM / CONFIRMATION DE CLASSE\n\nNom : %s\nClasse : %s\nPV de base : %d\n\n%s\n\nFlèches : valider ou revenir\nEntrée : confirmer la classe", g.customName, className, getHPForClass(className), library.ClassAdvantages(className))
 	ebitenutil.DebugPrintAt(screen, text, 48, 98)
-	drawCharacterSprite(screen, 560, 102, 4, g.customName, className)
+	drawCharacterSprite(screen, 510, 98, 8, g.customName, className)
 }
 
 func (g *Game) drawStats(screen *ebiten.Image) {
@@ -1516,7 +1516,7 @@ func (g *Game) drawStats(screen *ebiten.Image) {
 	text += fmt.Sprintf("Inventaire   %d / %d\nAméliorations %d / 3\nSlots libres %d\nOr           %d\n\n", len(g.player.Inventory), g.player.LimitInventory, g.player.LimitInventoryUpgrade, g.player.LimitInventory-len(g.player.Inventory), g.player.Gold)
 	text += fmt.Sprintf("Arme         %s (+%d ATQ)\nCasque       %s\nPlastron     %s\nBottes       %s\n\n%s\n\nÉchap : retour", g.player.Equip.Weapon, g.player.Equip.WeaponDamage, g.player.Equip.Helmet, g.player.Equip.Chestplate, g.player.Equip.Boots, library.ClassAdvantages(g.player.Class))
 	ebitenutil.DebugPrintAt(screen, text, 48, 98)
-	drawCharacterSprite(screen, 560, 102, 4, g.player.Name, g.player.Class)
+	drawCharacterSprite(screen, 510, 98, 8, g.player.Name, g.player.Class)
 }
 
 func (g *Game) drawInventory(screen *ebiten.Image) {

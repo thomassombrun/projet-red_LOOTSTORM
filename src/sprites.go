@@ -5,6 +5,7 @@ import (
 	"embed"
 	"image"
 	"image/color"
+	"image/draw"
 	_ "image/png"
 	"strings"
 
@@ -76,9 +77,78 @@ func loadEmbeddedImage(path string) *ebiten.Image {
 		imageCache[path] = nil
 		return nil
 	}
-	img := ebiten.NewImageFromImage(decoded)
+	img := ebiten.NewImageFromImage(removeFlatBackground(decoded))
 	imageCache[path] = img
 	return img
+}
+
+// removeFlatBackground strips a checkerboard/near-white background that some
+// export tools bake in as opaque pixels instead of real transparency. It only
+// touches images that have no real alpha at their border in the first place,
+// and only clears pixels reachable from the border to avoid eating light
+// details (eyes, teeth...) inside the character.
+func removeFlatBackground(src image.Image) image.Image {
+	bounds := src.Bounds()
+	minX, minY, maxX, maxY := bounds.Min.X, bounds.Min.Y, bounds.Max.X, bounds.Max.Y
+	width, height := maxX-minX, maxY-minY
+	if width <= 0 || height <= 0 {
+		return src
+	}
+
+	out := image.NewNRGBA(bounds)
+	draw.Draw(out, bounds, src, bounds.Min, draw.Src)
+
+	for _, p := range [][2]int{{minX, minY}, {maxX - 1, minY}, {minX, maxY - 1}, {maxX - 1, maxY - 1}} {
+		if out.NRGBAAt(p[0], p[1]).A < 250 {
+			return out // already has real transparency, leave it alone
+		}
+	}
+
+	isBackgroundLike := func(c color.NRGBA) bool {
+		if c.R < 150 || c.G < 150 || c.B < 150 {
+			return false
+		}
+		maxC, minC := c.R, c.R
+		for _, v := range []uint8{c.G, c.B} {
+			if v > maxC {
+				maxC = v
+			}
+			if v < minC {
+				minC = v
+			}
+		}
+		return maxC-minC <= 20
+	}
+
+	visited := make([]bool, width*height)
+	idx := func(x, y int) int { return (y-minY)*width + (x - minX) }
+	stack := make([][2]int, 0, width*2+height*2)
+	for x := minX; x < maxX; x++ {
+		stack = append(stack, [2]int{x, minY}, [2]int{x, maxY - 1})
+	}
+	for y := minY; y < maxY; y++ {
+		stack = append(stack, [2]int{minX, y}, [2]int{maxX - 1, y})
+	}
+
+	for len(stack) > 0 {
+		p := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		x, y := p[0], p[1]
+		if x < minX || x >= maxX || y < minY || y >= maxY {
+			continue
+		}
+		i := idx(x, y)
+		if visited[i] {
+			continue
+		}
+		visited[i] = true
+		if !isBackgroundLike(out.NRGBAAt(x, y)) {
+			continue
+		}
+		out.SetNRGBA(x, y, color.NRGBA{})
+		stack = append(stack, [2]int{x + 1, y}, [2]int{x - 1, y}, [2]int{x, y + 1}, [2]int{x, y - 1})
+	}
+	return out
 }
 
 func drawScaledImage(screen *ebiten.Image, img *ebiten.Image, x, y, targetSize int) {
@@ -92,6 +162,7 @@ func drawScaledImage(screen *ebiten.Image, img *ebiten.Image, x, y, targetSize i
 		factor = float64(targetSize) / float64(height)
 	}
 	op := &ebiten.DrawImageOptions{}
+	op.Filter = ebiten.FilterLinear
 	op.GeoM.Scale(factor, factor)
 	op.GeoM.Translate(float64(x), float64(y))
 	screen.DrawImage(img, op)
@@ -145,7 +216,7 @@ func recolor(pattern string, base, shadow rune) string {
 
 func drawCharacterSprite(screen *ebiten.Image, x, y, scale int, name, class string) {
 	if img := loadEmbeddedImage("assets/characters/" + slugify(name) + ".png"); img != nil {
-		drawScaledImage(screen, img, x, y, scale*11)
+		drawScaledImage(screen, img, x, y, scale*14)
 		return
 	}
 	pattern := characterPatterns["Guerrier"]
@@ -169,7 +240,7 @@ var characterPatterns = map[string]string{
 
 func drawMonsterSprite(screen *ebiten.Image, x, y, scale int, pattern string) {
 	if img := loadEmbeddedImage("assets/monsters/" + slugify(pattern) + ".png"); img != nil {
-		drawScaledImage(screen, img, x, y, scale*11)
+		drawScaledImage(screen, img, x, y, scale*14)
 		return
 	}
 	sprite, ok := monsterPatterns[pattern]
@@ -259,7 +330,7 @@ func spellbookShape(lowerName string) string {
 
 func drawItemSprite(screen *ebiten.Image, x, y, scale int, itemName string) {
 	if img := loadEmbeddedImage("assets/items/" + slugify(itemName) + ".png"); img != nil {
-		drawScaledImage(screen, img, x, y, scale*8)
+		drawScaledImage(screen, img, x, y, scale*10)
 		return
 	}
 	lower := strings.ToLower(itemName)
