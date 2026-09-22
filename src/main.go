@@ -2,11 +2,18 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"projet/src/library"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+)
+
+const (
+	viewDashboard = iota
+	viewStats
+	viewInventory
 )
 
 func normalizeClass(class string) string {
@@ -234,11 +241,32 @@ var menuOptions = []string{
 }
 
 type Game struct {
-	selected int
-	message  string
+	selected    int
+	view        int
+	message     string
+	player      library.Character
+	initialized bool
+}
+
+func (g *Game) initPlayer() {
+	if g.initialized {
+		return
+	}
+	g.player = library.InitCharacter("Himiko Toga", "Assassin", 100)
+	g.message = "Bienvenue dans le donjon."
+	g.initialized = true
 }
 
 func (g *Game) Update() error {
+	g.initPlayer()
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		g.view = viewDashboard
+		g.message = "Retour au tableau de bord."
+	}
+	if g.view != viewDashboard {
+		return nil
+	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
 		g.selected--
@@ -271,16 +299,18 @@ func (g *Game) Update() error {
 func (g *Game) handleChoice(idx int) {
 	switch idx {
 	case 0:
-		g.message = "Stats affichées (à brancher sur library.DisplayInfo)"
+		g.view = viewStats
+		g.message = "Fiche personnage ouverte."
 
 	case 1:
-		g.message = "Départ en aventure (à brancher sur library.StartAdventure)"
+		g.message = "Le mode aventure sera connecté au prochain écran."
 
 	case 2:
-		g.message = "Combat d'entraînement (à brancher sur library.TrainingFight)"
+		g.message = "Le combat d'entraînement sera connecté au prochain écran."
 
 	case 3:
-		g.message = "Inventaire ouvert (à brancher sur library.AccessInventory)"
+		g.view = viewInventory
+		g.message = "Inventaire ouvert."
 
 	case 4:
 		g.message = "Marchand (à brancher sur library.MerchantMenu)"
@@ -298,7 +328,20 @@ func (g *Game) handleChoice(idx int) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	text := "===== LOOTSTORM =====\n\n"
+	g.initPlayer()
+	screen.Fill(color.RGBA{R: 16, G: 20, B: 28, A: 255})
+
+	if g.view == viewStats {
+		g.drawStats(screen)
+		return
+	}
+	if g.view == viewInventory {
+		g.drawInventory(screen)
+		return
+	}
+
+	text := "LOOTSTORM\n\n"
+	text += fmt.Sprintf("Héros : %s\nClasse : %s   Niveau : %d\n\n", g.player.Name, g.player.Class, g.player.Level)
 
 	for i, opt := range menuOptions {
 		cursor := "  "
@@ -308,10 +351,31 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		text += fmt.Sprintf("%s%d. %s\n", cursor, i+1, opt)
 	}
 
-	text += "\n(Flèches haut/bas + Entrée, ou touches 1-8)\n\n"
+	text += "\nFlèches haut/bas + Entrée, ou touches 1-8\nÉchap : retour au tableau de bord\n\n"
 	text += g.message
 
-	ebitenutil.DebugPrint(screen, text)
+	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+}
+
+func (g *Game) drawStats(screen *ebiten.Image) {
+	text := "LOOTSTORM / PERSONNAGE\n\n"
+	text += fmt.Sprintf("Nom          %s\nClasse       %s\nNiveau       %d\n\n", g.player.Name, g.player.Class, g.player.Level)
+	text += fmt.Sprintf("PV           %d / %d\nMana         %d / %d\nAttaque      %d\nInitiative   %d\nXP           %d / %d\nSalle        %d\n\n", g.player.CurrentHP, g.player.MaxHP, g.player.Mana, g.player.MaxMana, g.player.Attack+g.player.Equip.WeaponDamage, g.player.Initiative, g.player.CurrentXP, g.player.MaxXP, g.player.LastClearedRoom)
+	text += fmt.Sprintf("Arme         %s (+%d ATQ)\n\n%s\n\nÉchap : retour", g.player.Equip.Weapon, g.player.Equip.WeaponDamage, library.ClassAdvantages(g.player.Class))
+	ebitenutil.DebugPrintAt(screen, text, 42, 40)
+}
+
+func (g *Game) drawInventory(screen *ebiten.Image) {
+	text := "LOOTSTORM / INVENTAIRE\n\n"
+	if len(g.player.Inventory) == 0 {
+		text += "Inventaire vide.\n"
+	} else {
+		for index, item := range g.player.Inventory {
+			text += fmt.Sprintf("%d. %s x%d\n", index+1, item.Name, item.Quantity)
+		}
+	}
+	text += fmt.Sprintf("\nEmplacements : %d / %d\nOr : %d\n\nÉchap : retour", len(g.player.Inventory), g.player.LimitInventory, g.player.Gold)
+	ebitenutil.DebugPrintAt(screen, text, 42, 40)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
