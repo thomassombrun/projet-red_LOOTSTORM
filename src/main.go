@@ -98,7 +98,7 @@ func maincli() {
 			for {
 				c1 := library.InitCharacter("Himiko Toga", "Assassin", 100)
 				c2 := library.InitCharacter("Link", "Chevalier", 120)
-				c3 := library.InitCharacter("Patrick Bouldefeu", "Mage", 80)
+				c3 := library.InitCharacter("Frieren", "Mage", 80)
 				c4 := library.InitCharacter("Musashi", "Samourai", 115)
 				c5 := library.InitCharacter("Clara", "Clerc", 105)
 				c6 := library.InitCharacter("Ragnar", "Barbare", 180)
@@ -107,7 +107,7 @@ func maincli() {
 				fmt.Println("\nChoisissez votre héros :")
 				fmt.Println("1. Himiko Toga (Assassin)")
 				fmt.Println("2. Link (Chevalier)")
-				fmt.Println("3. Patrick Bouldefeu (Mage)")
+				fmt.Println("3. Frieren (Mage)")
 				fmt.Println("4. Musashi (Samourai)")
 				fmt.Println("5. Clara (Clerc)")
 				fmt.Println("6. Ragnar (Barbare)")
@@ -306,7 +306,7 @@ func heroChoices() []library.Character {
 	return []library.Character{
 		library.InitCharacter("Himiko Toga", "Assassin", 100),
 		library.InitCharacter("Link", "Chevalier", 120),
-		library.InitCharacter("Patrick Bouldefeu", "Mage", 80),
+		library.InitCharacter("Frieren", "Mage", 80),
 		library.InitCharacter("Musashi", "Samourai", 115),
 		library.InitCharacter("Clara", "Clerc", 105),
 		library.InitCharacter("Ragnar", "Barbare", 180),
