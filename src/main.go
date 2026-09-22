@@ -634,12 +634,12 @@ func (g *Game) drawInventory(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return 1100, 700
+	return 1400, 900
 }
 
 func main() {
 	game := &Game{selected: 0}
-	ebiten.SetWindowSize(1100, 700)
+	ebiten.SetWindowSize(1400, 900)
 	ebiten.SetWindowTitle("Lootstorm")
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)
