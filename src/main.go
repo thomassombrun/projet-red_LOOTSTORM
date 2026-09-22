@@ -277,6 +277,7 @@ type Game struct {
 	combatStarted      bool
 	merchantSelected   int
 	skillSelected      int
+	combatResult       bool
 }
 
 func (g *Game) initPlayer() {
@@ -523,6 +524,7 @@ func (g *Game) handleChoice(idx int) error {
 		g.combatTurn = 1
 		g.combatAdvancesRoom = false
 		g.combatStarted = false
+		g.combatResult = false
 		g.combatMessage = "Le combat d'entraînement commence."
 		g.view = viewCombat
 
@@ -532,7 +534,7 @@ func (g *Game) handleChoice(idx int) error {
 
 	case 4:
 		g.view = viewMerchant
-		g.message = "Le marchand attend votre visite."
+		g.message = ""
 
 	case 5:
 		g.view = viewForge
@@ -583,13 +585,17 @@ func (g *Game) startAdventureEncounter() {
 	g.combatTurn = 1
 	g.combatAdvancesRoom = true
 	g.combatStarted = false
+	g.combatResult = false
 	g.combatMessage = fmt.Sprintf("%s apparaît dans la salle %d.", g.enemy.Name, room)
 	g.view = viewCombat
 }
 
 func (g *Game) updateCombat() error {
 	if g.enemy == nil {
-		g.view = viewDashboard
+		if g.combatResult && (enterPressed() || inpututil.IsKeyJustPressed(ebiten.Key1)) {
+			g.view = viewDashboard
+			g.combatResult = false
+		}
 		return nil
 	}
 	if !g.combatStarted {
@@ -604,6 +610,7 @@ func (g *Game) updateCombat() error {
 			g.player.Gold += g.enemy.GoldReward
 			g.message = "Victoire grâce à votre frappe d'ouverture."
 			g.enemy = nil
+			g.combatResult = true
 			return nil
 		}
 	}
@@ -637,12 +644,14 @@ func (g *Game) updateCombat() error {
 			g.combatMessage = fmt.Sprintf("Victoire ! +%d XP, +%d or.", g.enemy.XPReward, g.enemy.GoldReward)
 			g.message = g.combatMessage
 			g.enemy = nil
+			g.combatResult = true
 			return nil
 		}
 		library.ApplyMonsterEffects(g.enemy)
 		if g.enemy.CurrentHP <= 0 {
 			g.message = "L'ennemi succombe à ses effets."
 			g.enemy = nil
+			g.combatResult = true
 			return nil
 		}
 		damage = library.MonsterPatternDamage(g.enemy, g.combatTurn)
@@ -662,12 +671,14 @@ func (g *Game) updateCombat() error {
 			g.enemy = nil
 			g.combatMessage = "Défaite. Vous revenez au tableau de bord."
 			g.message = g.combatMessage
+			g.combatResult = true
 		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.Key3) {
 		g.enemy = nil
 		g.combatMessage = "Vous quittez le combat."
 		g.message = g.combatMessage
+		g.combatResult = true
 	}
 	return nil
 }
@@ -763,6 +774,7 @@ func (g *Game) castSelectedSkill() bool {
 		g.player.Gold += g.enemy.GoldReward
 		g.message = fmt.Sprintf("Victoire ! +%d XP, +%d or.", g.enemy.XPReward, g.enemy.GoldReward)
 		g.enemy = nil
+		g.combatResult = true
 	}
 	return true
 }
@@ -788,6 +800,7 @@ func (g *Game) enemyTurn() {
 		g.player.CurrentHP = g.player.MaxHP / 2
 		g.enemy = nil
 		g.message = "Défaite. Vous revenez au tableau de bord."
+		g.combatResult = true
 	}
 }
 
@@ -1087,7 +1100,7 @@ func (g *Game) drawCombat(screen *ebiten.Image) {
 	if g.enemy == nil {
 		ebitenutil.DebugPrintAt(screen, "COMBAT TERMINÉ", 48, 100)
 		ebitenutil.DebugPrintAt(screen, g.combatMessage, 48, 125)
-		ebitenutil.DebugPrintAt(screen, "Échap : retour au tableau de bord", 48, 180)
+		ebitenutil.DebugPrintAt(screen, "Entrée ou Échap : retour au tableau de bord", 48, 180)
 		return
 	}
 	ebitenutil.DebugPrintAt(screen, "VOUS", 48, 95)
@@ -1101,7 +1114,7 @@ func (g *Game) drawCombat(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("TOUR %d", g.combatTurn), 590, 95)
 	ebitenutil.DebugPrintAt(screen, "ACTIONS", 48, 255)
 	ebitenutil.DebugPrintAt(screen, ">> 1  Attaque de base", 48, 280)
-	ebitenutil.DebugPrintAt(screen, "   2  Sorts / objets (à venir)", 48, 300)
+	ebitenutil.DebugPrintAt(screen, "   2  Ouvrir le grimoire", 48, 300)
 	ebitenutil.DebugPrintAt(screen, "   3  Fuir", 48, 320)
 	ebitenutil.DebugPrintAt(screen, g.combatMessage, 48, 360)
 	ebitenutil.DebugPrintAt(screen, "1 ou Entrée : attaquer     3 : fuir     Échap : tableau de bord", 48, 390)
@@ -1151,11 +1164,14 @@ func (g *Game) drawForge(screen *ebiten.Image) {
 	g.drawLogo(screen)
 	drawPanel(screen, 28, 78, 644, 338)
 	ebitenutil.DebugPrintAt(screen, "FORGERON // ÉTABLI", 48, 98)
-	ebitenutil.DebugPrintAt(screen, "1  Chapeau de l'aventurier       5 or", 48, 150)
-	ebitenutil.DebugPrintAt(screen, "2  Tunique de l'aventurier       5 or", 48, 175)
-	ebitenutil.DebugPrintAt(screen, "3  Bottes de l'aventurier        5 or", 48, 200)
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("OR : %d", g.player.Gold), 48, 245)
-	ebitenutil.DebugPrintAt(screen, g.message, 48, 280)
+	ebitenutil.DebugPrintAt(screen, "1  Chapeau de l'aventurier       5 or", 48, 145)
+	ebitenutil.DebugPrintAt(screen, "   Requis : 1 Plume de Corbeau + 1 Cuir de Sanglier", 48, 162)
+	ebitenutil.DebugPrintAt(screen, "2  Tunique de l'aventurier       5 or", 48, 187)
+	ebitenutil.DebugPrintAt(screen, "   Requis : 2 Fourrures de Loup + 1 Peau de Troll", 48, 204)
+	ebitenutil.DebugPrintAt(screen, "3  Bottes de l'aventurier        5 or", 48, 229)
+	ebitenutil.DebugPrintAt(screen, "   Requis : 1 Fourrure de Loup + 1 Cuir de Sanglier", 48, 246)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("OR : %d", g.player.Gold), 48, 275)
+	ebitenutil.DebugPrintAt(screen, g.message, 48, 300)
 	ebitenutil.DebugPrintAt(screen, "1-3 : fabriquer     Échap : retour", 48, 380)
 }
 
@@ -1168,10 +1184,12 @@ func (g *Game) drawEnchanter(screen *ebiten.Image) {
 		ebitenutil.DebugPrintAt(screen, "Aucun sort connu.", 48, 145)
 	} else {
 		for index, skill := range g.player.Skill {
-			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%d  %-24s dégâts %d", index+1, skill.Name, skill.Damage), 48, 145+index*22)
+			cost := 20 + skill.Damage*2
+			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%d  %-24s dégâts %d  coût %d or", index+1, skill.Name, skill.Damage, cost), 48, 145+index*22)
 		}
 	}
-	ebitenutil.DebugPrintAt(screen, g.message, 48, 280)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("OR : %d", g.player.Gold), 48, 280)
+	ebitenutil.DebugPrintAt(screen, g.message, 48, 310)
 	ebitenutil.DebugPrintAt(screen, "1-9 : enchanter     Échap : retour", 48, 380)
 }
 
