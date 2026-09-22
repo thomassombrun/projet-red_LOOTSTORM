@@ -5,6 +5,7 @@ import (
 	"projet/src/library"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 func normalizeClass(class string) string {
@@ -220,14 +221,16 @@ func maincli() {
 	}
 }
 
-type Game struct{}
+type Game struct {
+	menuText string
+}
 
 func (g *Game) Update() error {
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	// rien pour l'instant
+	ebitenutil.DebugPrint(screen, g.menuText)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -235,9 +238,12 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func main() {
+	game := &Game{
+		menuText: "BIENVENUE DANS LOOTSTORM\n\n1. Choisir un héros\n2. Créer un personnage",
+	}
 	ebiten.SetWindowSize(640, 480)
-	ebiten.SetWindowTitle("Mon Jeu")
-	if err := ebiten.RunGame(&Game{}); err != nil {
+	ebiten.SetWindowTitle("Lootstorm")
+	if err := ebiten.RunGame(game); err != nil {
 		panic(err)
 	}
 }
