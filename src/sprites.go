@@ -12,35 +12,71 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-//go:embed assets/*.png
+// spriteAssets embeds everything under assets/ so new hand-drawn sprites are
+// picked up automatically just by dropping a correctly named PNG in the
+// matching subfolder (characters/, monsters/, items/) — no code change needed.
+//
+//go:embed all:assets
 var spriteAssets embed.FS
 
-// characterImagePaths maps a character's name to a hand-drawn sprite asset.
-// Characters without an entry fall back to the procedural pixel sprite below.
-var characterImagePaths = map[string]string{
-	"Himiko Toga": "assets/himiko_toga.png",
+var imageCache = map[string]*ebiten.Image{}
+
+// slugify turns a display name ("Himiko Toga", "Potion de vie") into the
+// lowercase, underscore-separated filename it must be saved as (himiko_toga.png).
+func slugify(name string) string {
+	var builder strings.Builder
+	lastUnderscore := false
+	for _, r := range strings.ToLower(name) {
+		switch {
+		case r >= 'a' && r <= 'z' || r >= '0' && r <= '9':
+			builder.WriteRune(r)
+			lastUnderscore = false
+		case strings.ContainsRune("éèêë", r):
+			builder.WriteRune('e')
+			lastUnderscore = false
+		case strings.ContainsRune("àâ", r):
+			builder.WriteRune('a')
+			lastUnderscore = false
+		case strings.ContainsRune("îï", r):
+			builder.WriteRune('i')
+			lastUnderscore = false
+		case strings.ContainsRune("ôö", r):
+			builder.WriteRune('o')
+			lastUnderscore = false
+		case strings.ContainsRune("ùûü", r):
+			builder.WriteRune('u')
+			lastUnderscore = false
+		case r == 'ç':
+			builder.WriteRune('c')
+			lastUnderscore = false
+		default:
+			if !lastUnderscore && builder.Len() > 0 {
+				builder.WriteRune('_')
+				lastUnderscore = true
+			}
+		}
+	}
+	return strings.Trim(builder.String(), "_")
 }
 
-var characterImageCache = map[string]*ebiten.Image{}
-
-func loadCharacterImage(name string) *ebiten.Image {
-	path, hasImage := characterImagePaths[name]
-	if !hasImage {
-		return nil
-	}
-	if img, cached := characterImageCache[name]; cached {
+// loadEmbeddedImage returns the decoded image at path, or nil if it doesn't
+// exist. Misses are cached too so missing files aren't re-read every frame.
+func loadEmbeddedImage(path string) *ebiten.Image {
+	if img, cached := imageCache[path]; cached {
 		return img
 	}
 	data, err := spriteAssets.ReadFile(path)
 	if err != nil {
+		imageCache[path] = nil
 		return nil
 	}
 	decoded, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
+		imageCache[path] = nil
 		return nil
 	}
 	img := ebiten.NewImageFromImage(decoded)
-	characterImageCache[name] = img
+	imageCache[path] = img
 	return img
 }
 
@@ -107,7 +143,7 @@ func recolor(pattern string, base, shadow rune) string {
 }
 
 func drawCharacterSprite(screen *ebiten.Image, x, y, scale int, name, class string) {
-	if img := loadCharacterImage(name); img != nil {
+	if img := loadEmbeddedImage("assets/characters/" + slugify(name) + ".png"); img != nil {
 		drawScaledImage(screen, img, x, y, scale*11)
 		return
 	}
@@ -131,6 +167,10 @@ var characterPatterns = map[string]string{
 }
 
 func drawMonsterSprite(screen *ebiten.Image, x, y, scale int, pattern string) {
+	if img := loadEmbeddedImage("assets/monsters/" + slugify(pattern) + ".png"); img != nil {
+		drawScaledImage(screen, img, x, y, scale*11)
+		return
+	}
 	sprite, ok := monsterPatterns[pattern]
 	if !ok {
 		sprite = monsterPatterns["goblin"]
@@ -217,6 +257,10 @@ func spellbookShape(lowerName string) string {
 }
 
 func drawItemSprite(screen *ebiten.Image, x, y, scale int, itemName string) {
+	if img := loadEmbeddedImage("assets/items/" + slugify(itemName) + ".png"); img != nil {
+		drawScaledImage(screen, img, x, y, scale*8)
+		return
+	}
 	lower := strings.ToLower(itemName)
 	sprite := "..YY..\n.YYYY.\nYYYYYY\n.YYYY.\n..YY.."
 	switch {
