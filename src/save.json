@@ -1,10 +1,10 @@
 {
-  "Name": "Patrick Bouldefeu",
-  "Class": "Mage",
-  "Level": 3,
-  "Attack": 9,
-  "MaxHP": 100,
-  "CurrentHP": 42,
+  "Name": "Himiko Toga",
+  "Class": "Assassin",
+  "Level": 2,
+  "Attack": 7,
+  "MaxHP": 110,
+  "CurrentHP": 88,
   "Inventory": [
     {
       "Name": "Potion de vie",
@@ -15,33 +15,17 @@
   "Skill": [
     {
       "Name": "Coup de poing",
-      "Damage": 9,
+      "Damage": 7,
       "HealAmount": 0,
       "EffectTurns": 0,
       "Initiative": 0,
       "ManaCost": 0
-    },
-    {
-      "Name": "Boule de Feu",
-      "Damage": 37,
-      "HealAmount": 0,
-      "EffectTurns": 0,
-      "Initiative": 0,
-      "ManaCost": 50
-    },
-    {
-      "Name": "Éclair",
-      "Damage": 17,
-      "HealAmount": 0,
-      "EffectTurns": 0,
-      "Initiative": -15,
-      "ManaCost": 20
     }
   ],
   "Effects": [],
   "HolyBarrier": false,
   "PoisonTurns": 0,
-  "Gold": 200,
+  "Gold": 160,
   "LimitInventory": 10,
   "LimitInventoryUpgrade": 0,
   "Equip": {
@@ -54,12 +38,12 @@
     "BootsHP": 0,
     "WeaponDamage": 0
   },
-  "Initiative": 120,
-  "CurrentXP": 70,
-  "MaxXP": 165,
-  "Mana": 45,
-  "MaxMana": 110,
-  "LastClearedRoom": 4,
+  "Initiative": 135,
+  "CurrentXP": 120,
+  "MaxXP": 130,
+  "Mana": 60,
+  "MaxMana": 60,
+  "LastClearedRoom": 3,
   "Summon": null,
   "CombatWeaponBonus": 0,
   "CombatSpellBonus": 0,
