@@ -22,3 +22,15 @@ func PoisonEffect(enemy *Monster) {
 		fmt.Printf("L'effet du poison sur %s est terminé.\n", enemy.Name)
 	}
 }
+
+func ApplyPoisonSilent(enemy *Monster) int {
+	if enemy == nil || enemy.PoisonTurns <= 0 {
+		return 0
+	}
+	enemy.CurrentHP -= 10
+	if enemy.CurrentHP < 0 {
+		enemy.CurrentHP = 0
+	}
+	enemy.PoisonTurns--
+	return 10
+}

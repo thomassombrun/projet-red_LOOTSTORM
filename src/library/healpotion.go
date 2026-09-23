@@ -60,3 +60,28 @@ func TakeManaPot(c *Character, index int) {
 	removeInventoryQuantity(c, index, 1)
 	fmt.Printf("Vous utilisez une Potion de mana et récupérez %d mana. Mana : %d / %d\n", manaAmount, c.Mana, c.MaxMana)
 }
+
+func TakePotSilent(c *Character, index int) bool {
+	if index < 0 || index >= len(c.Inventory) || c.Inventory[index].Name != "Potion de vie" || c.CurrentHP >= c.MaxHP {
+		return false
+	}
+	healAmount := 50
+	if missingHP := c.MaxHP - c.CurrentHP; missingHP < healAmount {
+		healAmount = missingHP
+	}
+	removeInventoryQuantity(c, index, 1)
+	c.CurrentHP += healAmount
+	return true
+}
+
+func TakeManaPotSilent(c *Character, index int) bool {
+	if index < 0 || index >= len(c.Inventory) || c.Inventory[index].Name != "Potion de mana" || c.Mana >= c.MaxMana {
+		return false
+	}
+	c.Mana += 50
+	if c.Mana > c.MaxMana {
+		c.Mana = c.MaxMana
+	}
+	removeInventoryQuantity(c, index, 1)
+	return true
+}

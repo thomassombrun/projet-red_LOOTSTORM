@@ -1,6 +1,9 @@
 package library
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func MerchantMenu(c *Character) {
 	for {
@@ -84,20 +87,22 @@ func MerchantMenu(c *Character) {
 }
 
 func BuyItem(c *Character, itemName string, price int) bool {
+	if itemName == "Amelioration d'inventaire" && c.LimitInventoryUpgrade >= 3 {
+		fmt.Println("Vous avez déjà utilisé les 3 améliorations d'inventaire disponibles.")
+		return false
+	}
+	if alreadyKnowsSpell(c, itemName) {
+		fmt.Println("Vous connaissez déjà ce sort.")
+		return false
+	}
 	if c.Gold < price {
 		fmt.Println()
 		fmt.Println("Vous n'avez pas assez de pièces d'or.")
 		return false
 	}
 
-	itemExists := false
-	for _, item := range c.Inventory {
-		if item.Name == itemName {
-			itemExists = true
-			break
-		}
-	}
-	if !itemExists && IsInventoryFull(c) {
+	if InventoryCount(c)+1 > c.LimitInventory {
+		IsInventoryFull(c)
 		return false
 	}
 
@@ -109,6 +114,46 @@ func BuyItem(c *Character, itemName string, price int) bool {
 	fmt.Printf("Prix : %d pièces d'or\n", price)
 	fmt.Printf("Pièces d'or restantes : %d\n", c.Gold)
 	return true
+}
+
+// BuyItemSilent applies a purchase without writing to the console.
+func BuyItemSilent(c *Character, itemName string, price int) bool {
+	if itemName == "Amelioration d'inventaire" && c.LimitInventoryUpgrade >= 3 {
+		return false
+	}
+	if alreadyKnowsSpell(c, itemName) {
+		return false
+	}
+	if c.Gold < price {
+		return false
+	}
+	if InventoryCount(c)+1 > c.LimitInventory {
+		return false
+	}
+	c.Gold -= price
+	c.AddOrMergeItem(itemName, 1)
+	return true
+}
+
+// alreadyKnowsSpell reports whether itemName is a spell book for a skill the character already
+// knows or already owns unread in their inventory.
+func alreadyKnowsSpell(c *Character, itemName string) bool {
+	const spellPrefix = "Livre de Sort : "
+	if !strings.HasPrefix(itemName, spellPrefix) {
+		return false
+	}
+	for _, item := range c.Inventory {
+		if item.Name == itemName {
+			return true
+		}
+	}
+	spellName := strings.TrimPrefix(itemName, spellPrefix)
+	for _, knownSkill := range c.Skill {
+		if knownSkill.Name == spellName {
+			return true
+		}
+	}
+	return false
 }
 
 func SellItem(c *Character) {

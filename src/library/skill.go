@@ -53,6 +53,34 @@ func LearnSpellBook(c *Character, itemName string) {
 	}
 }
 
+func LearnSpellBookSilent(c *Character, itemName string) {
+	var skill Skill
+	switch itemName {
+	case "Livre de Sort : Boule de Feu":
+		skill = Skill{Name: "Boule de Feu", Damage: 35, ManaCost: 50}
+	case "Livre de Sort : Soin":
+		skill = Skill{Name: "Soin", HealAmount: 30, ManaCost: 40}
+	case "Livre de Sort : Régénération":
+		skill = Skill{Name: "Régénération", HealAmount: 10, EffectTurns: 3, ManaCost: 30}
+	case "Livre de Sort : Poison":
+		skill = Skill{Name: "Poison", Damage: 10, EffectTurns: 3, ManaCost: 25}
+	case "Livre de Sort : Brûlure":
+		skill = Skill{Name: "Brûlure", Damage: 15, EffectTurns: 2, ManaCost: 30}
+	case "Livre de Sort : Éclair":
+		skill = Skill{Name: "Éclair", Damage: 15, Initiative: -15, ManaCost: 20}
+	case "Livre de Sort : Barrière Sacrée":
+		skill = Skill{Name: "Barrière Sacrée", EffectTurns: 1, ManaCost: 35}
+	default:
+		return
+	}
+	for _, knownSkill := range c.Skill {
+		if knownSkill.Name == skill.Name {
+			return
+		}
+	}
+	c.Skill = append(c.Skill, skill)
+}
+
 func learnSkill(c *Character, skill Skill) {
 	for _, knownSkill := range c.Skill {
 		if knownSkill.Name == skill.Name {

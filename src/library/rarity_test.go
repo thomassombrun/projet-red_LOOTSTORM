@@ -76,6 +76,57 @@ func TestWeaponBonusCountsInAttackDamage(t *testing.T) {
 	}
 }
 
+func TestInventoryCapacityCountsStackedItems(t *testing.T) {
+	c := InitCharacter("Test", "Guerrier", 100)
+	for i := 0; i < 7; i++ {
+		if !BuyItemSilent(&c, "Potion de vie", 1) {
+			t.Fatalf("l'achat de la potion %d aurait dû être accepté", i+1)
+		}
+	}
+	if InventoryCount(&c) != c.LimitInventory {
+		t.Fatalf("inventaire attendu à %d objets, obtenu %d", c.LimitInventory, InventoryCount(&c))
+	}
+	if BuyItemSilent(&c, "Potion de vie", 1) {
+		t.Fatal("une potion supplémentaire ne doit pas dépasser la capacité")
+	}
+}
+
+func TestArcherBenefitsFromEveryBow(t *testing.T) {
+	c := InitCharacter("Test", "Archer", 100)
+	c.Inventory = []Item{{Name: "Arc long", Quantity: 1, Rarity: RarityCommon}}
+	EquipItem(&c, "Arc long", 0)
+	if c.Equip.Weapon != "Arc long [Commun]" {
+		t.Fatalf("l'arc long doit être équipé, obtenu %q", c.Equip.Weapon)
+	}
+	if c.Equip.WeaponDamage != 14 {
+		t.Fatalf("bonus attendu de 14 dégâts, obtenu %d", c.Equip.WeaponDamage)
+	}
+	if BasicAttackDamage(&c) != 52 {
+		t.Fatalf("l'archer devrait doubler les dégâts avec l'arc long, obtenu %d", BasicAttackDamage(&c))
+	}
+}
+
+func TestDuckIsAnEliteNonBossMonster(t *testing.T) {
+	duck := InitDuck()
+	if duck.Pattern != "duck" || duck.MaxHP != 300 || duck.Attack != 28 || duck.Initiative != 140 {
+		t.Fatalf("statistiques du canard inattendues : %+v", duck)
+	}
+	if duck.XPReward <= 400 || duck.GoldReward <= 50 {
+		t.Fatalf("récompenses du canard trop faibles : XP=%d or=%d", duck.XPReward, duck.GoldReward)
+	}
+}
+
+func TestAssassinStatsAreNotOverpowered(t *testing.T) {
+	c := InitCharacter("Test", "Assassin", 100)
+	if c.Attack != 6 || c.Initiative != 125 {
+		t.Fatalf("statistiques de l'assassin inattendues : attaque=%d initiative=%d", c.Attack, c.Initiative)
+	}
+	m := InitGoblinLevel("Gobelin", 5)
+	if m.Attack != 13 {
+		t.Fatalf("attaque du gobelin niveau 5 attendue à 13, obtenue %d", m.Attack)
+	}
+}
+
 func TestReplaceEquipmentSameCategory(t *testing.T) {
 	c := InitCharacter("Test", "Guerrier", 100)
 	c.Equip.Boots = "Bottes de slime [Commun]"

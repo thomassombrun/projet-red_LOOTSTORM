@@ -19,6 +19,7 @@ func StartAdventure(c *Character) {
 		floor := dungeonFloor(roomNumber)
 		ClearTerminal()
 		fmt.Printf("===== ÉTAGE %d - SALLE %d =====\n", floor, roomNumber)
+		fmt.Printf("Niveau du joueur : %d\n", c.Level)
 
 		roomCleared := playRandomRoom(c, roomNumber, random)
 		if !roomCleared {
@@ -98,7 +99,7 @@ func scaleSpecialMonster(monster Monster, roomNumber int) Monster {
 	monster.Level = level
 	monster.MaxHP += (level - 1) * 25
 	monster.CurrentHP = monster.MaxHP
-	monster.Attack += (level - 1) * 3
+	monster.Attack += (level - 1) * 2
 	monster.Initiative += (level - 1) * 2
 	monster.XPReward += (level - 1) * 40
 	monster.GoldReward += (level - 1) * 20

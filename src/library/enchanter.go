@@ -73,3 +73,20 @@ func enchantSkill(c *Character, index int) {
 	fmt.Printf("%s a été enchanté : dégâts des sorts +5.\n", skill.Name)
 	fmt.Printf("Or restant : %d\n", c.Gold)
 }
+
+func EnchantSkillSilent(c *Character, index int) bool {
+	if index < 0 || index >= len(c.Skill) || c.Skill[index].Damage <= 0 {
+		return false
+	}
+	cost := enchantmentCost(c.Skill[index])
+	if c.Gold < cost {
+		return false
+	}
+	c.Gold -= cost
+	c.Skill[index].Damage += 5
+	return true
+}
+
+func EnchantmentCost(skill Skill) int {
+	return enchantmentCost(skill)
+}
