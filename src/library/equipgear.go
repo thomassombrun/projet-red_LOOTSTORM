@@ -18,14 +18,6 @@ func currentEquippedForSlot(c *Character, slotType string) string {
 }
 
 func EquipItem(c *Character, itemName string, index int) {
-	equipItem(c, itemName, index, true)
-}
-
-func EquipItemDirect(c *Character, itemName string, index int) {
-	equipItem(c, itemName, index, false)
-}
-
-func equipItem(c *Character, itemName string, index int, askReplacement bool) {
 	var slotType string
 	var hpBonus int
 	var weaponDamage int
@@ -33,6 +25,9 @@ func equipItem(c *Character, itemName string, index int, askReplacement bool) {
 
 	normalizedName := normalizeItemName(itemName)
 	itemRarity := parseItemRarity(itemName)
+	if index >= 0 && index < len(c.Inventory) && c.Inventory[index].Rarity != "" {
+		itemRarity = c.Inventory[index].Rarity
+	}
 	baseName := normalizedName
 
 	switch baseName {
@@ -45,7 +40,7 @@ func equipItem(c *Character, itemName string, index int, askReplacement bool) {
 	case "Bottes de l'aventurier":
 		slotType = "Boots"
 		hpBonus = 15
-	case "Dague de l'assassin", "Arc du chasseur", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime":
+	case "Dague de l'assassin", "Arc du chasseur", "Arc long", "Arc composite", "Arc elfique", "Marteau du guerrier", "Épée du chevalier", "Lame de gobelin", "Bave de slime":
 		slotType = "Weapon"
 		weaponDamage = weaponDamageBonus(baseName)
 	case "Lame spectrale", "Massue de troll", "Bec du canard", "Épée squelette", "Crocs du loup", "Bâton maudit", "Griffe du dragon":
@@ -64,31 +59,11 @@ func equipItem(c *Character, itemName string, index int, askReplacement bool) {
 		slotType = "Boots"
 		hpBonus = equipmentHPBonus(baseName)
 	default:
-		fmt.Println("Cet objet ne peut pas être équipé.")
 		return
 	}
 	currentEquipped := currentEquippedForSlot(c, slotType)
-	if currentEquipped != "" && currentEquipped != "Aucun" && normalizeItemName(currentEquipped) != baseName {
-		if !askReplacement {
-			replaceExisting = true
-		} else {
-			fmt.Println("Vous avez déjà un équipement dans cette catégorie :")
-			fmt.Printf("- Actuel : %s%s\n", currentEquipped, itemStatSummary(currentEquipped))
-			fmt.Printf("- Nouveau : %s%s\n", equipmentDisplayName(baseName, itemRarity), itemStatSummary(itemName))
-			fmt.Println("1. Équiper le nouvel objet et remettre l'ancien dans l'inventaire")
-			fmt.Println("2. Garder l'ancien équipement")
-			fmt.Print("Votre choix : ")
-
-			var choice int
-			fmt.Scanln(&choice)
-			if choice == 2 {
-				if c.Inventory[index].Quantity <= 0 {
-					c.Inventory = append(c.Inventory[:index], c.Inventory[index+1:]...)
-				}
-				return
-			}
-			replaceExisting = true
-		}
+	if currentEquipped != "" && currentEquipped != "Aucun" {
+		replaceExisting = true
 	}
 
 	item := &c.Inventory[index]
@@ -97,32 +72,36 @@ func equipItem(c *Character, itemName string, index int, askReplacement bool) {
 		c.Inventory = append(c.Inventory[:index], c.Inventory[index+1:]...)
 	}
 
+	baseStatsMultiplier := rarityMultiplier(itemRarity)
 	if slotType == "Weapon" {
-		weaponDamage = scaledEquipmentStat(weaponDamage, itemRarity)
+		weaponDamage = int(float64(weaponDamage) * baseStatsMultiplier)
 	}
 	if slotType != "Weapon" {
-		hpBonus = scaledEquipmentStat(hpBonus, itemRarity)
+		hpBonus = int(float64(hpBonus) * baseStatsMultiplier)
 	}
 
 	switch slotType {
 	case "Helmet":
 		if replaceExisting && c.Equip.Helmet != "" && c.Equip.Helmet != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Helmet, 1)
-			c.MaxHP -= scaledEquipmentStat(equipmentHPBonus(c.Equip.Helmet), parseItemRarity(c.Equip.Helmet))
+			c.MaxHP -= c.Equip.HelmetHP
 		}
 		c.Equip.Helmet = equipmentDisplayName(baseName, itemRarity)
+		c.Equip.HelmetHP = hpBonus
 	case "Chestplate":
 		if replaceExisting && c.Equip.Chestplate != "" && c.Equip.Chestplate != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Chestplate, 1)
-			c.MaxHP -= scaledEquipmentStat(equipmentHPBonus(c.Equip.Chestplate), parseItemRarity(c.Equip.Chestplate))
+			c.MaxHP -= c.Equip.ChestplateHP
 		}
 		c.Equip.Chestplate = equipmentDisplayName(baseName, itemRarity)
+		c.Equip.ChestplateHP = hpBonus
 	case "Boots":
 		if replaceExisting && c.Equip.Boots != "" && c.Equip.Boots != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Boots, 1)
-			c.MaxHP -= scaledEquipmentStat(equipmentHPBonus(c.Equip.Boots), parseItemRarity(c.Equip.Boots))
+			c.MaxHP -= c.Equip.BootsHP
 		}
 		c.Equip.Boots = equipmentDisplayName(baseName, itemRarity)
+		c.Equip.BootsHP = hpBonus
 	case "Weapon":
 		if replaceExisting && c.Equip.Weapon != "" && c.Equip.Weapon != "Aucun" {
 			c.AddOrMergeItem(c.Equip.Weapon, 1)
@@ -136,7 +115,6 @@ func equipItem(c *Character, itemName string, index int, askReplacement bool) {
 	if c.CurrentHP > c.MaxHP {
 		c.CurrentHP = c.MaxHP
 	}
-	fmt.Printf("Vous avez équipé : %s (+%d PV Max)\n", equipmentDisplayName(baseName, itemRarity), hpBonus)
 }
 
 func weaponDamageBonus(itemName string) int {
@@ -144,7 +122,15 @@ func weaponDamageBonus(itemName string) int {
 	switch base {
 	case "Dague de l'assassin", "Bave de slime":
 		return 8
-	case "Arc du chasseur", "Lame de gobelin":
+	case "Arc du chasseur":
+		return 10
+	case "Arc long":
+		return 14
+	case "Arc composite":
+		return 18
+	case "Arc elfique":
+		return 24
+	case "Lame de gobelin":
 		return 10
 	case "Lame spectrale", "Bâton maudit":
 		return 14

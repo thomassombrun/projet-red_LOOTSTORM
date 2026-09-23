@@ -40,19 +40,6 @@ func EnchanterMenu(c *Character) {
 	}
 }
 
-func EnchantSkill(c *Character, index int) bool {
-	if index < 0 || index >= len(c.Skill) || c.Skill[index].Damage <= 0 {
-		return false
-	}
-	cost := enchantmentCost(c.Skill[index])
-	if c.Gold < cost {
-		return false
-	}
-	c.Gold -= cost
-	c.Skill[index].Damage += 5
-	return true
-}
-
 func enchantmentCost(skill Skill) int {
 	return 20 + skill.Damage*2
 }

@@ -137,6 +137,8 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 	WaitForEnter()
 
 	for c.CurrentHP > 0 && m.CurrentHP > 0 {
+		ClearTerminal()
+
 		fmt.Println()
 		fmt.Printf("========== TOUR %d ==========\n", turn)
 
@@ -265,6 +267,8 @@ func normalFight(c *Character, m *Monster, previousRoom int) bool {
 
 func CharacterTurn(c *Character, m *Monster) {
 	for {
+		ClearTerminal()
+
 		fmt.Println()
 		fmt.Println("===== TOUR DU JOUEUR =====")
 		fmt.Println("1. Attaquer")
@@ -383,6 +387,50 @@ func MonsterAttack(m *Monster, c *Character, turn int) {
 		fmt.Printf("PV de %s : %d / %d\n", m.Name, m.CurrentHP, m.MaxHP)
 	}
 }
+
+type CombatReward struct {
+	XP        int
+	Gold      int
+	Drops     []string
+	NewLevels int
+}
+
+func CollectCombatReward(c *Character, m *Monster) CombatReward {
+	reward := CombatReward{XP: m.XPReward, Gold: m.GoldReward}
+	if reward.XP > 0 {
+		reward.NewLevels = GainExperienceSilent(c, reward.XP)
+	}
+	c.Gold += reward.Gold
+
+	if rand.Intn(100) < 32 {
+		pool := generateMonsterEquipment(m.Pattern, c.LastClearedRoom+1)
+		for _, baseName := range pool {
+			rarity := rollEquipmentRarity(c.LastClearedRoom + 1)
+			drop := equipmentDisplayName(baseName, rarity)
+			if !canStoreRewardItem(c, drop) {
+				continue
+			}
+			c.AddOrMergeItem(drop, 1)
+			reward.Drops = append(reward.Drops, drop)
+			if rand.Intn(100) >= 25 {
+				break
+			}
+		}
+	}
+	return reward
+}
+
+func canStoreRewardItem(c *Character, itemName string) bool {
+	baseName := normalizeItemName(itemName)
+	rarity := parseItemRarity(itemName)
+	for _, item := range c.Inventory {
+		if normalizeItemName(item.Name) == baseName && item.Rarity == rarity {
+			return true
+		}
+	}
+	return InventoryCount(c) < c.LimitInventory
+}
+
 func GiveCombatReward(c *Character, m *Monster) {
 
 	fmt.Println()
@@ -411,42 +459,35 @@ func GiveCombatReward(c *Character, m *Monster) {
 }
 
 func dropMonsterEquipment(c *Character, m *Monster) {
-	for _, drop := range collectMonsterEquipment(c, m) {
-		fmt.Printf("%s a laissé tomber : %s !\n", m.Name, drop)
-	}
-}
-
-func DropMonsterEquipment(c *Character, m *Monster) []string {
-	return collectMonsterEquipment(c, m)
-}
-
-func collectMonsterEquipment(c *Character, m *Monster) []string {
-	if rand.Intn(100) >= 35 {
-		return nil
+	if rand.Intn(100) >= 32 {
+		return
 	}
 
 	pool := generateMonsterEquipment(m.Pattern, c.LastClearedRoom+1)
 	if len(pool) == 0 {
-		return nil
+		return
 	}
 
-	drops := make([]string, 0, len(pool))
 	for _, baseName := range pool {
 		rarity := rollEquipmentRarity(c.LastClearedRoom + 1)
 		drop := equipmentDisplayName(baseName, rarity)
+		fmt.Printf("%s a laissé tomber : %s !\n", m.Name, drop)
 		c.AddOrMergeItem(drop, 1)
-		drops = append(drops, drop)
 		if rand.Intn(100) < 25 {
 			break
 		}
 	}
-	return drops
 }
 
 func GainExperience(c *Character, amount int) {
 	fmt.Printf("%s gagne %d points d'expérience !\n", c.Name, amount)
-	c.CurrentXP += amount
+	GainExperienceSilent(c, amount)
+	fmt.Printf("XP : %d / %d\n", c.CurrentXP, c.MaxXP)
+}
 
+func GainExperienceSilent(c *Character, amount int) int {
+	levelsGained := 0
+	c.CurrentXP += amount
 	for c.CurrentXP >= c.MaxXP {
 		c.CurrentXP -= c.MaxXP
 		c.Level++
@@ -461,18 +502,15 @@ func GainExperience(c *Character, amount int) {
 		}
 		c.MaxMana += manaGain
 		c.Mana += manaGain
-
 		for i := range c.Skill {
 			c.Skill[i].Damage += 2
 		}
-
-		fmt.Printf("Niveau %d atteint ! Attaque +2, PV max +10, mana max +%d, initiative +5, dégâts des sorts +2.\n", c.Level, manaGain)
+		levelsGained++
 	}
-
 	if c.CurrentHP > c.MaxHP {
 		c.CurrentHP = c.MaxHP
 	}
-	fmt.Printf("XP : %d / %d\n", c.CurrentXP, c.MaxXP)
+	return levelsGained
 }
 
 func RegenerateMana(c *Character) {
