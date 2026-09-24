@@ -1,5 +1,17 @@
 # projet-red_LOOTSTORM
 
+Ceci est un jeu en langage GO, nous nous sommes inspirés des jeux dans le style Donjons & Dragons pour le thème et RPG pour le gameplay (style Roguelite)
+
+## Lancer juste le backend
+
+Depuis le terminal :
+
+```bash
+go run ./src
+```
+
+Utilisez les numéros de 1 à 9 pour faire vos choix et 0 pour revenir en arrière
+
 ## Lancer le frontend Ebiten
 
 Depuis la racine du projet :
